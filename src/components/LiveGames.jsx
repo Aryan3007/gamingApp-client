@@ -1,3 +1,6 @@
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+
 export default function LiveGames() {
     const liveGames = [
       {
@@ -38,7 +41,27 @@ export default function LiveGames() {
   
     return (
       <div className="bg-gray-900 p-4">
-        <h2 className="text-xl font-bold text-white mb-4">Live Games</h2>
+         <Carousel className='cursor-not-allowed' autoPlay
+          interval={3000}
+          infiniteLoop
+          showThumbs={false}
+          showStatus={false}>
+                <div>
+                    <img className='h-56 rounded-lg' src="https://images.unsplash.com/photo-1671655135696-ccf6f206d2b9?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                   
+                </div>
+                <div>
+                    <img className='h-56 rounded-lg' src="https://images.unsplash.com/photo-1726161113123-98d414829399?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                    
+                </div>
+                <div>
+                    <img className='h-56 rounded-lg' src="https://images.unsplash.com/photo-1671824269494-5844fb7f482b?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+               
+                </div>
+            </Carousel>
+
+
+        <h2 className="text-xl font-bold text-white my-4">Live Games</h2>
         <div className="space-y-4">
           {liveGames.map((game) => (
             <div key={game.id} className="bg-gray-800 p-4 rounded">

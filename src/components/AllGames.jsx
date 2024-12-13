@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Menu } from 'lucide-react'
 
 export default function AllGames() {
   const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef(null)
 
   const games = [
     { id: 1, name: 'Cricket', count: 20 },
@@ -17,23 +18,42 @@ export default function AllGames() {
     { id: 10, name: 'Ice Hockey', count: 77 },
   ]
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
-    <div className="bg-gray-900 text-white">
+    <div className=" text-white">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden p-4 hover:bg-gray-800"
+        className="md:hidden  flex gap-2 items-center top-16 left-4 z-50 p-2 mt-4 ml-2 bg-gray-800 rounded-md hover:bg-gray-700"
+        aria-label="Toggle menu"
       >
-        <Menu className="h-6 w-6" />
+        <Menu className="h-6 w-6" /> All Sports
       </button>
 
-      <div className={`${isOpen ? 'block' : 'hidden'} md:block`}>
+      <div
+        ref={menuRef}
+        className={`fixed inset-y-0 left-0 z-40 w-64 lg:w-auto md:bg-transparent bg-gray-800 mt-4 rounded-lg transform ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
+      >
         <div className="p-4">
-          <h2 className="text-xl font-bold mb-4">All Sports</h2>
-          <div className="space-y-2">
+          <h2 className="text-xl font-bold lg:mt-0 mt-12 mb-4">All Sports</h2>
+          <div className="space-y-2 lg:pt-4">
             {games.map((game) => (
               <div
                 key={game.id}
-                className="flex justify-between items-center p-2 hover:bg-gray-800 rounded cursor-pointer"
+                className="flex justify-between items-center p-2 px-1 hover:bg-gray-800 rounded cursor-pointer"
               >
                 <span>{game.name}</span>
                 <span className="text-gray-400">({game.count})</span>
@@ -42,6 +62,13 @@ export default function AllGames() {
           </div>
         </div>
       </div>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
     </div>
   )
 }

@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Mail, Lock, User } from 'lucide-react'
+import { Mail, Lock, User, LucideCurrency } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [currency, setCurrency] = useState("");
+
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -13,7 +15,7 @@ export default function Register() {
   }
 
   return (
-    <div className='h-screen bg-gray-950 flex justify-center items-center'>
+    <div className='max-h-lvh bg-gray-950 flex justify-center items-center'>
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-gray-900 rounded-lg shadow-lg lg:max-w-4xl">
         <div className="hidden bg-cover lg:block lg:w-1/2" style={{backgroundImage: "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')"}}></div>
 
@@ -64,6 +66,32 @@ export default function Register() {
                 />
               </div>
             </div>
+
+
+            <div className="mt-4">
+  <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="CurrencySelect">Select Currency</label>
+  <div className="relative">
+    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+      <LucideCurrency className="w-5 h-5 text-gray-400" />
+    </span>
+    <select
+      id="CurrencySelect"
+      className="block w-full pl-10 pr-4 py-2 text-gray-300 bg-gray-700 border rounded-lg border-gray-600 focus:border-blue-400 focus:ring-opacity-40 focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300 appearance-none"
+      value={currency}
+      onChange={(e) => setCurrency(e.target.value)}
+      required
+    >
+      <option value="" disabled>Select a currency</option>
+      <option value="USD">USD</option>
+      <option value="RUB">RUBEL</option>
+      <option value="AED">AED</option>
+      <option value="INR">INR</option>
+    </select>
+  </div>
+</div>
+
+
+
 
             <div className="mt-4">
               <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="RegisterEmailAddress">Email Address</label>

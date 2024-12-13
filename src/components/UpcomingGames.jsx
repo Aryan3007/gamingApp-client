@@ -6,13 +6,13 @@ export default function UpcomingGames() {
         date: '06/12/2024',
         time: '03:30:00 (UTC+05:30)'
       },  {
-        id: 1,
+        id: 2,
         teams: 'New Zealand v England',
         date: '06/12/2024',
         time: '03:30:00 (UTC+05:30)'
       },
       {
-        id: 2,
+        id: 3,
         teams: 'India v Australia',
         date: '07/12/2024',
         time: '14:00:00 (UTC+05:30)'

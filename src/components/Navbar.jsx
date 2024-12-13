@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Menu, X, User, ChevronDown, Wallet } from 'lucide-react'
+import { Menu, X, User, Wallet } from 'lucide-react'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const navItems = [
     { name: 'Exchange', href: '#' },
@@ -13,13 +13,13 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-500 to-indigo-900">
+    <nav className="bg-gradient-to-r fixed w-full z-[99] from-indigo-500 to-indigo-900">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-12">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               {/* <img className="h-8 w-auto" src="/placeholder.svg?height=32&width=32" alt="Logo" /> */}
-              <h1 className='text-white font-bold text-2xl'>Gamingg</h1>
+              <h1 className='text-white font-bold text-2xl'>Bet/Exch</h1>
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
@@ -42,61 +42,16 @@ export default function Navbar() {
                 <Bell className="h-6 w-6" />
               </button> */}
               
-              <button> <span className='flex gap-2 rounded-full px-4 py-1 text-white font-semibold'>Wallet <Wallet className='text-white'/></span> </button>
+              <button> <span className='flex gap-2 rounded-full px-4 py-1 text-white font-semibold'> <Wallet className='text-white'/> Wallet : $ 9999 </span> </button>
 
-              <div className="ml-3 relative">
-                <div>
-                  <button
-                    className="max-w-xs px-4  rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-800 focus:ring-white"
-                    id="user-menu"
-                    aria-haspopup="true"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  >
-                    <span className="sr-only">Open user menu</span>
-                    <h1 className='text-white font-semibold'>Profile</h1>
-                    <User className="h-8 w-8 rounded-full p-1 text-gray-200" />
-                    <ChevronDown className="h-4 w-4 text-gray-200 ml-1" />
-                  </button>
-                  
-                </div>
-                {isDropdownOpen && (
-                  <div
-                    className="origin-top-right absolute right-0 mt-2 w-48 rounded-md py-1 bg-gray-900 shadow-2xl ring-1 ring-black ring-opacity-5"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="user-menu"
-                  >
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-800"
-                      role="menuitem"
-                    >
-                      Your Profile
-                    </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-800"
-                      role="menuitem"
-                    >
-                      History
-                    </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-800"
-                      role="menuitem"
-                    >
-                      Sign out
-                    </a>
-                  </div>
-                )}
-              </div>
+             
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="bg-indigo-700 inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-800 focus:ring-white"
+              className=" inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white "
               aria-controls="mobile-menu"
               aria-expanded="false"
             >

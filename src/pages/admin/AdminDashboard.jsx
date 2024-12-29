@@ -1,9 +1,9 @@
-import  { useState } from 'react';
-import Sidebar from './Sidebar';
-import Content from './Content';
+import { useState } from "react";
+import Sidebar from "./Sidebar";
+import Content from "./Content";
 
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
     <div className="flex h-screen">
@@ -11,5 +11,6 @@ export default function AdminDashboard() {
       <Content activeTab={activeTab} />
     </div>
   );
-}
+};
 
+export default AdminDashboard;

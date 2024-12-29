@@ -1,58 +1,57 @@
-import { useState } from 'react';
-import { Mail, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import Cookies from 'js-cookie';
-import axios from 'axios';
+import axios from "axios";
+import { Lock, Mail } from "lucide-react";
+import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { server } from "../constants/config";
+import { userExist } from "../redux/reducer/userReducer";
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    const toastId = toast.loading("Logging In...");
+
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/user/login', {
-        email,
-        password,
-      }, { withCredentials: true });
-  
-      if (response.data.success) {
-
-        // Check if the token exists before setting the cookie
-        if (response.data.token) {
-          Cookies.set('GAME_TOKEN', response.data.token, { expires: 7 });
+      const { data } = await axios.post(
+        `${server}/api/v1/user/login`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-  
-        // Show success toast
-        toast.success(response.data.message);
-  
-        // Redirect based on role
-        const userRole = response.data.user.role;
-        if (userRole === 'admin') {
-          navigate('/admin_dashboard');
-        } else {
-          navigate('/');
-        }
-      }
+      );
 
-      // In your handleSubmit function after setting the cookie
-console.log(Cookies.get('GAME_TOKEN')); // Log to check if it's saved
-
+      dispatch(userExist(data.user));
+      toast.success(data.message, { id: toastId });
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(error.response.data.message);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message, {
+          id: toastId,
+        });
       } else {
-        toast.error('Something went wrong. Please try again later.');
+        toast.error("Something went wrong. Please try again later.", {
+          id: toastId,
+        });
       }
     }
   };
-  
 
   return (
-    <div className='h-screen bg-gray-950 flex justify-center items-center'>
+    <div className="h-screen bg-gray-950 flex justify-center items-center">
       <Toaster position="top-center" />
 
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-gray-900 rounded-lg shadow-lg lg:max-w-4xl">
@@ -73,7 +72,9 @@ console.log(Cookies.get('GAME_TOKEN')); // Log to check if it's saved
             />
           </div>
 
-          <p className="mt-3 text-xl text-center text-gray-100">Welcome back!</p>
+          <p className="mt-3 text-xl text-center text-gray-100">
+            Welcome back!
+          </p>
 
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b border-gray-600 lg:w-1/4"></span>
@@ -119,10 +120,7 @@ console.log(Cookies.get('GAME_TOKEN')); // Log to check if it's saved
                 >
                   Password
                 </label>
-                <a
-                  href="#"
-                  className="text-xs text-gray-400 hover:underline"
-                >
+                <a href="#" className="text-xs text-gray-400 hover:underline">
                   Forget Password?
                 </a>
               </div>
@@ -142,17 +140,15 @@ console.log(Cookies.get('GAME_TOKEN')); // Log to check if it's saved
             </div>
 
             <div className="mt-6">
-              <button
-                className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
-              >
+              <button className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-50">
                 Sign In
               </button>
             </div>
           </form>
-
-          
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Login;

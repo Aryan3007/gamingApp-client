@@ -1,33 +1,78 @@
-import { Route, Routes } from "react-router-dom"
-import Dashboard from "./pages/Dashboard"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
-import Navbar from "./components/Navbar"
-import MatchDetails from "./components/MatchDetails"
-import AdminDashboard from "./pages/admin/AdminDashboard"
-import { Toaster } from 'react-hot-toast';
+import axios from "axios";
+import { lazy, Suspense, useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import Loader from "./components/Loader";
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { server } from "./constants/config";
+import { userExist, userNotExist } from "./redux/reducer/userReducer";
 
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const MatchDetails = lazy(() => import("./components/MatchDetails"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
-function App() {
+const App = () => {
+  const { user, loading } = useSelector((state) => state.userReducer);
+  const dispatch = useDispatch();
 
-  return (
-    <>
-    <Navbar/>
-    <div className="pt-10">
-    <Toaster />
+  useEffect(() => {
+    const fetchUser = async () => {
+      await axios
+        .get(`${server}/api/v1/user/me`, {
+          withCredentials: true,
+        })
+        .then(({ data }) => dispatch(userExist(data.user)))
+        .catch(() => dispatch(userNotExist()));
+    };
 
+    fetchUser();
+  }, [dispatch]);
 
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/match/:id" element={<MatchDetails />} />
-        <Route path="/admin_dashboard" element={<AdminDashboard />} />
+  return loading ? (
+    <Loader />
+  ) : (
+    <Router>
+      <Navbar />
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/match/:id" element={<MatchDetails />} />
 
-      </Routes>
-    </div>
-    </>
-  )
-}
+          {/* Not logged In Route */}
+          <Route
+            path="/login"
+            element={
+              <ProtectedRoute isAuthenticated={user ? false : true}>
+                <Login />
+              </ProtectedRoute>
+            }
+          />
 
-export default App
+          {/* Admin Routes */}
+          <Route
+            element={
+              <ProtectedRoute
+                isAuthenticated={true}
+                adminOnly={true}
+                admin={user?.role === "admin"}
+              />
+            }
+          >
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/register" element={<Register />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+      <Toaster position="bottom-center" />
+    </Router>
+  );
+};
+
+export default App;

@@ -1,27 +1,36 @@
-import { useState } from 'react'
-import { Mail, Lock, User, LucideCurrency } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState } from "react";
+import { Mail, Lock, User, LucideCurrency } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export default function Register() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+const Register = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [currency, setCurrency] = useState("");
 
-
   const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Registration attempt', { name, email, password })
-  }
+    e.preventDefault();
+    console.log("Registration attempt", { name, email, password });
+  };
 
   return (
-    <div className='max-h-lvh bg-gray-950 flex justify-center items-center'>
+    <div className="max-h-lvh bg-gray-950 flex justify-center items-center">
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-gray-900 rounded-lg shadow-lg lg:max-w-4xl">
-        <div className="hidden bg-cover lg:block lg:w-1/2" style={{backgroundImage: "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')"}}></div>
+        <div
+          className="hidden bg-cover lg:block lg:w-1/2"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')",
+          }}
+        ></div>
 
         <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
           <div className="flex justify-center mx-auto">
-            <img className="w-auto h-7 sm:h-8" src="/placeholder.svg?height=32&width=32" alt="Logo" />
+            <img
+              className="w-auto h-7 sm:h-8"
+              src="/placeholder.svg?height=32&width=32"
+              alt="Logo"
+            />
           </div>
 
           <p className="mt-3 text-xl text-center text-gray-100">
@@ -44,14 +53,25 @@ export default function Register() {
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b border-gray-600 lg:w-1/4"></span>
 
-            <a href="#" className="text-xs text-center text-gray-400 uppercase hover:underline"> sign up with email</a>
+            <a
+              href="#"
+              className="text-xs text-center text-gray-400 uppercase hover:underline"
+            >
+              {" "}
+              sign up with email
+            </a>
 
             <span className="w-1/5 border-b border-gray-600 lg:w-1/4"></span>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="mt-4">
-              <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="RegisterName">Full Name</label>
+              <label
+                className="block mb-2 text-sm font-medium text-gray-200"
+                htmlFor="RegisterName"
+              >
+                Full Name
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <User className="w-5 h-5 text-gray-400" />
@@ -67,34 +87,42 @@ export default function Register() {
               </div>
             </div>
 
+            <div className="mt-4">
+              <label
+                className="block mb-2 text-sm font-medium text-gray-200"
+                htmlFor="CurrencySelect"
+              >
+                Select Currency
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <LucideCurrency className="w-5 h-5 text-gray-400" />
+                </span>
+                <select
+                  id="CurrencySelect"
+                  className="block w-full pl-10 pr-4 py-2 text-gray-300 bg-gray-700 border rounded-lg border-gray-600 focus:border-blue-400 focus:ring-opacity-40 focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300 appearance-none"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Select a currency
+                  </option>
+                  <option value="USD">USD</option>
+                  <option value="RUB">RUBEL</option>
+                  <option value="AED">AED</option>
+                  <option value="INR">INR</option>
+                </select>
+              </div>
+            </div>
 
             <div className="mt-4">
-  <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="CurrencySelect">Select Currency</label>
-  <div className="relative">
-    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-      <LucideCurrency className="w-5 h-5 text-gray-400" />
-    </span>
-    <select
-      id="CurrencySelect"
-      className="block w-full pl-10 pr-4 py-2 text-gray-300 bg-gray-700 border rounded-lg border-gray-600 focus:border-blue-400 focus:ring-opacity-40 focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300 appearance-none"
-      value={currency}
-      onChange={(e) => setCurrency(e.target.value)}
-      required
-    >
-      <option value="" disabled>Select a currency</option>
-      <option value="USD">USD</option>
-      <option value="RUB">RUBEL</option>
-      <option value="AED">AED</option>
-      <option value="INR">INR</option>
-    </select>
-  </div>
-</div>
-
-
-
-
-            <div className="mt-4">
-              <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="RegisterEmailAddress">Email Address</label>
+              <label
+                className="block mb-2 text-sm font-medium text-gray-200"
+                htmlFor="RegisterEmailAddress"
+              >
+                Email Address
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <Mail className="w-5 h-5 text-gray-400" />
@@ -111,7 +139,12 @@ export default function Register() {
             </div>
 
             <div className="mt-4">
-              <label className="block mb-2 text-sm font-medium text-gray-200" htmlFor="RegisterPassword">Password</label>
+              <label
+                className="block mb-2 text-sm font-medium text-gray-200"
+                htmlFor="RegisterPassword"
+              >
+                Password
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <Lock className="w-5 h-5 text-gray-400" />
@@ -137,13 +170,19 @@ export default function Register() {
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b border-gray-600 md:w-1/4"></span>
 
-            <Link to={"/login"} className="text-xs text-gray-400 uppercase hover:underline">or login</Link>
+            <Link
+              to={"/login"}
+              className="text-xs text-gray-400 uppercase hover:underline"
+            >
+              or login
+            </Link>
 
             <span className="w-1/5 border-b border-gray-600 md:w-1/4"></span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
+export default Register;

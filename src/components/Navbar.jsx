@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import { Menu, X, User, Wallet } from 'lucide-react'
+import { useState } from "react";
+import { Menu, X, User, Wallet } from "lucide-react";
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const navItems = [
-    { name: 'Exchange', href: '#' },
-    { name: 'Live Casino', href: '#' },
-    { name: 'Slot', href: '#' },
-    { name: 'Fantasy Games', href: '#' },
-  ]
+    { name: "Exchange", href: "#" },
+    { name: "Live Casino", href: "#" },
+    { name: "Slot", href: "#" },
+    { name: "Fantasy Games", href: "#" },
+  ];
 
   return (
     <nav className="bg-gradient-to-r fixed w-full z-[99] from-indigo-500 to-indigo-900">
@@ -19,7 +19,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               {/* <img className="h-8 w-auto" src="/placeholder.svg?height=32&width=32" alt="Logo" /> */}
-              <h1 className='text-white font-bold text-2xl'>Bet/Exch</h1>
+              <h1 className="text-white font-bold text-2xl">Bet/Exch</h1>
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
@@ -41,10 +41,14 @@ export default function Navbar() {
                 <span className="sr-only">View notifications</span>
                 <Bell className="h-6 w-6" />
               </button> */}
-              
-              <button> <span className='flex gap-2 rounded-full px-4 py-1 text-white font-semibold'> <Wallet className='text-white'/> Wallet : $ 9999 </span> </button>
 
-             
+              <button>
+                {" "}
+                <span className="flex gap-2 rounded-full px-4 py-1 text-white font-semibold">
+                  {" "}
+                  <Wallet className="text-white" /> Wallet : $ 9999{" "}
+                </span>{" "}
+              </button>
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -79,23 +83,25 @@ export default function Navbar() {
               </a>
             ))}
           </div>
-          
+
           <div className="pt-4 pb-3 border-t border-indigo-700">
-            
             <div className="flex items-center px-5">
               <div className="flex-shrink-0">
                 <User className="h-10 w-10 rounded-full p-1 bg-indigo-700 text-gray-200" />
               </div>
-              
+
               <div className="ml-3">
-                <div className="text-base font-medium leading-none text-white">Tom Cook</div>
-                <div className="text-sm font-medium leading-none text-gray-400">tom@example.com</div>
+                <div className="text-base font-medium leading-none text-white">
+                  Tom Cook
+                </div>
+                <div className="text-sm font-medium leading-none text-gray-400">
+                  tom@example.com
+                </div>
               </div>
               {/* <button className="ml-auto bg-indigo-600 flex-shrink-0 p-1 rounded-full text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-800 focus:ring-white">
                 <span className="sr-only">View notifications</span>
                 <Bell className="h-6 w-6" />
               </button> */}
-              
             </div>
             <div className="mt-3 px-2 space-y-1">
               <a
@@ -121,6 +127,7 @@ export default function Navbar() {
         </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
+export default Navbar;

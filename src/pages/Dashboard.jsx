@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 import AllGames from "../components/AllGames";
 import LiveGames from "../components/LiveGames";
 import UpcomingGames from "../components/UpcomingGames";
 import BetSlip from "../components/BetSlip";
 
-export default function Dashboard() {
+const Dashboard = () => {
   const [selectedBet, setSelectedBet] = useState(null);
   const [sportsData, setSportsData] = useState([]);
 
@@ -20,10 +20,12 @@ export default function Dashboard() {
   // Fetch sports data
   const fetchSportsData = async () => {
     try {
-      const response = await axios.get('https://api.the-odds-api.com/v4/sports/?apiKey=360301b3df8aa33a83a9541e04ee5ef0');
+      const response = await axios.get(
+        "https://api.the-odds-api.com/v4/sports/?apiKey=360301b3df8aa33a83a9541e04ee5ef0"
+      );
       setSportsData(response.data);
     } catch (error) {
-      console.error('Error fetching sports data:', error);
+      console.error("Error fetching sports data:", error);
     }
   };
 
@@ -44,7 +46,10 @@ export default function Dashboard() {
 
         {/* Main Content Area */}
         <div className="md:col-span-7 lg:pt-0 lg:overflow-y-auto">
-          <LiveGames sportsCatagory={sportsData} onBetSelect={handleBetSelect} />
+          <LiveGames
+            sportsCatagory={sportsData}
+            onBetSelect={handleBetSelect}
+          />
         </div>
 
         {/* Right Sidebar */}
@@ -58,4 +63,6 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default Dashboard;

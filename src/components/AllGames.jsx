@@ -1,22 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-import { Menu } from 'lucide-react'
+import {  ChevronDown, ChevronUp, Menu } from 'lucide-react'
 
-export default function AllGames() {
+export default function AllGames({ sportsData }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [activeGroup, setActiveGroup] = useState(null) // Track which group is open
   const menuRef = useRef(null)
 
-  const games = [
-    { id: 1, name: 'Cricket', count: 20 },
-    { id: 2, name: 'Football', count: 211 },
-    { id: 3, name: 'Tennis', count: 49 },
-    { id: 4, name: 'Table Tennis', count: 72 },
-    { id: 5, name: 'Badminton', count: 3 },
-    { id: 6, name: 'Esoccer', count: 16 },
-    { id: 7, name: 'Basketball', count: 179 },
-    { id: 8, name: 'Volleyball', count: 69 },
-    { id: 9, name: 'Snooker', count: 32 },
-    { id: 10, name: 'Ice Hockey', count: 77 },
-  ]
+  // Group the data by sport category
+  const groupedGames = sportsData.reduce((acc, game) => {
+    if (!acc[game.group]) {
+      acc[game.group] = []
+    }
+    acc[game.group].push(game)
+    return acc
+  }, {})
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -31,11 +28,15 @@ export default function AllGames() {
     }
   }, [])
 
+  const toggleGroup = (group) => {
+    setActiveGroup((prevGroup) => (prevGroup === group ? null : group)) // Toggle open/close group
+  }
+
   return (
-    <div className=" text-white">
+    <div className="text-white">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden  flex gap-2 items-center top-16 left-4 z-50 p-2 mt-4 ml-2 bg-gray-800 rounded-md hover:bg-gray-700"
+        className="md:hidden flex gap-2 items-center top-16 left-4 z-50 p-2 mt-4 ml-2 bg-gray-800 rounded-md hover:bg-gray-700"
         aria-label="Toggle menu"
       >
         <Menu className="h-6 w-6" /> All Sports
@@ -47,16 +48,28 @@ export default function AllGames() {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
       >
-        <div className="p-4">
-          <h2 className="text-xl font-bold lg:mt-0 mt-12 mb-4">All Sports</h2>
-          <div className="space-y-2 lg:pt-4">
-            {games.map((game) => (
-              <div
-                key={game.id}
-                className="flex justify-between items-center p-2 px-1 hover:bg-gray-800 rounded cursor-pointer"
-              >
-                <span>{game.name}</span>
-                <span className="text-gray-400">({game.count})</span>
+        <div className="p-4 pt-0">
+          <div className="space-y-2">
+            {Object.keys(groupedGames).map((group) => (
+              <div key={group}>
+                <button
+                  onClick={() => toggleGroup(group)}
+                  className="w-full flex gap-4 text-left py-2 px-4 bg-gray-800 rounded-md text-white hover:bg-gray-600"
+                >
+                  {group} <span>{activeGroup === group ? <ChevronUp/> : <ChevronDown />}</span>
+                </button>
+                {activeGroup === group && (
+                  <div className="pl-4 mt-2 space-y-1">
+                    {groupedGames[group].map((game) => (
+                      <div
+                        key={game.key}
+                        className="p-2 px-1 text-gray-400 hover:text-gray-100 rounded cursor-pointer"
+                      >
+                        <span>{game.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -72,4 +85,3 @@ export default function AllGames() {
     </div>
   )
 }
-

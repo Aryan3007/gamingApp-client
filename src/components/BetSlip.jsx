@@ -32,7 +32,7 @@ export default function BetSlip({ match, onClose }) {
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-lg font-bold">{match.team1} v {match.team2}</h2>
+          <h2 className="text-lg font-bold">{match.home_team} v {match.away_team}</h2>
           <h3 className="text-gray-400 text-sm">Match Odds</h3>
         </div>
         <div className="text-right">
@@ -83,7 +83,7 @@ export default function BetSlip({ match, onClose }) {
       </div>
 
       {/* Toggle Options */}
-      <div className="flex md:flex-col gap-4 mb-6">
+      <div className="flex md:flex-col gap-4">
         <button
           onClick={() => setKeep(!keep)}
           className={`flex-1 py-1 px-4 rounded ${
@@ -100,6 +100,10 @@ export default function BetSlip({ match, onClose }) {
         >
           Fill Or Kill
         </button>
+      </div>
+
+      <div className=' text-sm w-full my-2'>
+Potential Winning Amount : <span> ${betAmount*match.odds}</span>
       </div>
 
       {/* Quick Bet Amounts */}

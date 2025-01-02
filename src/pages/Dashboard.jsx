@@ -35,7 +35,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="bg-gray-900">
+    <div className="bg-gray-900 pt-12">
       {/* Main Content */}
       <div className="max-w-full mx-auto grid grid-cols-1 md:grid-cols-12  p-0 lg:p-2 lg:h-[calc(100vh-64px)]">
         {/* Left Sidebar */}

@@ -52,9 +52,10 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
+  <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/register" element={<Register />} />
           {/* Admin Routes */}
-          <Route
+          {/* <Route
             element={
               <ProtectedRoute
                 isAuthenticated={true}
@@ -63,9 +64,8 @@ const App = () => {
               />
             }
           >
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/register" element={<Register />} />
-          </Route>
+          
+          </Route> */}
 
           <Route path="*" element={<NotFound />} />
         </Routes>

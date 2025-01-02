@@ -54,7 +54,7 @@ const MatchDetails = () => {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen p-4">
+    <div className="bg-gray-900 pt-20 min-h-screen p-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-3 gap-4">
           {/* Match Info */}

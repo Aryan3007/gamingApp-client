@@ -22,9 +22,14 @@ const App = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("authToken");
+
       await axios
         .get(`${server}/api/v1/user/me`, {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
         .then(({ data }) => dispatch(userExist(data.user)))
         .catch(() => dispatch(userNotExist()));
@@ -52,8 +57,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-  <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/register" element={<Register />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/register" element={<Register />} />
           {/* Admin Routes */}
           {/* <Route
             element={

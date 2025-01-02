@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Lock, Mail } from "lucide-react";
 import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { server } from "../constants/config";
 import { userExist } from "../redux/reducer/userReducer";
@@ -31,6 +31,7 @@ const Login = () => {
         }
       );
 
+      localStorage.setItem("authToken", data.token);
       dispatch(userExist(data.user));
       toast.success(data.message, { id: toastId });
     } catch (error) {
@@ -52,8 +53,6 @@ const Login = () => {
 
   return (
     <div className="h-screen bg-gray-950 flex justify-center items-center">
-      <Toaster position="top-center" />
-
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-gray-900 rounded-lg shadow-lg lg:max-w-4xl">
         <div
           className="hidden bg-cover lg:block lg:w-1/2"

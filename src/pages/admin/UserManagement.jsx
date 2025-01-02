@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
+import { server } from "../../constants/config";
 
 const UserForm = () => {
   const [users, setUsers] = useState([]);
@@ -18,21 +19,17 @@ const UserForm = () => {
   });
 
   useEffect(() => {
-    const token = Cookies.get("GAME_TOKEN");
     const fetchUsers = async () => {
-      console.log("Fetched token from cookies:", token); // Log the token
+      const token = localStorage.getItem("authToken");
 
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/v1/user/allusers",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            withCredentials: true, // Ensure credentials are sent with the request
-          }
-        );
-
+        const response = await axios.get(`${server}/api/v1/user/allusers`, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
         setUsers(response.data.users);
         setFilteredUsers(response.data);
       } catch (error) {
@@ -81,9 +78,9 @@ const UserForm = () => {
         `http://localhost:3000/api/v1/user/new`,
         newUserData,
         {
-          headers: { Authorization: `Bearer ${token}`, },
+          headers: { Authorization: `Bearer ${token}` },
         },
-        { withCredentials: true}, // Ensure credentials are sent with the request
+        { withCredentials: true } // Ensure credentials are sent with the request
       );
       toast.success("User added successfully");
       setUsers((prev) => [...prev, response.data]);
@@ -225,26 +222,28 @@ const UserForm = () => {
             key={index}
             className="block hover:scale-95 duration-150 rounded-lg p-4 shadow-sm shadow-indigo-100"
           >
-             <div>
-                  <dt className="sr-only">Name</dt>
-                  <dd className="font-medium capitalize">{user.name}</dd>
-                </div>
+            <div>
+              <dt className="sr-only">Name</dt>
+              <dd className="font-medium capitalize">{user.name}</dd>
+            </div>
             <div className="mt-2">
               <dl>
                 <div>
                   <dt className="sr-only">Amount</dt>
                   <dd className="text-sm text-gray-400">
-                    Wallet Amount : <span className="text-gray-200">{user.currency} {user.amount}</span> 
+                    Wallet Amount :{" "}
+                    <span className="text-gray-200">
+                      {user.currency} {user.amount}
+                    </span>
                   </dd>
                 </div>
 
                 <div>
                   <dt className="sr-only">Email</dt>
                   <dd className="text-sm text-gray-400">
-                    <span className="text-gray-400">Email : {user.email}</span> 
+                    <span className="text-gray-400">Email : {user.email}</span>
                   </dd>
                 </div>
-               
               </dl>
 
               <div className="mt-6 flex items-center gap-8 text-xs">
@@ -268,14 +267,17 @@ const UserForm = () => {
                     <p className="font-medium">{user.gender}</p>
                   </div>
                 </div>
-
               </div>
             </div>
-                <div className="gap-4 flex justify-between items-center mt-3">
-                  {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
-                  <button className="bg-orange-500 w-full px-4 text-sm py-2 rounded-lg">Ban  User</button>
-                  <button className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg">Add Money</button>
-                </div>
+            <div className="gap-4 flex justify-between items-center mt-3">
+              {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
+              <button className="bg-orange-500 w-full px-4 text-sm py-2 rounded-lg">
+                Ban User
+              </button>
+              <button className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg">
+                Add Money
+              </button>
+            </div>
           </div>
         ))}
       </div>

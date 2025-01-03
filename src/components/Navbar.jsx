@@ -1,18 +1,37 @@
 import { useState } from "react";
 import { Menu, X, Wallet } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { user, loading } = useSelector((state) => state.userReducer);
   const navItems = [
-    { name: "Exchange", href: "#" },
+    { name: "Home", href: "/" },
     { name: "Live Casino", href: "#" },
     { name: "Slot", href: "#" },
     { name: "Fantasy Games", href: "#" },
   ];
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Implement logout logic here
+    console.log("User logged out");
+    
+    // Clear authToken from localStorage
+    localStorage.removeItem('authToken');
+    
+    // Optionally, you can force a page reload, though this is usually not necessary.
+    // If you want to reload the page, use:
+    window.location.reload();
+    
+    // Navigate to login page
+    navigate('/login');
+  };
+  
+  
 
   return (
     <nav className="bg-gradient-to-r fixed w-full z-[99] from-indigo-500 to-indigo-900">
@@ -54,7 +73,7 @@ const Navbar = () => {
                     </span>
                   </button>
 
-                  <button className="bg-indigo-700 text-white px-4 py-1 rounded-md hover:bg-indigo-800 transition duration-150">
+                  <button onClick={handleLogout} className="bg-indigo-700 text-white px-4 py-1 rounded-md hover:bg-indigo-800 transition duration-150">
                     Sign Out
                   </button>
                 </>
@@ -113,7 +132,7 @@ const Navbar = () => {
                     </span>
                   </button>
 
-                  <button className="  text-white px-4 py-1 rounded-md transition duration-150">
+                  <button onClick={handleLogout} className="  text-white px-4 py-1 rounded-md transition duration-150">
                     Sign Out
                   </button>
                 </>

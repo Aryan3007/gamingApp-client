@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -253,7 +254,7 @@ const UserForm = () => {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
 
            {users?.map((user, index) => (

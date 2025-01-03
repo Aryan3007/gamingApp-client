@@ -5,10 +5,12 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { server } from "../constants/config";
 import { userExist } from "../redux/reducer/userReducer";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate()
 
   const dispatch = useDispatch();
 
@@ -34,6 +36,7 @@ const Login = () => {
       localStorage.setItem("authToken", data.token);
       dispatch(userExist(data.user));
       toast.success(data.message, { id: toastId });
+      navigate("/")
     } catch (error) {
       if (
         error.response &&

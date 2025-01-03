@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useState } from 'react';
 
 const menuItems = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -40,7 +41,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-30 w-64 pt-12 bg-gray-800 text-white h-full transition-transform duration-300 ease-in-out transform ${
+        className={`fixed top-0 left-0 z-30 w-64  bg-gray-800 text-white h-full transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >

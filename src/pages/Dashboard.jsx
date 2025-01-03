@@ -8,6 +8,7 @@ import BetSlip from "../components/BetSlip";
 const Dashboard = () => {
   const [selectedBet, setSelectedBet] = useState(null);
   const [sportsData, setSportsData] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   const handleBetSelect = (bet) => {
     setSelectedBet(bet);
@@ -17,13 +18,31 @@ const Dashboard = () => {
     setSelectedBet(null);
   };
 
-  // Fetch sports data
   const fetchSportsData = async () => {
     try {
       const response = await axios.get(
         "https://api.the-odds-api.com/v4/sports/?apiKey=360301b3df8aa33a83a9541e04ee5ef0"
       );
       setSportsData(response.data);
+
+      // Extract unique groups with their keys
+      const groupedData = response.data.reduce((acc, sport) => {
+        // If the group doesn't already exist, create a new entry
+        if (!acc[sport.group]) {
+          acc[sport.group] = [];
+        }
+        acc[sport.group].push(sport.key);
+        return acc;
+      }, {});
+
+      // Convert the groupedData into an array of objects containing the group and associated keys
+      const uniqueGroups = Object.keys(groupedData).map((group) => ({
+        group,
+        keys: groupedData[group],
+      }));
+
+      setGroups(uniqueGroups);
+
     } catch (error) {
       console.error("Error fetching sports data:", error);
     }
@@ -46,10 +65,7 @@ const Dashboard = () => {
 
         {/* Main Content Area */}
         <div className="md:col-span-7 lg:pt-0 lg:overflow-y-auto">
-          <LiveGames
-            sportsCatagory={sportsData}
-            onBetSelect={handleBetSelect}
-          />
+          <LiveGames sportsCatagory={groups} onBetSelect={handleBetSelect} />
         </div>
 
         {/* Right Sidebar */}

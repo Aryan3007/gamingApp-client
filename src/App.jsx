@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
@@ -5,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Loader from "./components/Loader";
 import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+// import ProtectedRoute from "./components/ProtectedRoute";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
 
@@ -19,6 +20,8 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const App = () => {
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
+
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,17 +49,19 @@ const App = () => {
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/match/:id" element={<MatchDetails />} />
+          <Route path="/login" element={<Login />} />
+         
+          <Route path="/match/:sportkey/events/:id" element={<MatchDetails />} />
 
           {/* Not logged In Route */}
-          <Route
+          {/* <Route
             path="/login"
             element={
               <ProtectedRoute isAuthenticated={user ? false : true}>
                 <Login />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/register" element={<Register />} />
           {/* Admin Routes */}

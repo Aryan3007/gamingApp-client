@@ -7,36 +7,39 @@ import axios from "axios";
 
 export default function LiveGames({ onBetSelect, sportsCatagory }) {
   const [selectedBet, setSelectedBet] = useState(null);
-  const [activeGroup, setActiveGroup] = useState(null);
+  const [activeGroupKey, setActiveGroupKey] = useState("cricket"); // Default to cricket group
   const [liveGames, setLiveGames] = useState([]);
 
+  // Effect to fetch games based on the active group key
   useEffect(() => {
     const fetchGames = async () => {
       try {
         const response = await axios.get(
-          'https://api.the-odds-api.com/v4/sports/cricket/odds/?apiKey=c7727bb0c21e4e3b3c888219355c908a&regions=eu,uk&markets=h2h,spreads,totals&oddsFormat=decimal'
+          `https://api.the-odds-api.com/v4/sports/${activeGroupKey}/odds/?apiKey=c7727bb0c21e4e3b3c888219355c908a&regions=eu,uk&markets=h2h,spreads,totals&oddsFormat=decimal`
         );
+
         // Filter for specific bookmaker (e.g., Betfair)
-        const filteredData = response.data.map(game => {
-          const betfair = game.bookmakers.find(b => b.title === "Betfair");
+        const filteredData = response.data.map((game) => {
+          const betfair = game.bookmakers.find((b) => b.title === "Betfair");
           return {
             ...game,
-            bookmakers: betfair ? [betfair] : [],
+            bookmakers: betfair ? [betfair] : [], // Only keep the Betfair bookmaker
           };
         });
 
         setLiveGames(filteredData);
-        console.log("filtered ", filteredData);
+        console.log("Filtered games:", filteredData);
       } catch (error) {
         console.error("Error fetching game data:", error);
       }
     };
 
     fetchGames();
-  }, []);
+  }, [activeGroupKey]); // Re-run when activeGroupKey changes
 
-  const toggleGroup = (group) => {
-    setActiveGroup((prevGroup) => (prevGroup === group ? null : group));
+  const toggleGroup = (groupKey) => {
+    console.log("Selected Group Key:", groupKey);
+    setActiveGroupKey(groupKey); // Set the active group key when clicked
   };
 
   const handleOddsClick = (game, team, type, odds) => {
@@ -66,10 +69,12 @@ export default function LiveGames({ onBetSelect, sportsCatagory }) {
               {sportsCatagory?.map((group, index) => (
                 <div key={index}>
                   <button
-                    onClick={() => toggleGroup(group.group)}
-                    className="w-full text-base text-nowrap flex gap-4 text-white"
+                    onClick={() => toggleGroup(group.key)} // Toggle active group key on click
+                    className={`w-full text-base text-nowrap flex gap-4 text-white ${
+                      activeGroupKey === group.key ? "text-blue-400" : ""
+                    }`}
                   >
-                    {group.group}
+                    {group.group} {/* Displaying group name */}
                   </button>
                 </div>
               ))}
@@ -91,13 +96,17 @@ export default function LiveGames({ onBetSelect, sportsCatagory }) {
                   <span className="text-blue-400">{game.league}</span>
                 </div>
                 <Link
-                  to={`/match/${game.id}`}
+                  to={`/match/${game.sport_key}/events/${game.id}`}
                   className="block mt-1 hover:text-blue-400"
                 >
                   <div className="flex justify-between items-center mt-1">
                     <div>
-                      <h3 className="text-white font-medium">{game.home_team}</h3>
-                      <h3 className="text-white font-medium">{game.away_team}</h3>
+                      <h3 className="text-white font-medium">
+                        {game.home_team}
+                      </h3>
+                      <h3 className="text-white font-medium">
+                        {game.away_team}
+                      </h3>
                     </div>
                   </div>
                 </Link>
@@ -109,47 +118,56 @@ export default function LiveGames({ onBetSelect, sportsCatagory }) {
                   <>
                     {/* Team Names Header */}
                     <div className="col-span-3 grid grid-cols-3 mb-2">
-                      {game.bookmakers[0].markets[0].outcomes.map((outcome, index) => (
-                        <div key={index} className="text-white text-center">
-                          {outcome.name}
-                        </div>
-                      ))}
+                      {game.bookmakers[0].markets[0].outcomes.map(
+                        (outcome, index) => (
+                          <div key={index} className="text-white text-center">
+                            {outcome.name}
+                          </div>
+                        )
+                      )}
                     </div>
 
                     {/* Odds Grid */}
-                    {game.bookmakers[0].markets[0].outcomes.map((outcome, index) => (
-                      <div key={index} className="grid grid-cols-2 gap-1 col-span-1">
-                        {game.bookmakers[0].markets.map((market, marketIndex) => {
-                          const matchingOutcome = market.outcomes.find(
-                            o => o.name === outcome.name
-                          );
-                          if (!matchingOutcome) return null;
+                    {game.bookmakers[0].markets[0].outcomes.map(
+                      (outcome, index) => (
+                        <div
+                          key={index}
+                          className="grid grid-cols-2 gap-1 col-span-1"
+                        >
+                          {game.bookmakers[0].markets.map(
+                            (market, marketIndex) => {
+                              const matchingOutcome = market.outcomes.find(
+                                (o) => o.name === outcome.name
+                              );
+                              if (!matchingOutcome) return null;
 
-                          return (
-                            <button
-                              key={`${outcome.name}-${marketIndex}`}
-                              onClick={() =>
-                                handleOddsClick(
-                                  game,
-                                  outcome.name,
-                                  market.key,
-                                  matchingOutcome
-                                )
-                              }
-                              className={`${
-                                market.key.includes('h2h_lay') 
-                                  ? 'bg-pink-500 hover:bg-pink-400' 
-                                  : 'bg-blue-500 hover:bg-blue-400'
-                              } p-2 rounded text-center hover:opacity-90 transition-colors`}
-                            >
-                              <div className="text-white text-[12px] font-bold">
-                                {matchingOutcome.price}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))}
+                              return (
+                                <button
+                                  key={`${outcome.name}-${marketIndex}`}
+                                  onClick={() =>
+                                    handleOddsClick(
+                                      game,
+                                      outcome.name,
+                                      market.key,
+                                      matchingOutcome
+                                    )
+                                  }
+                                  className={`${
+                                    market.key.includes("h2h_lay")
+                                      ? "bg-pink-500 hover:bg-pink-400"
+                                      : "bg-blue-500 hover:bg-blue-400"
+                                  } p-2 rounded text-center hover:opacity-90 transition-colors`}
+                                >
+                                  <div className="text-white text-[12px] font-bold">
+                                    {matchingOutcome.price}
+                                  </div>
+                                </button>
+                              );
+                            }
+                          )}
+                        </div>
+                      )
+                    )}
                   </>
                 )}
               </div>
@@ -170,6 +188,5 @@ export default function LiveGames({ onBetSelect, sportsCatagory }) {
 
 LiveGames.propTypes = {
   onBetSelect: PropTypes.func.isRequired,
-  sportsCatagory: PropTypes.array
+  sportsCatagory: PropTypes.array.isRequired,
 };
-

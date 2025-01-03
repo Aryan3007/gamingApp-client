@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Cookies from "js-cookie";
 import { server } from "../../constants/config";
 
 const UserForm = () => {
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [newUserData, setNewUserData] = useState({
     name: "",
@@ -21,6 +21,8 @@ const UserForm = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const token = localStorage.getItem("authToken");
+      setIsLoading(true);
+      setError(null);
 
       try {
         const response = await axios.get(`${server}/api/v1/user/allusers`, {
@@ -29,15 +31,19 @@ const UserForm = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        
-        setUsers(response.data.users);
-        setFilteredUsers(response.data);
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message ||
-            "Failed to fetch users. Please try again later."
+
+        if (Array.isArray(response.data.users)) {
+          setUsers(response.data.users);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Failed to fetch users. Try again later."
         );
-        console.error("Error fetching users:", error);
+        toast.error(error || "Failed to fetch users.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -69,22 +75,22 @@ const UserForm = () => {
   };
 
   const postNewUser = async () => {
-    const token = Cookies.get("GAME_TOKEN");
+    const token = localStorage.getItem("authToken");
 
     if (!validateNewUser()) return;
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/user/new`,
+        `${server}/api/v1/user/new`,
         newUserData,
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
-        { withCredentials: true } // Ensure credentials are sent with the request
+          withCredentials: true,
+        }
       );
+
       toast.success("User added successfully");
-      setUsers((prev) => [...prev, response.data]);
-      setFilteredUsers((prev) => [...prev, response.data]);
+      setUsers((prev) => [...prev, response.data.user]); // Assuming `response.data.user` contains the new user
       setIsAddingUser(false);
       resetForm();
     } catch (error) {
@@ -92,7 +98,6 @@ const UserForm = () => {
         error.response?.data?.message ||
           "Failed to add user. Please try again later."
       );
-      console.error("Error adding user:", error);
     }
   };
 
@@ -108,9 +113,37 @@ const UserForm = () => {
     });
   };
 
+
+  const handleBanUser = async (userId) => {
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const response = await axios.post(
+        `${server}/api/v1/user/userstatus/${userId}`,
+        { status: "banned" },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      toast.success("User banned successfully");
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, status: "banned" } : user
+        )
+      );
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to ban the user. Please try again later."
+      );
+      console.error("Error banning user:", error);
+    }
+  };
+
   return (
     <div>
-      <div className="flex justify-between ">
+      <div className="flex justify-between">
         <h1 className="text-xl font-semibold mb-4">User Management</h1>
         <button
           onClick={() => setIsAddingUser(true)}
@@ -119,7 +152,6 @@ const UserForm = () => {
           Add User
         </button>
       </div>
-
       {isAddingUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 text-black rounded-lg max-w-md w-full">
@@ -216,8 +248,15 @@ const UserForm = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {users?.map((user, index) => (
+      {isLoading ? (
+        <p>Loading users...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+
+           {users?.map((user, index) => (
           <div
             key={index}
             className="block hover:scale-95 duration-150 rounded-lg p-4 shadow-sm shadow-indigo-100"
@@ -232,7 +271,7 @@ const UserForm = () => {
                   <dt className="sr-only">Amount</dt>
                   <dd className="text-sm text-gray-400">
                     Wallet Amount :{" "}
-                    <span className="text-gray-200">
+                    <span className="text-gray-200 uppercase">
                       {user.currency} {user.amount}
                     </span>
                   </dd>
@@ -241,18 +280,26 @@ const UserForm = () => {
                 <div>
                   <dt className="sr-only">Email</dt>
                   <dd className="text-sm text-gray-400">
-                    <span className="text-gray-400">Email : {user.email}</span>
+                  Email : 
+                    <span className="text-gray-200">{user.email}</span>
                   </dd>
                 </div>
               </dl>
 
               <div className="mt-6 flex items-center gap-8 text-xs">
-                <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                  <div className="mt-1.5 sm:mt-0">
-                    <p className="text-gray-500">Status</p>
-                    <p className="font-medium text-green-500">{user.status}</p>
-                  </div>
-                </div>
+              <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+  <div className="mt-1.5 sm:mt-0">
+    <p className="text-gray-500">Status</p>
+    <p
+      className={`font-medium ${
+        user.status === "banned" ? "text-red-500" : "text-green-500"
+      }`}
+    >
+      {user.status}
+    </p>
+  </div>
+</div>
+
 
                 <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
                   <div className="mt-1.5 sm:mt-0">
@@ -271,16 +318,26 @@ const UserForm = () => {
             </div>
             <div className="gap-4 flex justify-between items-center mt-3">
               {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
-              <button className="bg-orange-500 w-full px-4 text-sm py-2 rounded-lg">
-                Ban User
-              </button>
+              <button
+  onClick={() => handleBanUser(user._id)}
+  className={`w-full px-4 text-sm py-2 rounded-lg ${
+    user.status === "banned" ? "bg-red-500" : "bg-orange-500"
+  }`}
+  disabled={user.status === "banned"}
+>
+  {user.status === "banned" ? "Banned" : "Ban User"}
+</button>
+
               <button className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg">
                 Add Money
               </button>
             </div>
           </div>
         ))}
-      </div>
+
+
+        </div>
+      )}
     </div>
   );
 };

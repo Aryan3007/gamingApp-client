@@ -12,7 +12,7 @@ import { userExist, userNotExist } from "./redux/reducer/userReducer";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
+// const Register = lazy(() => import("./pages/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./components/MatchDetails"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -63,7 +63,7 @@ const App = () => {
             }
           /> */}
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/register" element={<Register />} />
+          {/* <Route path="/admin/register" element={<Register />} /> */}
           {/* Admin Routes */}
           {/* <Route
             element={

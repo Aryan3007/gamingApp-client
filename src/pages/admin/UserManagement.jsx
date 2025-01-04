@@ -9,6 +9,9 @@ const UserForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUserID, setSelectedUserID] = useState(null);
+  const [amount, setAmount] = useState(0);
   const [newUserData, setNewUserData] = useState({
     name: "",
     email: "",
@@ -40,7 +43,8 @@ const UserForm = () => {
         }
       } catch (err) {
         setError(
-          err.response?.data?.message || "Failed to fetch users. Try again later."
+          err.response?.data?.message ||
+            "Failed to fetch users. Try again later."
         );
         toast.error(error || "Failed to fetch users.");
       } finally {
@@ -114,7 +118,6 @@ const UserForm = () => {
     });
   };
 
-
   const handleBanUser = async (userId) => {
     const token = localStorage.getItem("authToken");
 
@@ -139,6 +142,38 @@ const UserForm = () => {
           "Failed to ban the user. Please try again later."
       );
       console.error("Error banning user:", error);
+    }
+  };
+
+  const openDialog = (userId) => {
+    setSelectedUserID(userId);
+    setIsDialogOpen(true);
+  };
+  const closeDialog = () => {
+    setSelectedUserID(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleAddMoney = async (userId) => {
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const response = await axios.put(
+        `${server}/api/v1/user/addamount/${userId}`,
+        { amount },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast.success(response.data?.message);
+      closeDialog();
+      setAmount(0);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update amount. Please try again later."
+      );
+      console.error("Error updating amount:", error);
     }
   };
 
@@ -255,88 +290,118 @@ const UserForm = () => {
         <p className="text-red-500">{error}</p>
       ) : (
         <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-
-           {users?.map((user, index) => (
-          <div
-            key={index}
-            className="block hover:scale-95 duration-150 rounded-lg p-4 shadow-sm shadow-indigo-100"
-          >
-            <div>
-              <dt className="sr-only">Name</dt>
-              <dd className="font-medium capitalize">{user.name}</dd>
-            </div>
-            <div className="mt-2">
-              <dl>
-                <div>
-                  <dt className="sr-only">Amount</dt>
-                  <dd className="text-sm text-gray-400">
-                    Wallet Amount :{" "}
-                    <span className="text-gray-200 uppercase">
-                      {user.currency} {user.amount}
-                    </span>
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="sr-only">Email</dt>
-                  <dd className="text-sm text-gray-400">
-                  Email : 
-                    <span className="text-gray-200">{user.email}</span>
-                  </dd>
-                </div>
-              </dl>
-
-              <div className="mt-6 flex items-center gap-8 text-xs">
-              <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-  <div className="mt-1.5 sm:mt-0">
-    <p className="text-gray-500">Status</p>
-    <p
-      className={`font-medium ${
-        user.status === "banned" ? "text-red-500" : "text-green-500"
-      }`}
-    >
-      {user.status}
-    </p>
-  </div>
-</div>
-
-
-                <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                  <div className="mt-1.5 sm:mt-0">
-                    <p className="text-gray-500">Role</p>
-                    <p className="font-medium capitalize">{user.role}</p>
+          {users?.map((user, index) => (
+            <div
+              key={index}
+              className="block hover:scale-95 duration-150 rounded-lg p-4 shadow-sm shadow-indigo-100"
+            >
+              <div>
+                <dt className="sr-only">Name</dt>
+                <dd className="font-medium capitalize">{user.name}</dd>
+              </div>
+              <div className="mt-2">
+                <dl>
+                  <div>
+                    <dt className="sr-only">Amount</dt>
+                    <dd className="text-sm text-gray-400">
+                      Wallet Amount :{" "}
+                      <span className="text-gray-200 uppercase">
+                        {user.currency} {user.amount}
+                      </span>
+                    </dd>
                   </div>
-                </div>
 
-                <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                  <div className="mt-1.5 sm:mt-0">
-                    <p className="text-gray-500">Gender</p>
-                    <p className="font-medium">{user.gender}</p>
+                  <div>
+                    <dt className="sr-only">Email</dt>
+                    <dd className="text-sm text-gray-400">
+                      Email :<span className="text-gray-200">{user.email}</span>
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-6 flex items-center gap-8 text-xs">
+                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                    <div className="mt-1.5 sm:mt-0">
+                      <p className="text-gray-500">Status</p>
+                      <p
+                        className={`font-medium ${
+                          user.status === "banned"
+                            ? "text-red-500"
+                            : "text-green-500"
+                        }`}
+                      >
+                        {user.status}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                    <div className="mt-1.5 sm:mt-0">
+                      <p className="text-gray-500">Role</p>
+                      <p className="font-medium capitalize">{user.role}</p>
+                    </div>
+                  </div>
+
+                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                    <div className="mt-1.5 sm:mt-0">
+                      <p className="text-gray-500">Gender</p>
+                      <p className="font-medium">{user.gender}</p>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="gap-4 flex justify-between items-center mt-3">
+                {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
+                <button
+                  onClick={() => handleBanUser(user._id)}
+                  className={`w-full px-4 text-sm py-2 rounded-lg ${
+                    user.status === "banned" ? "bg-red-500" : "bg-orange-500"
+                  }`}
+                  disabled={user.status === "banned"}
+                >
+                  {user.status === "banned" ? "Banned" : "Ban User"}
+                </button>
+
+                <button
+                  className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg"
+                  onClick={() => openDialog(user._id)}
+                >
+                  Add Money
+                </button>
+              </div>
             </div>
-            <div className="gap-4 flex justify-between items-center mt-3">
-              {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
-              <button
-  onClick={() => handleBanUser(user._id)}
-  className={`w-full px-4 text-sm py-2 rounded-lg ${
-    user.status === "banned" ? "bg-red-500" : "bg-orange-500"
-  }`}
-  disabled={user.status === "banned"}
->
-  {user.status === "banned" ? "Banned" : "Ban User"}
-</button>
+          ))}
 
-              <button className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg">
-                Add Money
-              </button>
+          {isDialogOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+                <h2 className="mb-4 text-xl font-semibold text-gray-800">
+                  Add Amount
+                </h2>
+                <input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  className="w-full px-4 py-2 mb-4 text-gray-800 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => handleAddMoney(selectedUserID)}
+                    className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    Submit
+                  </button>
+                  <button
+                    onClick={closeDialog}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-
-
+          )}
         </div>
       )}
     </div>

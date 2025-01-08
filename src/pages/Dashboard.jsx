@@ -21,7 +21,7 @@ const Dashboard = () => {
   const fetchSportsData = async () => {
     try {
       const response = await axios.get(
-        "https://api.the-odds-api.com/v4/sports/?apiKey=360301b3df8aa33a83a9541e04ee5ef0"
+        "https://api.the-odds-api.com/v4/sports/?apiKey=058da9d96f062511f27d6581b72a6182"
       );
       setSportsData(response.data);
 
@@ -58,14 +58,13 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="max-w-full mx-auto grid grid-cols-1 md:grid-cols-12  p-0 lg:p-2 lg:h-[calc(100vh-64px)]">
         {/* Left Sidebar */}
-        <div className="md:col-span-2 overflow-y-auto">
-          {/* Pass sports data as props to AllGames */}
+        {/* <div className="md:col-span-2 overflow-y-auto">
           <AllGames sportsData={sportsData} />
-        </div>
+        </div> */}
 
         {/* Main Content Area */}
         <div className="md:col-span-7 lg:pt-0 lg:overflow-y-auto">
-          <LiveGames sportsCatagory={groups} onBetSelect={handleBetSelect} />
+          <LiveGames sportsCatagory={groups} onBetSelect={handleBetSelect}/>
         </div>
 
         {/* Right Sidebar */}

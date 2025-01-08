@@ -14,7 +14,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 // const Register = lazy(() => import("./pages/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const MatchDetails = lazy(() => import("./components/MatchDetails"));
+const MatchDetails = lazy(() => import("./pages/MatchDetails"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
 const App = () => {

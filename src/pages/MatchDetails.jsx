@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import BetSlip from './BetSlip';
+import BetSlip from '../components/BetSlip';
 
 const MatchDetails = () => {
   const { id } = useParams();

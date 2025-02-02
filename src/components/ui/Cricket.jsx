@@ -3,7 +3,7 @@ import GameOdds from "../GameOdds";
 const Cricket = ({ liveData }) => {
 
     return (
-      <div className=" pt-2">
+      <div className="">
         <GameOdds liveData={liveData}/>
       </div>
     );

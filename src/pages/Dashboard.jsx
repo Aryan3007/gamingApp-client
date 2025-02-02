@@ -7,12 +7,13 @@ import GamesHeader from "../components/GamesHeader";
 import Cricket from "../components/ui/Cricket";
 import Football from "../components/ui/Football";
 import Basketball from "../components/ui/Basketball";
-
+import io from 'socket.io-client'
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("cricket");
   const [showsidebar, setShowSideBar] = useState(false);
   const [sportsData, setSportsData] = useState([]);
   const [liveSportsData, setLiveSportsData] = useState({});
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     const fetchSportsData = async () => {
@@ -29,6 +30,15 @@ const Dashboard = () => {
 
     fetchSportsData();
   }, []);
+
+//   const socket = io("http://localhost:3000");
+// socket.on("sportsData", (data) => {
+//   setSportsData(data)
+//   console.log("sports Data:", data);
+// });
+
+
+
 
   const toggleSidebar = () => {
     setShowSideBar(!showsidebar);

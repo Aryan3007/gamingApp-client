@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unescaped-entities */
 
+import Allrequests from "./Allrequests";
 import UserManagement from "./UserManagement";
 
 const tabContent = {
@@ -17,10 +18,11 @@ const tabContent = {
       </main>
     </div>
   ),
-  products: (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Product Catalog</h2>
-      <p>View and manage your product inventory.</p>
+  requests: (
+    <div className="min-h-screen">
+      <main className="">
+        <Allrequests />
+      </main>
     </div>
   ),
   settings: (

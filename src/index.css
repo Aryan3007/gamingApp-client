@@ -3,9 +3,24 @@
 @tailwind utilities;
 
 body{
-    background-color: #111827;
+    background-color: #21252b;
+    color: white;
 }
 
 ::-webkit-scrollbar{
     display: none;
 }
+
+.slick-prev, .slick-next {
+    z-index: 10;
+    color: white;
+  }
+  .slick-prev {
+    left: -25px;
+    margin-top: 5px;
+}
+.slick-next {
+      margin-top: 5px;
+    right: -25px;
+  }
+  

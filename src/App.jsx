@@ -5,10 +5,10 @@ import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Loader from "./components/Loader";
-import Navbar from "./components/Navbar";
 // import ProtectedRoute from "./components/ProtectedRoute";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
+import Profile from "./pages/Profile";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
@@ -45,13 +45,12 @@ const App = () => {
     <Loader />
   ) : (
     <Router>
-      <Navbar />
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
          
-          <Route path="/match/:sportkey/events/:id" element={<MatchDetails />} />
+          <Route path="/match/:sport_id/:id" element={<MatchDetails />} />
 
           {/* Not logged In Route */}
           {/* <Route
@@ -63,6 +62,7 @@ const App = () => {
             }
           /> */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/profile" element={<Profile />} />
           {/* <Route path="/admin/register" element={<Register />} /> */}
           {/* Admin Routes */}
           {/* <Route

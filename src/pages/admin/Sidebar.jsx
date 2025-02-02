@@ -4,7 +4,7 @@ import { useState } from 'react';
 const menuItems = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'users', icon: '👥', label: 'Users' },
-  { id: 'products', icon: '🛍️', label: 'Products' },
+  { id: 'requests', icon: '🛍️', label: 'All Requests' },
   { id: 'settings', icon: '⚙️', label: 'Settings' },
 ];
 

@@ -20,9 +20,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./pages/MatchDetails"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-console.log(baseURL);
-const socket = io(baseURL);
+const socket = io(server);
 
 const App = () => {
   const { user, loading } = useSelector((state) => state.userReducer);

@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import BetSlip from "../components/BetSlip";
 import CricketScore from "../components/matchdetails_ui/CircketScore";
+import { server } from "../constants/config";
 
 const MatchDetails = () => {
   const [activeTab, setActiveTab] = useState("bookmaker");
@@ -43,7 +44,7 @@ const MatchDetails = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/v1/getMarkets?eventId=${eventId}`
+          `${server}/api/v1/getMarkets?eventId=${eventId}`
         );
 
         if (response.status !== 200) {

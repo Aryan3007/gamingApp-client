@@ -15,13 +15,13 @@ import CricketScore from "../components/matchdetails_ui/CircketScore";
 import { server } from "../constants/config";
 
 const MatchDetails = () => {
-  const [activeTab, setActiveTab] = useState("bookmaker");
-  const [data, setData] = useState(null);
-  const [bookmakers, setBookmakers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { eventId } = useParams();
-  const [selectedBet, setSelectedBet] = useState(null);
+  const [activeTab, setActiveTab] = useState("bookmaker")
+  const [data, setData] = useState(null)
+  const [bookmakers, setBookmakers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const { eventId } = useParams()
+  const [selectedBet, setSelectedBet] = useState(null)
 
   // Component mapping object
   const tabComponents = {
@@ -32,44 +32,42 @@ const MatchDetails = () => {
     b_fancy: BFancy,
     odd_even: OddEven,
     line: Line,
-  };
+  }
 
   useEffect(() => {
     if (!eventId) {
-      setError("Event ID is missing.");
-      setLoading(false);
-      return;
+      setError("Event ID is missing.")
+      setLoading(false)
+      return
     }
 
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${server}/api/v1/getMarkets?eventId=${eventId}`
-        );
+        const response = await axios.get(`${server}/api/v1/getMarkets?eventId=${eventId}`)
 
         if (response.status !== 200) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+          throw new Error(`Error: ${response.status} - ${response.statusText}`)
         }
-        setBookmakers(response.data.getBookmaker);
-        const categorizedData = categorizeMarkets(response.data);
-        setData(categorizedData);
+        setBookmakers(response.data.getBookmaker)
+        const categorizedData = categorizeMarkets(response.data)
+        setData(categorizedData)
       } catch (err) {
-        console.error("Fetch error:", err);
-        setError(err.response?.data?.message || "Something went wrong!");
+        console.error("Fetch error:", err)
+        setError(err.response?.data?.message || "Something went wrong!")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
     // Call the API initially
-    fetchData();
+    fetchData()
 
-    // Set an interval to call the API every 2 seconds
-    const intervalId = setInterval(fetchData, 50000);
+    // Set an interval to call the API every 50 seconds
+    const intervalId = setInterval(fetchData, 50000)
 
     // Cleanup the interval on component unmount
-    return () => clearInterval(intervalId);
-  }, [eventId]);
+    return () => clearInterval(intervalId)
+  }, [eventId])
 
   const categorizeMarkets = (rawData) => {
     const categories = {
@@ -80,58 +78,47 @@ const MatchDetails = () => {
       b_fancy: [],
       odd_even: [],
       line: [],
-    };
+    }
 
     if (rawData.getFancy) {
       rawData.getFancy.forEach((market) => {
-        const name = market.market.name.toLowerCase();
+        const name = market.market.name.toLowerCase()
         if (name.includes("run")) {
-          categories.fancy.push(market);
+          categories.fancy.push(market)
         } else if (name.includes("player")) {
-          categories.player.push(market);
+          categories.player.push(market)
         } else if (name.includes("odd") || name.includes("even")) {
-          categories.odd_even.push(market);
+          categories.odd_even.push(market)
         } else if (name.includes("line")) {
-          categories.line.push(market);
+          categories.line.push(market)
         } else if (name.startsWith("b ")) {
-          categories.b_fancy.push(market);
+          categories.b_fancy.push(market)
         } else {
-          categories.other.push(market);
+          categories.other.push(market)
         }
-      });
+      })
     }
+
+    // Filter out empty categories
+    const filteredCategories = Object.fromEntries(Object.entries(categories).filter(([_, value]) => value.length > 0))
 
     return {
       ...rawData,
-      categorizedMarkets: categories,
-    };
-  };
+      categorizedMarkets: filteredCategories,
+    }
+  }
 
   const renderActiveComponent = () => {
-    if (!data || !data.categorizedMarkets) return null;
+    if (!data || !data.categorizedMarkets) return null
 
-    switch (activeTab) {
-      case "bookmaker":
-        return <Bookmaker onBetSelect={handleBetSelection} data={data.categorizedMarkets.bookmaker} />;
-      case "fancy":
-        return <Fancy onBetSelect={handleBetSelection} data={data.categorizedMarkets.fancy} />;
-      case "player":
-        return <Player onBetSelect={handleBetSelection} data={data.categorizedMarkets.player} />;
-      case "other":
-        return <Other onBetSelect={handleBetSelection} data={data.categorizedMarkets.other} />;
-      case "b_fancy":
-        return <BFancy onBetSelect={handleBetSelection} data={data.categorizedMarkets.b_fancy} />;
-      case "odd_even":
-        return <OddEven onBetSelect={handleBetSelection} data={data.categorizedMarkets.odd_even} />;
-      case "line":
-        return <Line onBetSelect={handleBetSelection} data={data.categorizedMarkets.line} />;
-      default:
-        return <div>Select a sport to display</div>;
-    }
-  };
+    const ActiveComponent = tabComponents[activeTab]
+    if (!ActiveComponent) return null
+
+    return <ActiveComponent onBetSelect={handleBetSelection} data={data.categorizedMarkets[activeTab]} />
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
@@ -139,22 +126,19 @@ const MatchDetails = () => {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    });
-  };
-
+    })
+  }
 
   const handleBetSelection = (betData) => {
-    console.log("object");
-    setSelectedBet(betData);
-  };
+    setSelectedBet(betData)
+  }
 
   const handleCloseBetSlip = () => {
-    setSelectedBet(null);
-  };
+    setSelectedBet(null)
+  }
 
-
-  if (loading) return <Loader />;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (loading) return <Loader />
+  if (error) return <p className="text-red-500">Error: {error}</p>
 
   return (
     <div className="max-w-full mx-auto pt-28 md:pt-12 grid grid-cols-1 md:grid-cols-12 lg:h-screen">
@@ -162,9 +146,7 @@ const MatchDetails = () => {
       <div className="md:col-span-9 px-4 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto ">
         {/* Match Score */}
         <div className="p-4 bg-[#262a31] border-dashed border-zinc-700 rounded-lg border">
-          <h1 className="text-2xl font-semibold">
-            {data?.eventDetail?.event.name}
-          </h1>
+          <h1 className="text-2xl font-semibold">{data?.eventDetail?.event.name}</h1>
           <div className="flex items-center gap-2 mt-1 text-gray-400">
             {formatDate(data?.eventDetail?.event.startDate)}
           </div>
@@ -177,13 +159,11 @@ const MatchDetails = () => {
 
         {/* Navigation Tabs */}
         <div className="flex bg-[#262a31] border-dashed border-zinc-700 overflow-x-auto rounded-lg border p-4">
-          {Object.keys(tabComponents).map((tab) => (
+          {Object.keys(data?.categorizedMarkets || {}).map((tab) => (
             <button
               key={tab}
               className={`px-4 py-2 ${
-                activeTab === tab
-                  ? "text-blue-500 border-b-2 border-blue-500"
-                  : "hover:text-blue-500"
+                activeTab === tab ? "text-blue-500 border-b-2 border-blue-500" : "hover:text-blue-500"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -201,7 +181,8 @@ const MatchDetails = () => {
         <BetSlip match={selectedBet} onClose={handleCloseBetSlip} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MatchDetails;
+export default MatchDetails
+

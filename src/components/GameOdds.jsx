@@ -216,8 +216,7 @@ const GameOdds = ({ liveData, onBetSelect }) => {
                         </div>
                       )}
                       <h1 className="text-xs flex justify-center items-center text-yellow-500">
-                        {(game.event?.market?.bookmakerCount || 0) +
-                          (game.event?.market?.fancyCount || 0)}
+                        {(game.odds?.length || 0) }
                         {"  "}
                         <span className="pl-1">MARKETS</span>
                       </h1>

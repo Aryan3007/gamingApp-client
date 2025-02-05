@@ -21,7 +21,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
   return (
     <nav className="bg-[#181d26] fixed w-full z-[99]">
       <div className="max-w-full mx-auto px-4">
-        <div className="flex items-center justify-start lg:justify-between h-12">
+        <div className="flex items-center justify-between lg:justify-between h-12">
           <div className="flex items-center gap-3">
             {showsidebar ? (
               <X className="lg:hidden flex" onClick={toggleSidebar} />

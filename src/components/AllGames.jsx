@@ -12,7 +12,7 @@ const staticSports = [
   },
   {
     name: "Tennis",
-    count: 3,
+    count: 0,
     icon: "🎾",
     subItems: [],
   },

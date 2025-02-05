@@ -3,8 +3,9 @@ import { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 import io from "socket.io-client"
 import BetSlip from "../BetSlip"
+import { server } from "../../constants/config"
 
-const socket = io("http://localhost:3000")
+const socket = io(server)
 
 const OddsBox = ({ odds, value, type, onClick }) => {
   const bgColor = type === "back" ? "bg-[#00B2FF]" : "bg-[#FF7A7F]"

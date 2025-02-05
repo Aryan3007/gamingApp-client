@@ -1,67 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import BetSlip from "./BetSlip";
+/* eslint-disable react/prop-types */
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import BetSlip from "./BetSlip"
 
 const GameOdds = ({ liveData, onBetSelect }) => {
-  const [flashingOdds, setFlashingOdds] = useState({});
-  const [selectedBet, setSelectedBet] = useState(null);
-  const prevOddsRef = useRef({});
-  const gamesRef = useRef([]);
+  const [selectedBet, setSelectedBet] = useState(null)
   // Access the correct data structure
-  const games = liveData?.[4]?.[4] || [];
+  const games = liveData?.[4]?.[4] || []
 
   const sortedGames = games.sort((a, b) => {
-    return (b.odds?.[0]?.inplay ? 1 : 0) - (a.odds?.[0]?.inplay ? 1 : 0);
-  });
-
-  const compareOdds = useCallback((prevOdds, currentOdds) => {
-    const newFlashingOdds = {};
-    currentOdds.forEach((game) => {
-      game.odds?.[0]?.runners?.forEach((runner) => {
-        if (!runner) return;
-        const runnerId = runner.selectionId;
-        const prevBack = prevOdds[runnerId]?.back?.[0]?.price;
-        const prevLay = prevOdds[runnerId]?.lay?.[0]?.price;
-        const currentBack = runner.back?.[0]?.price;
-        const currentLay = runner.lay?.[0]?.price;
-
-        if (prevBack !== currentBack || prevLay !== currentLay) {
-          newFlashingOdds[runnerId] = {
-            back: currentBack !== prevBack,
-            lay: currentLay !== prevLay,
-          };
-        }
-      });
-    });
-    return newFlashingOdds;
-  }, []);
-
-  useEffect(() => {
-    if (JSON.stringify(sortedGames) !== JSON.stringify(gamesRef.current)) {
-      const newFlashingOdds = compareOdds(prevOddsRef.current, sortedGames);
-      setFlashingOdds(newFlashingOdds);
-
-      const timer = setTimeout(() => {
-        setFlashingOdds({});
-      }, 1000);
-
-      // Update prevOddsRef
-      const newPrevOdds = {};
-      sortedGames.forEach((game) => {
-        game.odds?.[0]?.runners?.forEach((runner) => {
-          if (!runner) return;
-          newPrevOdds[runner.selectionId] = {
-            back: runner.back,
-            lay: runner.lay,
-          };
-        });
-      });
-      prevOddsRef.current = newPrevOdds;
-      gamesRef.current = sortedGames;
-
-      return () => clearTimeout(timer);
-    }
-  }, [sortedGames, compareOdds]);
+    return (b.odds?.[0]?.inplay ? 1 : 0) - (a.odds?.[0]?.inplay ? 1 : 0)
+  })
 
   const handleOddsClick = (game, team, type, odds) => {
     const betData = {
@@ -71,23 +20,23 @@ const GameOdds = ({ liveData, onBetSelect }) => {
       selectedTeam: team,
       betType: type,
       odds: odds,
-    };
-    setSelectedBet(betData);
-    onBetSelect(betData);
-  };
+    }
+    setSelectedBet(betData)
+    onBetSelect(betData)
+  }
 
   const handleCloseBetSlip = () => {
-    setSelectedBet(null);
-  };
+    setSelectedBet(null)
+  }
 
   // Helper function to get the best back/lay price
   const getBestPrice = (prices) => {
-    if (!prices || prices.length === 0) return "-";
-    return prices[0].price.toFixed(2);
-  };
+    if (!prices || prices.length === 0) return "-"
+    return prices[0].price.toFixed(2)
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
@@ -95,14 +44,14 @@ const GameOdds = ({ liveData, onBetSelect }) => {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    });
-  };
+    })
+  }
 
   // Helper function to arrange runners with draw in middle
   const arrangeRunners = (runners = [], odds = []) => {
-    if (!runners.length || !odds.length) return [];
-    const draw = runners.find((r) => r?.name === "The Draw");
-    const teams = runners.filter((r) => r?.name !== "The Draw");
+    if (!runners.length || !odds.length) return []
+    const draw = runners.find((r) => r?.name === "The Draw")
+    const teams = runners.filter((r) => r?.name !== "The Draw")
     const arrangedRunners = [
       {
         runner: teams[0],
@@ -113,11 +62,11 @@ const GameOdds = ({ liveData, onBetSelect }) => {
         runner: teams[1],
         odds: odds.find((o) => o?.selectionId === teams[1]?.id),
       },
-    ];
-    return arrangedRunners;
-  };
+    ]
+    return arrangedRunners
+  }
 
-  const renderOddsBox = (game, runner, odds, flashingOdds) => (
+  const renderOddsBox = (game, runner, odds) => (
     <div className="flex flex-col gap-1 items-center">
       <h1 className="text-xs font-semibold truncate max-w-[100px] sm:max-w-none">{runner?.name || ""}</h1>
 
@@ -125,32 +74,14 @@ const GameOdds = ({ liveData, onBetSelect }) => {
         {runner && odds ? (
           <>
             <button
-              onClick={() =>
-                handleOddsClick(
-                  game,
-                  runner.name,
-                  "Back",
-                  getBestPrice(odds.back)
-                )
-              }
-              className={`w-10 md:w-16 flex flex-col bg-[#00b2ff] justify-center items-center rounded-sm h-8 text-black text-sm font-semibold transition-all ${
-                flashingOdds[runner.id]?.back ? "animate-flash" : ""
-              }`}
+              onClick={() => handleOddsClick(game, runner.name, "Back", getBestPrice(odds.back))}
+              className="w-10 md:w-16 flex flex-col bg-[#00b2ff] justify-center items-center rounded-sm h-8 text-black text-sm font-semibold"
             >
               {getBestPrice(odds.back)}
             </button>
             <button
-              onClick={() =>
-                handleOddsClick(
-                  game,
-                  runner.name,
-                  "Lay",
-                  getBestPrice(odds.lay)
-                )
-              }
-              className={`w-10 md:w-16  bg-[#ff7a7f]  rounded-sm h-8 text-black text-sm font-semibold transition-all ${
-                flashingOdds[runner.id]?.lay ? "animate-flash" : ""
-              }`}
+              onClick={() => handleOddsClick(game, runner.name, "Lay", getBestPrice(odds.lay))}
+              className="w-10 md:w-16 bg-[#ff7a7f] rounded-sm h-8 text-black text-sm font-semibold flex items-center justify-center"
             >
               {getBestPrice(odds.lay)}
             </button>
@@ -163,17 +94,14 @@ const GameOdds = ({ liveData, onBetSelect }) => {
         )}
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="pt-2">
       <div className="flex gap-2 flex-col">
         {sortedGames && sortedGames.length > 0 ? (
           sortedGames.map((game, index) => {
-            const arrangedRunners = arrangeRunners(
-              game.event?.runners,
-              game.odds?.[0]?.runners
-            );
+            const arrangedRunners = arrangeRunners(game.event?.runners, game.odds?.[0]?.runners)
 
             return (
               <div key={game.event?.event?.id || index}>
@@ -181,18 +109,11 @@ const GameOdds = ({ liveData, onBetSelect }) => {
                   {/* Game Header */}
                   <div className="w-full">
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-blue-400 uppercase font-semibold">
-                        {game.event?.sport?.name}
-                      </span>
+                      <span className="text-blue-400 uppercase font-semibold">{game.event?.sport?.name}</span>
                       <span className="text-gray-400">•</span>
-                      <span className="text-blue-400 uppercase font-semibold">
-                        {game.event?.series?.name}
-                      </span>
+                      <span className="text-blue-400 uppercase font-semibold">{game.event?.series?.name}</span>
                     </div>
-                    <Link
-                      to={`/match/${game.event?.event?.id}`}
-                      className="block mt-1 hover:text-blue-400"
-                    >
+                    <Link to={`/match/${game.event?.event?.id}`} className="block mt-1 hover:text-blue-400">
                       <div className="flex justify-between items-center mt-2">
                         <div className="">
                           <h3 className="text-white font-medium text-lg">
@@ -210,37 +131,23 @@ const GameOdds = ({ liveData, onBetSelect }) => {
                       {game.odds[0]?.inplay && (
                         <div className="flex justify-center items-center gap-2">
                           <span className="h-3 w-3 animate-pulse bg-blue-500 rounded-full" />
-                          <h1 className="text-xs font-semibold text-blue-400">
-                            LIVE
-                          </h1>
+                          <h1 className="text-xs font-semibold text-blue-400">LIVE</h1>
                         </div>
                       )}
                       <h1 className="text-xs flex justify-center items-center text-yellow-500">
-                        {(game.odds?.length || 0) }
+                        {game.odds?.length || 0}
                         {"  "}
                         <span className="pl-1">MARKETS</span>
                       </h1>
-                      <h1 className="text-sm text-gray-400 w-full">
-                        {formatDate(game.event?.event?.startDate)}
-                      </h1>{" "}
+                      <h1 className="text-sm text-gray-400 w-full">{formatDate(game.event?.event?.startDate)}</h1>{" "}
                     </div>
                   </div>
 
                   {/* Odds Section */}
                   <div className="flex gap-2 mt-2 items-center justify-between lg:justify-center">
-                    {renderOddsBox(
-                      game,
-                      arrangedRunners[0]?.runner,
-                      arrangedRunners[0]?.odds,
-                      flashingOdds
-                    )}
+                    {renderOddsBox(game, arrangedRunners[0]?.runner, arrangedRunners[0]?.odds)}
                     {arrangedRunners[1]?.runner ? (
-                      renderOddsBox(
-                        game,
-                        arrangedRunners[1]?.runner,
-                        arrangedRunners[1]?.odds,
-                        flashingOdds
-                      )
+                      renderOddsBox(game, arrangedRunners[1]?.runner, arrangedRunners[1]?.odds)
                     ) : (
                       <div className="flex flex-col gap-1 items-center">
                         <h1 className="text-xs font-semibold">The Draw</h1>
@@ -250,35 +157,25 @@ const GameOdds = ({ liveData, onBetSelect }) => {
                         </div>
                       </div>
                     )}
-                    {renderOddsBox(
-                      game,
-                      arrangedRunners[2]?.runner,
-                      arrangedRunners[2]?.odds,
-                      flashingOdds
-                    )}
+                    {renderOddsBox(game, arrangedRunners[2]?.runner, arrangedRunners[2]?.odds)}
                   </div>
                 </div>
                 {/* BetSlip for mobile */}
-                {selectedBet &&
-                  selectedBet.gameId === game.event?.event?.id && (
-                    <div className="lg:hidden mt-2">
-                      <BetSlip
-                        match={selectedBet}
-                        onClose={handleCloseBetSlip}
-                      />
-                    </div>
-                  )}
+                {selectedBet && selectedBet.gameId === game.event?.event?.id && (
+                  <div className="lg:hidden mt-2">
+                    <BetSlip match={selectedBet} onClose={handleCloseBetSlip} />
+                  </div>
+                )}
               </div>
-            );
+            )
           })
         ) : (
-          <div className="text-white text-center py-4">
-            Loading matches for you...
-          </div>
+          <div className="text-white text-center py-4">Loading matches for you...</div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GameOdds;
+export default GameOdds
+

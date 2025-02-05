@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { server } from "../constants/config";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.userReducer);
@@ -24,7 +25,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/v1/payment/status/withdraw?userId=${user?._id}`,
+          `${server}/api/v1/payment/status/withdraw?userId=${user?._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Send token in the Authorization header
@@ -44,7 +45,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/v1/payment/status/deposit?userId=${user?._id}`,
+          `${server}/api/v1/payment/status/deposit?userId=${user?._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Send token in the Authorization header
@@ -77,7 +78,7 @@ const Profile = () => {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/payment/request/withdraw?userId=${user?._id}`,
+        `${server}/api/v1/payment/request/withdraw?userId=${user?._id}`,
         formData,
         {
           headers: {
@@ -107,7 +108,7 @@ const Profile = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="pt-12">
+    <div className="lg:pt-12 pt-24">
       <div className="max-w-full mx-auto grid grid-cols-1 md:grid-cols-6 gap-4 p-2 lg:h-[calc(100vh-64px)]">
         {/* Profile */}
         <div className="md:col-span-2 flex-col  mt-4 md:flex  overflow-y-auto">

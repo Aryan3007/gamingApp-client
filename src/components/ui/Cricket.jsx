@@ -1,13 +1,12 @@
-import GameOdds from "../GameOdds";
+import GameOdds from "../GameOdds"
 
-const Cricket = ({ liveData }) => {
+const Cricket = ({ liveData, onBetSelect }) => {
+  return (
+    <div className="">
+      <GameOdds liveData={liveData} onBetSelect={onBetSelect} />
+    </div>
+  )
+}
 
-    return (
-      <div className="">
-        <GameOdds liveData={liveData}/>
-      </div>
-    );
-  };
-  
-  export default Cricket;
-  
+export default Cricket
+

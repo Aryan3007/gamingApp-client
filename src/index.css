@@ -24,3 +24,23 @@ body{
     right: -25px;
   }
   
+
+  @keyframes flash {
+    0% {
+      opacity: 1;
+      filter: brightness(100%);
+    }
+    50% {
+      opacity: 1;
+      filter: brightness(150%);
+    }
+    100% {
+      opacity: 1;
+      filter: brightness(100%);
+    }
+  }
+  
+  .animate-flash {
+    animation: flash 0.5s;
+  }
+  

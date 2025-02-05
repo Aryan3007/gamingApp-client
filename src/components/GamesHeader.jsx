@@ -1,14 +1,21 @@
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { FaFutbol, FaBasketballBall, FaHockeyPuck } from "react-icons/fa";
-import { GiCricketBat, GiBoxingGlove } from "react-icons/gi";
+import { FaFutbol, FaBasketballBall, FaHockeyPuck, FaHorse } from "react-icons/fa";
+import { GiCricketBat, GiBoxingGlove, GiTennisBall, GiBoxingGloveSurprise, GiHeavyFighter } from "react-icons/gi";
+import { User } from "lucide-react";
 
 const GamesHeader = ({ activeTab, setActiveTab }) => {
   const sports = [
     { name: "Cricket", icon: <GiCricketBat />, key: "cricket" },
     { name: "Football", icon: <FaFutbol />, key: "football" },
+    { name: "Tennis", icon: <GiTennisBall />, key: "tennis" },
+    { name: "Boxing", icon: <GiBoxingGloveSurprise />, key: "boxing" },
     { name: "Basketball", icon: <FaBasketballBall />, key: "basketball" },
+    { name: "Horse Racing", icon: <FaHorse />, key: "horse" },
+    { name: "Kabbadi", icon: <GiHeavyFighter />, key: "kabbadi" },
+    { name: "Politics", icon: <User />, key: "politics" },
+   
   ];
   
 
@@ -17,14 +24,14 @@ const GamesHeader = ({ activeTab, setActiveTab }) => {
       {sports.map((sport) => (
         <div
           key={sport.key}
-          className={`flex items-center justify-center cursor-pointer px-4 py-2 gap-2 ${
+          className={`flex items-center justify-center cursor-pointer px-4 py-1 gap-2.5 ${
             activeTab === sport.key ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-400"
           }`}
           onClick={() => setActiveTab(sport.key)}
         >
           <div>{sport.icon}</div>
-          <h1>{sport.name}</h1>
-        </div>
+          <h1 className="whitespace-nowrap">{sport.name}</h1>
+          </div>
       ))}
     </div>
   );

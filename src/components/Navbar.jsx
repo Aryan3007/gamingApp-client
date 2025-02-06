@@ -86,7 +86,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
         </div>
       </div>
 
-      <div className="bg-[#181d26] md:hidden flex gap-2 py-2 text-center">
+      <div className="bg-[#181d26] md:hidden flex gap-2 py-2 justify-center text-center">
         {navItems.map((item) => (
           <a
             key={item.name}

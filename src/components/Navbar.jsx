@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Cross, Menu, Wallet, X } from "lucide-react";
+import {  Menu, Wallet, X } from "lucide-react";
 
 const Navbar = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);

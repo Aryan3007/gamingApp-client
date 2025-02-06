@@ -62,7 +62,7 @@ const MatchDetails = () => {
 
     fetchData()
 
-    const intervalId = setInterval(fetchData, 1000)
+    const intervalId = setInterval(fetchData, 3000)
 
     return () => clearInterval(intervalId)
   }, [eventId])
@@ -84,18 +84,18 @@ const MatchDetails = () => {
       if (rawData.getFancy) {
         rawData.getFancy.forEach((market) => {
           const name = market.market.name.toLowerCase()
-          if (name.includes("run")) {
+           if (name.includes("only")) {
+            categories.other.push(market)}
+          else if (name.includes("over run")) {
             categories.fancy.push(market)
-          } else if (name.includes("player")) {
-            categories.player.push(market)
-          } else if (name.includes("odd") || name.includes("even")) {
+          } else if (name.includes("inns") || name.includes("odd_even")) {
             categories.odd_even.push(market)
           } else if (name.includes("line")) {
             categories.line.push(market)
-          } else if (name.startsWith("b ")) {
+          } else if (name.startsWith("wkt")) {
             categories.b_fancy.push(market)
           } else {
-            categories.other.push(market)
+            categories.player.push(market)
           }
         })
       }

@@ -5,6 +5,7 @@ import BetSlip from "../components/BetSlip";
 import Cricket from "../components/ui/Cricket";
 import Football from "../components/ui/Football";
 import Basketball from "../components/ui/Basketball";
+import ImageCarousel from "../components/ImageCarousel";
 
 
 const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
@@ -78,6 +79,7 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
 
           {/* Main Content */}
           <div className="lg:col-span-7 md:col-span-12 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto">
+            <ImageCarousel/>
             <GamesHeader activeTab={activeTab} setActiveTab={setActiveTab} />
             {renderActiveComponent()}
           </div>

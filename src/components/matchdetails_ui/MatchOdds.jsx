@@ -14,9 +14,11 @@ const OddsBox = ({ odds, value, type, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`${bgColor} ${hoverColor} w-full sm:w-12 min-w-[50px] md:w-16 h-8 rounded flex flex-col items-center justify-center transition-colors`}
+      className={`${bgColor} ${hoverColor} w-full sm:w-12 min-w-[80px] md:w-16 h-10 rounded flex flex-col items-center justify-center transition-colors`}
     >
       <span className="text-black font-semibold text-sm sm:text-base">{odds}</span>
+      <span className="text-black text-xs">{value/1000}K</span>
+      
     </button>
   )
 }
@@ -30,7 +32,7 @@ OddsBox.propTypes = {
 
 const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick }) => {
   return (
-    <div className="flex flex-wrap sm:flex-nowrap justify-between items-center py-1 border-b border-[#2A3447]">
+    <div className="flex flex-wrap sm:flex-nowrap justify-between items-center py-1 border-b  border-[#2A3447]">
       <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">{teamName}</span>
       <div className="grid grid-cols-3 sm:flex gap-1 w-full sm:w-auto">
         {backOdds.map(([odds, value], i) => (
@@ -129,15 +131,14 @@ export default function MatchOdds({ eventId, onBetSelect }) {
         <div className="flex flex-wrap sm:flex-nowrap justify-between items-center mb-4">
           <h2 className="text-white text-lg">Match Odds</h2>
           <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex gap-2 sm:-translate-x-10">
-              <span className="bg-[#00B2FF] text-black px-3 py-1 rounded text-xs sm:text-sm font-medium">Back</span>
-              <span className="bg-[#FF7A7F] text-black px-3 py-1 rounded text-xs sm:text-sm font-medium">Lay</span>
+            <div className="flex gap-1 sm:-translate-x-44">
+              <span className="bg-[#00B2FF] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">Back</span>
+              <span className="bg-[#FF7A7F] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">Lay</span>
             </div>
-            <span className="text-gray-400 text-xs sm:text-sm">Min: 10 | Max: 5L</span>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 ">
           {runnersWithOdds.map((runner, index) => {
             // Format back odds - extract price and size from each back entry
             const backOdds = (runner.back || []).map((odds) => [odds.price, odds.size])

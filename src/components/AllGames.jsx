@@ -156,7 +156,7 @@ export default function AllGames({ sportsData }) {
               className="flex items-center w-full px-2 py-1.5 hover:bg-gray-800 rounded-lg transition-colors"
             >
               <span className="mr-2">{sport.icon}</span>
-              <span className="text-sm">{sport.name}</span>
+              <span className="text-lg">{sport.name}</span>
               <span className="ml-auto text-[#3ea6ff]">{sport.count}</span>
               {sport.subItems?.length > 0 && (
                 <span className="ml-2">

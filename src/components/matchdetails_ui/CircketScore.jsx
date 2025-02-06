@@ -47,12 +47,12 @@ const CricketScore = ({ eventId }) => {
     };
 
     fetchScores();
-    intervalId = setInterval(fetchScores, 3000);
+    intervalId = setInterval(fetchScores, 500);
 
     return () => clearInterval(intervalId);
   }, [eventId]);
 
-  if (loading) return <p className="text-white text-center">Loading scores...</p>;
+  if (loading) return <div className="text-white h-24 w-full flex justify-center items-center text-center">Loading scores...</div>;
 
   return (
     <div className="p-4 sm:p-6 bg-slate-800 my-4 rounded-lg">

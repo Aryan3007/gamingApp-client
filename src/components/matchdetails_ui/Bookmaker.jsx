@@ -42,7 +42,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
         onClick={() => handleOddsClick(market, runner, type, odds.price)}
       >
         <span className="text-black text-sm font-semibold">{odds.price.toFixed(2)}</span>
-        <span className="text-black text-xs">{Math.floor(odds.size)}</span>
+        <span className="text-black text-[10px] lg:text-xs">{Math.floor(odds.size)}</span>
       </button>
     )
   }

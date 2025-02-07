@@ -78,9 +78,9 @@ const BFancyComponent = ({ data, onBetSelect }) => {
                 {market.market?.name || "Unknown Market"}
               </span>
               {isSuspended ? (
-                <div className="flex justify-between w-full sm:w-auto">
-                  <span className="text-red-500 text-xs sm:text-sm font-medium">SUSPENDED</span>
-                </div>
+                 <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded">
+                 <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
+               </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
                   {market.odds?.runners?.map((runner, runnerIndex) => (

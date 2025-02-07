@@ -102,7 +102,7 @@ const App = () => {
           />
           <Route path="/login" element={<Login />} />
 
-          <Route path="/match/:eventId" element={<MatchDetails />} />
+          <Route path="/match/:eventId" element={<MatchDetails sportsData={sportsData} />} />
 
           {/* Not logged In Route */}
           {/* <Route

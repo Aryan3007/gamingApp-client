@@ -16,8 +16,9 @@ import BetSlip from "../components/BetSlip";
 import CricketScore from "../components/matchdetails_ui/CircketScore";
 import { server } from "../constants/config";
 import FullTime from "../components/matchdetails_ui/FullTime";
+import AllGames from "../components/AllGames";
 
-const MatchDetails = () => {
+const MatchDetails = ({ sportsData }) => {
   const [activeTab, setActiveTab] = useState("bookmaker");
   const [data, setData] = useState(null);
   const [bookmakers, setBookmakers] = useState([]);
@@ -97,17 +98,15 @@ const MatchDetails = () => {
             categories.over.push(market);
           } else if (name.includes("over")) {
             categories.fancy.push(market);
-          } else if (name.includes("odd_even")) {
+          } else if (name.includes("total") || name.includes("odd")) {
             categories.odd_even.push(market);
-          } else if (name.includes("innings") || name.includes("caught")) {
-            categories.line.push(market);
           } else if (
+            name.includes("innings") ||
             name.includes("top") ||
-            name.includes("total") ||
             name.includes("most") ||
             name.includes("highest")
           ) {
-            categories.full_time.push(market);
+            categories.line.push(market);
           } else if (
             name.startsWith("fall of") ||
             name.startsWith("caught") ||
@@ -167,9 +166,15 @@ const MatchDetails = () => {
     return <p className="text-red-500 p-4 text-center">Error: {error}</p>;
 
   return (
-    <div className="max-w-full mx-auto pt-28 md:pt-12 grid grid-cols-1 md:grid-cols-12 lg:h-screen">
+    <div className="bg-[#21252b] pt-28 px-2 md:pt-12">
+  
+    <div className="max-w-full grid grid-cols-1 md:grid-cols-12 lg:h-[calc(100vh-48px)]">
+      <div className="md:col-span-2 lg:flex hidden bg-[#21252b] overflow-y-auto">
+        <AllGames sportsData={sportsData} />
+      </div>
       {/* Main Content */}
-      <div className="md:col-span-9 px-4 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto ">
+
+      <div className="md:col-span-7 px-4 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto ">
         {/* Match Score */}
         <div className="p-4 bg-[#262a31] border-dashed border-zinc-700 rounded-lg border">
           <h1 className="text-2xl font-semibold">
@@ -210,6 +215,7 @@ const MatchDetails = () => {
       <div className="md:col-span-3 hidden md:flex overflow-y-auto">
         <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
       </div>
+    </div>
     </div>
   );
 };

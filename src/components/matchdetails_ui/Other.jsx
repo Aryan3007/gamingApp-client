@@ -1,33 +1,60 @@
 "use client"
 
-import React, { memo, useState } from "react"
+import React, { memo, useState, useEffect, useRef } from "react"
 import PropTypes from "prop-types"
 import isEqual from "lodash/isEqual"
 import BetSlip from "../BetSlip"
 
+const sortMarkets = (markets) => {
+  const activeMarkets = markets.filter((market) => market.odds?.status !== "SUSPENDED")
+  const suspendedMarkets = markets
+    .filter((market) => market.odds?.status === "SUSPENDED")
+    .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
+  return [...activeMarkets, ...suspendedMarkets.slice(0, 5)]
+}
+
 const OtherComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null)
+  const prevDataRef = useRef()
 
-  const handleOddsClick = (market, runner, type, odds) => {
+  useEffect(() => {
+    if (prevDataRef.current) {
+      const newlySuspended = data.filter(
+        (market) =>
+          market.odds?.status === "SUSPENDED" &&
+          prevDataRef.current.find(
+            (prevMarket) => prevMarket.market.id === market.market.id && prevMarket.odds?.status !== "SUSPENDED",
+          ),
+      )
+      if (newlySuspended.length > 0) {
+        newlySuspended.forEach((market) => {
+          market.lastUpdated = new Date().toISOString()
+        })
+      }
+    }
+    prevDataRef.current = data
+  }, [data])
+
+  const handleOddsClick = (market, odds, type, price) => {
     const betData = {
-      gameId: market.event?.event?.id,
-      eventName: market.market?.name,
-      home_team: market.event?.runners?.[0]?.name,
-      away_team: market.event?.runners?.[1]?.name,
-      selectedTeam: runner.name,
+      gameId: market.market.id,
+      eventName: market.market.name,
+      home_team: market.runners?.[0]?.name,
+      away_team: market.runners?.[1]?.name,
+      selectedTeam: odds.name,
       betType: type,
-      odds: odds,
+      odds: price,
     }
     setSelectedBet(betData)
     onBetSelect(betData)
   }
 
-  const renderOddsBox = (odds, market, runner, type) => {
+  const renderOddsBox = (odds, market, type) => {
     const isActive = odds && odds.price > 0 && odds.size > 0
 
     return (
       <button
-        className={`w-full h-12 ${
+        className={`w-full sm:w-12 min-w-[100px] md:w-16 h-10 ${
           type === "Back"
             ? isActive
               ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
@@ -36,7 +63,7 @@ const OtherComponent = ({ data, onBetSelect }) => {
               ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
               : "bg-[#ff7a7e42]"
         } rounded flex flex-col items-center justify-center transition-colors`}
-        onClick={() => isActive && handleOddsClick(market, runner, type, odds.price)}
+        onClick={() => isActive && handleOddsClick(market, odds, type, odds.price)}
         disabled={!isActive}
       >
         {isActive ? (
@@ -51,14 +78,6 @@ const OtherComponent = ({ data, onBetSelect }) => {
     )
   }
 
-  const sortMarkets = (markets) => {
-    return [...markets].sort((a, b) => {
-      const aActive = a.odds.status !== "SUSPENDED" && (a.odds.back?.[0]?.price > 0 || a.odds.lay?.[0]?.price > 0)
-      const bActive = b.odds.status !== "SUSPENDED" && (b.odds.back?.[0]?.price > 0 || b.odds.lay?.[0]?.price > 0)
-      return bActive - aActive
-    })
-  }
-
   if (!Array.isArray(data)) {
     return <div className="text-white">No other markets data available</div>
   }
@@ -69,15 +88,15 @@ const OtherComponent = ({ data, onBetSelect }) => {
         <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">Over Markets</h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <span className="text-xs bg-[#00B2FF] sm:text-sm w-full text-center px-6 text-black py-1 rounded-sm font-semibold">
-            Yes
+            Back
           </span>
           <span className="text-xs sm:text-sm bg-[#FF7A7F] w-full text-center px-6 text-black py-1 rounded-sm font-semibold">
-            No
+            Lay
           </span>
         </div>
       </div>
       {sortMarkets(data).map((market, index) => {
-        const isSuspended = market.market?.status === "SUSPENDED"
+        const isSuspended = market.odds?.status === "SUSPENDED"
 
         return (
           <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
@@ -86,9 +105,9 @@ const OtherComponent = ({ data, onBetSelect }) => {
                 {market.market?.name || "Unknown Market"}
               </span>
               {isSuspended ? (
-                <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded">
-                <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
-              </div>
+                <div className="flex justify-between w-full sm:w-auto">
+                  <span className="text-red-500 text-xs sm:text-sm font-medium">SUSPENDED</span>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
                   {market.odds?.runners?.map((runner, runnerIndex) => (
@@ -96,8 +115,8 @@ const OtherComponent = ({ data, onBetSelect }) => {
                       <div className="flex flex-col items-center">
                         <span className="text-white text-xs mb-1">{runner.name}</span>
                         <div className="flex gap-1 w-full">
-                          {renderOddsBox(runner.back?.[0], market, runner, "Back")}
-                          {renderOddsBox(runner.lay?.[0], market, runner, "Lay")}
+                          {renderOddsBox(runner.back?.[0], market, "Back")}
+                          {renderOddsBox(runner.lay?.[0], market, "Lay")}
                         </div>
                       </div>
                     </React.Fragment>
@@ -105,7 +124,7 @@ const OtherComponent = ({ data, onBetSelect }) => {
                 </div>
               )}
             </div>
-            {selectedBet && selectedBet.gameId === market.event?.event?.id && (
+            {selectedBet && selectedBet.gameId === market.market.id && (
               <div className="md:hidden mt-2">
                 <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
               </div>
@@ -130,3 +149,4 @@ const Other = memo(OtherComponent, arePropsEqual)
 Other.displayName = "Other"
 
 export default Other
+

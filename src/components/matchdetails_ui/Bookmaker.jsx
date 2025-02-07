@@ -70,11 +70,11 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
   return (
     <div className="space-y-4 mt-4">
       {validMarkets.map((market, index) => (
-        <div key={`${market.market?.id || index}`} className="bg-[#242a31] rounded-lg overflow-hidden">
+        <div key={`${market.market?.id || index}`} className="bg-[#1a2027] rounded-lg overflow-hidden">
           {/* Header */}
-          <div className="flex justify-between items-center px-4 py-3 bg-[#2c3847]">
+          <div className="flex justify-between items-center px-4 py-3 bg-[#262a31]">
             <div className="flex items-center gap-2">
-            <span className="text-white text-sm font-medium">
+            <span className="text-[#72bbff] text-sm font-medium">
                 {market.market?.name === "Bookmaker 0%Comm" ? "Bookmaker" : market.market?.name || "Unknown Market"}
               </span>            </div>
             <div className="flex gap-2">
@@ -90,7 +90,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
               const isSuspended = runner.runnerStatus === "SUSPENDED"
 
               return (
-                <div key={runnerIndex} className="flex items-center p-4">
+                <div key={runnerIndex} className="flex items-center p-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-white">
                       <span>{displayName}</span>
@@ -100,7 +100,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
                   <div className="grid grid-cols-2 gap-2 w-fit">
                     {isSuspended ? (
                       <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded">
-                        <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
+                        <span className="text-[#ff4d4f] text-sm font-medium">SUSPENDED</span>
                       </div>
                     ) : (
                       <>

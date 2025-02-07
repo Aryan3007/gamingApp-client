@@ -1,16 +1,51 @@
 "use client"
 
-import { memo, useState } from "react"
+import { memo, useState, useEffect, useRef } from "react"
 import isEqual from "lodash/isEqual"
 import BetSlip from "../BetSlip"
 
-const FullTime = ({ data, onBetSelect }) => {
+const FullTimeComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null)
+  const prevDataRef = useRef();
 
-  const renderOddsBox = (odds, type, marketName, marketId, isActive) => {
+  useEffect(() => {
+    if (prevDataRef.current) {
+      const newlySuspended = data.filter(market => 
+        market.odds?.status === "SUSPENDED" && 
+        prevDataRef.current.find(prevMarket => 
+          prevMarket.market.id === market.market.id && 
+          prevMarket.odds?.status !== "SUSPENDED"
+        )
+      );
+      if (newlySuspended.length > 0) {
+        newlySuspended.forEach(market => {
+          market.lastUpdated = new Date().toISOString();
+        });
+      }
+    }
+    prevDataRef.current = data;
+  }, [data]);
+
+  const handleOddsClick = (market, odds, type) => {
+    const betData = {
+      gameId: market.market.id,
+      eventName: market.market.name,
+      home_team: market.market.name.split(" v ")[0],
+      away_team: market.market.name.split(" v ")[1] || "N/A",
+      selectedTeam: market.market.name,
+      betType: type,
+      odds: odds?.price || 0,
+    }
+    setSelectedBet(betData)
+    onBetSelect && onBetSelect(betData)
+  }
+
+  const renderOddsBox = (odds, market, type) => {
+    const isActive = odds && odds.price > 0 && odds.size > 0
+
     return (
       <button
-        className={`w-full sm:w-20 h-10 ${
+        className={`w-full sm:w-12 min-w-[100px] md:w-16 h-10 ${
           type === "Back"
             ? isActive
               ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
@@ -19,21 +54,7 @@ const FullTime = ({ data, onBetSelect }) => {
               ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
               : "bg-[#ff7a7e42]"
         } rounded flex flex-col items-center justify-center transition-colors`}
-        onClick={() => {
-          if (isActive) {
-            const betData = {
-              gameId: marketId,
-              eventName: marketName,
-              home_team: marketName.split(" v ")[0],
-              away_team: marketName.split(" v ")[1] || "N/A",
-              selectedTeam: marketName,
-              betType: type,
-              odds: odds?.price || 0,
-            }
-            setSelectedBet(betData)
-            onBetSelect && onBetSelect(betData)
-          }
-        }}
+        onClick={() => isActive && handleOddsClick(market, odds, type)}
         disabled={!isActive}
       >
         {isActive ? (
@@ -49,16 +70,20 @@ const FullTime = ({ data, onBetSelect }) => {
   }
 
   const sortMarkets = (markets) => {
-    return [...markets].sort((a, b) => {
-      const aActive = a.odds.status !== "SUSPENDED" && (a.odds.back?.[0]?.price > 0 || a.odds.lay?.[0]?.price > 0)
-      const bActive = b.odds.status !== "SUSPENDED" && (b.odds.back?.[0]?.price > 0 || b.odds.lay?.[0]?.price > 0)
-      return bActive - aActive
-    })
+    const activeMarkets = markets.filter(market => 
+      market.odds?.status !== "SUSPENDED" && 
+      (market.odds.back?.[0]?.price > 0 || market.odds.lay?.[0]?.price > 0)
+    );
+    const suspendedMarkets = markets.filter(market => 
+      market.odds?.status === "SUSPENDED" || 
+      (market.odds.back?.[0]?.price === 0 && market.odds.lay?.[0]?.price === 0)
+    ).sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    return [...activeMarkets, ...suspendedMarkets.slice(0, 5)];
   }
 
   // Check if data is an array before mapping
   if (!Array.isArray(data)) {
-    return <div className="text-white">No fancy data available</div>
+    return <div className="text-white">No full time data available</div>
   }
 
   return (
@@ -67,54 +92,36 @@ const FullTime = ({ data, onBetSelect }) => {
         <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">Full Time Markets</h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <span className="text-xs bg-[#00B2FF] sm:text-sm w-full text-center px-6 text-black py-1 rounded-sm font-semibold">
-            Yes
+            Back
           </span>
           <span className="text-xs sm:text-sm bg-[#FF7A7F] w-full text-center px-6 text-black py-1 rounded-sm font-semibold">
-            No
+            Lay
           </span>
         </div>
       </div>
       {sortMarkets(data)?.map((market, index) => {
-        const isSuspended = market.odds.status === "SUSPENDED"
-        const hasValidOdds = (odds) => odds && odds.price > 0 && odds.size > 0
+        const isSuspended = market.odds?.status === "SUSPENDED" || 
+          (market.odds.back?.[0]?.price === 0 && market.odds.lay?.[0]?.price === 0)
 
         return (
-          <div key={`${market.market?.id || index}`}>
-            <div className="border-b border-[#2c3847]">
-              <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 py-2">
-                <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">
-                  {market.market?.name || "Unknown Market"}
-                </span>
-                {isSuspended ? (
-                  <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded">
+          <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
+            <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 py-2">
+              <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">
+                {market.market?.name || "Unknown Market"}
+              </span>
+              {isSuspended ? (
+                <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded w-full sm:w-auto">
                   <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
                 </div>
-                ) : (
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <div className="w-1/2 sm:w-auto">
-                      {renderOddsBox(
-                        market.odds.back?.[0],
-                        "Back",
-                        market.market?.name,
-                        market.market?.id,
-                        hasValidOdds(market.odds.back?.[0]),
-                      )}
-                    </div>
-                    <div className="w-1/2 sm:w-auto">
-                      {renderOddsBox(
-                        market.odds.lay?.[0],
-                        "Lay",
-                        market.market?.name,
-                        market.market?.id,
-                        hasValidOdds(market.odds.lay?.[0]),
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <div className="w-1/2 sm:w-auto">{renderOddsBox(market.odds?.back?.[0], market, "Back")}</div>
+                  <div className="w-1/2 sm:w-auto">{renderOddsBox(market.odds?.lay?.[0], market, "Lay")}</div>
+                </div>
+              )}
             </div>
-            {selectedBet && selectedBet.gameId === market.market?.id && (
-              <div className="md:hidden">
+            {selectedBet && selectedBet.gameId === market.market.id && (
+              <div className="md:hidden mt-2">
                 <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
               </div>
             )}
@@ -129,8 +136,7 @@ const arePropsEqual = (prevProps, nextProps) => {
   return isEqual(prevProps.data, nextProps.data) && prevProps.onBetSelect === nextProps.onBetSelect
 }
 
-const Fancy = memo(FullTime, arePropsEqual)
-Fancy.displayName = "FullTime"
+const FullTime = memo(FullTimeComponent, arePropsEqual)
+FullTime.displayName = "FullTime"
 
 export default FullTime
-

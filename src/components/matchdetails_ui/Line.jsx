@@ -27,7 +27,7 @@ const LineComponent = ({ data, onBetSelect }) => {
 
     return (
       <button
-        className={`w-full h-12 ${
+        className={`w-full sm:w-12 min-w-[100px] md:w-16 h-10  ${
           type === "Back"
             ? isActive
               ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
@@ -64,7 +64,7 @@ const LineComponent = ({ data, onBetSelect }) => {
   }
 
   return (
-    <div className="space-y-4 bg-[#242a31] rounded-lg overflow-hidden mt-4">
+    <div className="space-y-2 bg-[#242a31] rounded-lg overflow-hidden mt-4">
       <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 bg-[#2c3847]">
         <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">Line Markets</h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
@@ -76,43 +76,34 @@ const LineComponent = ({ data, onBetSelect }) => {
           </span>
         </div>
       </div>
-      {sortMarkets(data).map((market, index) => {
-        const isSuspended = market.market?.status === "SUSPENDED"
-
-        return (
-          <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
-            <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 py-2">
-              <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">
-                {market.market?.name || "Unknown Market"}
-              </span>
-              {isSuspended ? (
-               <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded">
-               <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
-             </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
-                  {market.odds?.runners?.map((runner, runnerIndex) => (
-                    <React.Fragment key={runnerIndex}>
-                      <div className="flex flex-col items-center">
-                        <span className="text-white text-xs mb-1">{runner.name}</span>
-                        <div className="flex gap-1 w-full">
-                          {renderOddsBox(runner.back?.[0], market, runner, "Back")}
-                          {renderOddsBox(runner.lay?.[0], market, runner, "Lay")}
-                        </div>
+        {sortMarkets(data)?.map((market, index) => {
+              const isSuspended = market.odds?.status === "SUSPENDED" 
+      
+              return (
+                <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
+                  <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 py-2">
+                    <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">
+                      {market.market?.name || "Unknown Market"}
+                    </span>
+                    {isSuspended ? (
+                      <div className="col-span-2 flex items-center justify-center h-10 bg-[#1a2027] rounded w-full sm:w-auto">
+                        <span className="text-[#ff4d4f] text-sm px-4 font-medium">SUSPENDED</span>
                       </div>
-                    </React.Fragment>
-                  ))}
+                    ) : (
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <div className="w-1/2 sm:w-auto">{renderOddsBox(market.odds?.back?.[0], market, "Back")}</div>
+                        <div className="w-1/2 sm:w-auto">{renderOddsBox(market.odds?.lay?.[0], market, "Lay")}</div>
+                      </div>
+                    )}
+                  </div>
+                  {selectedBet && selectedBet.gameId === market.market.id && (
+                    <div className="md:hidden mt-2">
+                      <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            {selectedBet && selectedBet.gameId === market.event?.event?.id && (
-              <div className="md:hidden mt-2">
-                <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
-              </div>
-            )}
-          </div>
-        )
-      })}
+              )
+            })}
     </div>
   )
 }

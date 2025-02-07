@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 import io from "socket.io-client"
@@ -32,7 +31,7 @@ OddsBox.propTypes = {
 
 const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick }) => {
   return (
-    <div className="flex flex-wrap sm:flex-nowrap justify-between items-center py-1 border-b  border-[#2A3447]">
+    <div className="flex flex-wrap sm:flex-nowrap justify-between items-center py-2 border-b  border-[#2A3447]">
       <span className="text-white text-sm w-full sm:w-[200px] mb-2 sm:mb-0">{teamName}</span>
       <div className="grid grid-cols-3 sm:flex gap-1 w-full sm:w-auto">
         {backOdds.map(([odds, value], i) => (

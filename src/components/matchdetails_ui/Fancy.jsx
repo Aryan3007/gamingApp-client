@@ -63,8 +63,8 @@ const FancyComponent = ({ data, onBetSelect }) => {
 
   return (
     <div className="space-y-4 bg-[#242a31] rounded-lg overflow-hidden mt-4">
-      <div className="flex flex-row sm:flex-nowrap justify-between items-center p-3 bg-[#2c3847]">
-        <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">Fancy</h3>
+      <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 bg-[#2c3847]">
+        <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">Fancy Markets</h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <span className="text-xs bg-[#00B2FF] sm:text-sm w-full text-center px-6 text-black py-1 rounded-sm font-semibold">
             Yes

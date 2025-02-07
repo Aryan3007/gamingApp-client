@@ -104,7 +104,8 @@ const MatchDetails = () => {
           } else if (
             name.includes("top") ||
             name.includes("total") ||
-            name.includes("most")
+            name.includes("most") ||
+            name.includes("highest")
           ) {
             categories.full_time.push(market);
           } else if (

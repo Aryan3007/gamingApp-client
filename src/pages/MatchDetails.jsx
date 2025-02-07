@@ -99,7 +99,7 @@ const MatchDetails = () => {
             categories.fancy.push(market);
           } else if (name.includes("odd_even")) {
             categories.odd_even.push(market);
-          } else if (name.includes("innings")) {
+          } else if (name.includes("innings") || name.includes("caught")) {
             categories.line.push(market);
           } else if (
             name.includes("top") ||

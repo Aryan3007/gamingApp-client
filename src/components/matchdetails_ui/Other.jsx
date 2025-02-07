@@ -51,6 +51,14 @@ const OtherComponent = ({ data, onBetSelect }) => {
     )
   }
 
+  const sortMarkets = (markets) => {
+    return [...markets].sort((a, b) => {
+      const aActive = a.odds.status !== "SUSPENDED" && (a.odds.back?.[0]?.price > 0 || a.odds.lay?.[0]?.price > 0)
+      const bActive = b.odds.status !== "SUSPENDED" && (b.odds.back?.[0]?.price > 0 || b.odds.lay?.[0]?.price > 0)
+      return bActive - aActive
+    })
+  }
+
   if (!Array.isArray(data)) {
     return <div className="text-white">No other markets data available</div>
   }
@@ -68,7 +76,7 @@ const OtherComponent = ({ data, onBetSelect }) => {
           </span>
         </div>
       </div>
-      {data.map((market, index) => {
+      {sortMarkets(data).map((market, index) => {
         const isSuspended = market.market?.status === "SUSPENDED"
 
         return (

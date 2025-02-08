@@ -15,7 +15,9 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    
     navigate("/login");
+    window.location.reload(); // Reload the page to reset the state
   };
 
   return (

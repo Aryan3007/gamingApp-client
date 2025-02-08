@@ -50,9 +50,20 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
 
     if (!isActive) {
       return (
-        <span className="text-red-500 text-center flex justify-center items-center font-semibold text-xs">
+        <button className={`w-full sm:w-12 lg:min-w-[100px] min-w-[70px] md:w-16 h-10 ${
+          type === "Back"
+            ? isActive
+              ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
+              : "bg-[#00b3ff36]"
+            : isActive
+            ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
+            : "bg-[#ff7a7e42]"
+        } rounded flex flex-col items-center justify-center transition-colors`}>
+          <span className="text-red-500 font-semibold text-xs">
+
           Suspended
-        </span>
+          </span>
+        </button>
       );
     }
 

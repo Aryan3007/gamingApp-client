@@ -121,7 +121,7 @@ const FullTimeComponent = ({ data, onBetSelect }) => {
               )}
             </div>
             {selectedBet && selectedBet.gameId === market.market.id && (
-              <div className="md:hidden mt-2">
+              <div className="lg:hidden mt-2">
                 <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
               </div>
             )}

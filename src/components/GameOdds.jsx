@@ -14,12 +14,21 @@ const GameOdds = ({ liveData, onBetSelect }) => {
 
   const handleOddsClick = (game, team, type, odds) => {
     const betData = {
-      gameId: game.event?.event?.id,
-      home_team: game.event?.runners?.[0]?.name,
-      away_team: game.event?.runners?.[1]?.name,
+      home_team: game?.event?.runners?.[0]?.name || "Unknown",
+      away_team: game?.event?.runners?.[1]?.name || "Unknown",
+      eventId: game?.event?.event?.id || "",
+      marketId: game?.odds?.[0]?.marketId || "",
+      selectionId: game?.event?.runners?.find((r) => r.name === team)?.id || null,
+      fancyNumber: odds || 0,
+      stake: 0,
+      odds: odds || 0,
+      category: "match_odds",
+      type: type.toLowerCase(),
+      gameId: game?.event?.event?.id || "",
+      eventName: game?.event?.event?.name || "Unknown Market",
       selectedTeam: team,
       betType: type,
-      odds: odds,
+      size: 0,
     }
     setSelectedBet(betData)
     onBetSelect(betData)
@@ -73,7 +82,7 @@ const GameOdds = ({ liveData, onBetSelect }) => {
         {runner && odds ? (
           <>
             <button
-              onClick={() => handleOddsClick(game, runner.name, "Back", getBestPrice(odds.back))}
+                onClick={() => handleOddsClick(game, runner.name, "Back", getBestPrice(odds.back))}
               className="w-full bg-[#00b2ff] justify-center items-center rounded-sm h-8 text-black text-sm font-semibold"
             >
               {getBestPrice(odds.back)}
@@ -87,8 +96,8 @@ const GameOdds = ({ liveData, onBetSelect }) => {
           </>
         ) : (
           <>
-            <div className="w-full h-8 bg-[#ff7a7e42] rounded-sm"></div>
-            <div className="w-full h-8 bg-[#00b3ff36] rounded-sm"></div>
+            <div className="w-full h-8 bg-[#ff7a7e42] rounded-sm">-</div>
+            <div className="w-full h-8 bg-[#00b3ff36] rounded-sm">-</div>
           </>
         )}
       </div>
@@ -155,8 +164,8 @@ const GameOdds = ({ liveData, onBetSelect }) => {
                       <div className="flex flex-col gap-1 items-center">
                         <h1 className="text-xs font-semibold">The Draw</h1>
                         <div className="grid grid-cols-2 gap-1 w-full">
-                          <div className="w-full h-8 bg-[#ff7a7e42] rounded-sm"></div>
-                          <div className="w-full h-8 bg-[#00b3ff36] rounded-sm"></div>
+                          <div className="w-full flex justify-center items-center h-8 bg-[#ff7a7e42] rounded-sm">-</div>
+                          <div className="w-full flex justify-center items-center h-8 bg-[#00b3ff36] rounded-sm">-</div>
                         </div>
                       </div>
                     )}

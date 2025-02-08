@@ -140,7 +140,7 @@ export default function AllGames({ sportsData }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#21252b] lg:border mt-2 rounded-lg border-dashed border-zinc-700 text-gray-300 p-4 w-full">
+    <div className="lg:h-[calc(100vh-64px)] h-full bg-[#21252b] lg:border mt-2 rounded-lg border-dashed border-zinc-700 text-gray-300 p-4 w-full">
       <div className="mb-2">
         <span className="text-xs text-gray-500">SPORTS</span>
         <span className="float-right text-[#3ea6ff] text-sm">{totalGames}</span>

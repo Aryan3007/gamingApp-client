@@ -51,7 +51,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
                   <Wallet className="text-white hidden md:flex text-sm" />
                   Wallet :
                   <span className="uppercase text-sm">
-                    {user?.currency} {user?.amount}
+                    {user?.currency} {user?.amount.toFixed(2)}
                   </span>
                 </button>
 

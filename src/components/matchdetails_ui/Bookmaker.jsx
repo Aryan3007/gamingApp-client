@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import PropTypes from "prop-types";
 import isEqual from "lodash/isEqual";
 import BetSlip from "../BetSlip";
@@ -14,12 +14,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
       Array.isArray(market.odds?.runners) && market.odds.runners.length > 0
   );
 
-  useEffect(() => {
-    console.log(validMarkets);
-  }, [validMarkets]);
-
   const handleOddsClick = (market, runner, type, odds) => {
-    console.log("runner", market);
     const betData = {
       home_team: market?.runners?.[0]?.name || "Unknown",
       away_team: market?.runners?.[1]?.name || "Unknown",
@@ -32,13 +27,12 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
       type: type.toLowerCase(),
       gameId: market?.market?.id || "",
       eventName: market?.market?.name || "Unknown Market",
-      selectedTeam: runner?.name || market.market?.name ,
+      selectedTeam: runner?.name || market.market?.name,
 
       betType: type,
       odds: odds?.size || 0,
       marketName: market?.market?.name || "Unknown Market",
       runnerName: runner?.name || "Unknown Runner",
-    
     };
 
     setSelectedBet(betData);
@@ -50,19 +44,18 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
 
     if (!isActive) {
       return (
-        <button className={`w-full sm:w-12 lg:min-w-[100px] min-w-[70px] md:w-16 h-10 ${
-          type === "Back"
-            ? isActive
-              ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
-              : "bg-[#00b3ff36]"
-            : isActive
-            ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
-            : "bg-[#ff7a7e42]"
-        } rounded flex flex-col items-center justify-center transition-colors`}>
-          <span className="text-red-500 font-semibold text-xs">
-
-          Suspended
-          </span>
+        <button
+          className={`w-full sm:w-12 lg:min-w-[100px] min-w-[70px] md:w-16 h-10 ${
+            type === "Back"
+              ? isActive
+                ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
+                : "bg-[#00b3ff36]"
+              : isActive
+              ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
+              : "bg-[#ff7a7e42]"
+          } rounded flex flex-col items-center justify-center transition-colors`}
+        >
+          <span className="text-red-500 font-semibold text-xs">Suspended</span>
         </button>
       );
     }
@@ -99,7 +92,6 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
       if (matchingRunner && matchingRunner.name) {
         return matchingRunner.name;
       }
-      
     }
     return runner.name || "Unknown";
   };

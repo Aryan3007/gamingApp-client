@@ -86,11 +86,12 @@ export default function MatchOdds({ eventId, onBetSelect }) {
   const [selectedBet, setSelectedBet] = useState(null);
 
   const handleOddsClick = (matchData, teamName, type, odds, value) => {
+    console.log("object", matchData);
     const betData = {
       home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
       away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
       eventId: matchData?.event?.event?.id || "",
-      marketId: matchData?.market?.id || "",
+      marketId: matchData?.event?.market?.id || "",
       selectionId:
         matchData?.event?.runners?.find((r) => r.name === teamName)?.id || null,
       fancyNumber: odds || 0,

@@ -1,34 +1,115 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { Plus, Minus } from "lucide-react";
 import PropTypes from "prop-types";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { server } from "../constants/config";
+import { calculateProfitAndLoss } from "../utils/calculateProfitAndLoss";
 
 export default function BetSlip({ match, onClose }) {
-  console.log(match);
-
-
   const [betAmount, setBetAmount] = useState(100);
-  const quickBets = [
-    { label: "100", value: 100 },
-    { label: "1K", value: 1000 },
-    { label: "5K", value: 5000 },
-    { label: "10K", value: 10000 },
-    { label: "25K", value: 25000 },
-    { label: "50K", value: 50000 },
-    { label: "100K", value: 100000 },
-    { label: "500K", value: 500000 },
-  ];
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((state) => state.userReducer);
+  const prevMatch = useRef(null); // Store previous match data
 
-  const handleQuickBet = (amount) => {
+  // Only update state if the match has actually changed
+  useEffect(() => {
+    if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
+      prevMatch.current = match; // Update the stored match
+    }
+  }, [match]);
+
+  // Memoized profit and loss calculations
+  const { profit, loss } = useMemo(() => {
+    return match
+      ? calculateProfitAndLoss(
+          betAmount,
+          match.fancyNumber,
+          match.type,
+          match.category
+        )
+      : { profit: 0, loss: 0 };
+  }, [betAmount, match]);
+
+  // Quick bet options
+  const quickBets = useMemo(
+    () => [
+      { label: "100", value: 100 },
+      { label: "1K", value: 1000 },
+      { label: "5K", value: 5000 },
+      { label: "10K", value: 10000 },
+      { label: "25K", value: 25000 },
+      { label: "50K", value: 50000 },
+      { label: "100K", value: 100000 },
+      { label: "500K", value: 500000 },
+    ],
+    []
+  );
+
+  const handleQuickBet = useCallback((amount) => {
     setBetAmount(amount);
-  };
+  }, []);
 
-  const handleBetChange = (value) => {
-    const newAmount = Math.max(10, Math.min(value, 25000));
-    setBetAmount(newAmount);
+  const handleBetChange = useCallback((value) => {
+    setBetAmount(Math.max(10, Math.min(value, 25000)));
+  }, []);
+
+  const placeBet = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+
+    if (!match) {
+      toast.error("Match details are missing!");
+      return;
+    }
+
+    const payload = {
+      eventId: match.eventId,
+      match: `${match.home_team} vs ${match.away_team}`,
+      marketId: match.marketId,
+      selectionId: match.selectionId,
+      fancyNumber: match.fancyNumber,
+      stake: betAmount,
+      odds: match.odds,
+      category: match.category,
+      type: match.type,
+    };
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${server}/api/v1/bet/place?userId=${user._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Bet placed successfully!");
+        onClose();
+      } else {
+        toast.error(data.message || "Failed to place bet.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while placing the bet.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-[#21252b] md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 rounded-none md:rounded-lg p-4 h-full">
+    <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 md:rounded-lg p-4 h-full lg:h-[calc(100vh-64px)]">
       {/* Header */}
       <div className="flex justify-between items-end md:mb-4">
         <div>
@@ -38,7 +119,6 @@ export default function BetSlip({ match, onClose }) {
               : "Select a bet"}
           </h2>
         </div>
-      
       </div>
 
       {/* Match Details */}
@@ -51,9 +131,8 @@ export default function BetSlip({ match, onClose }) {
                 : "text-blue-400"
             }`}
           >
-            {match?.selectedTeam}
+            {match?.selectedTeam}{" "}
           </span>
-
           <span className="text-gray-400">
             ({match?.betType} @ {match?.fancyNumber})
           </span>
@@ -73,7 +152,7 @@ export default function BetSlip({ match, onClose }) {
             type="number"
             value={betAmount}
             onChange={(e) => handleBetChange(Number.parseFloat(e.target.value))}
-            className="bg-gray-700 text-center w-32 p-2 rounded-lg "
+            className="bg-gray-700 text-center w-32 p-2 rounded-lg"
           />
           <button
             onClick={() => handleBetChange(betAmount + 1)}
@@ -82,32 +161,47 @@ export default function BetSlip({ match, onClose }) {
             <Plus size={20} />
           </button>
         </div>
-        <input
-          type="number"
-          value={match?.fancyNumber  || ""}
-          onChange={(e) =>
-            handleBetChange(
-              e.target.value ? Number.parseFloat(e.target.value) : ""
-            )
-          }
-          className="bg-gray-700 text-center w-28 p-2 rounded-lg"
-        />
       </div>
 
+      {/* Calculations */}
+
+      {user && match && (
+        <div className="text-sm flex justify-evenly lg:text-sm mb-4">
+          <div className="flex gap-1 justify-center items-center text-red-500">
+            <span className="font-semibold ">Loss:</span>
+            <span className="uppercase">
+              {user?.currency} {loss?.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex gap-1 justify-center items-center text-green-500">
+            <span className="font-semibold "> Winnings:</span>
+            <span className="uppercase">
+              {" "}
+              {user?.currency} {profit?.toFixed(2)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Quick Bet Amounts */}
-      <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 mb-3 md:mb-6">
+      <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 my-3 md:my-6">
         {quickBets.map((bet) => (
           <button
             key={bet.value}
             onClick={() => handleQuickBet(bet.value)}
-            className="border border-zinc-500 py-2 px-4 rounded text-center hover:bg-gray-600"
+            className={`border border-zinc-500 py-2 px-4 rounded text-center hover:bg-gray-600 ${
+              bet.value > user?.amount ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={bet.value > user?.amount}
           >
             {bet.label}
           </button>
         ))}
       </div>
 
+      {!user && (
+        <p className="text-center mb-2 text-red-500">Login to place bet</p>
+      )}
       {/* Action Buttons */}
       <div className="flex gap-2">
         <button
@@ -116,8 +210,12 @@ export default function BetSlip({ match, onClose }) {
         >
           Cancel
         </button>
-        <button className="flex-1 bg-green-500 py-2 px-8 rounded-lg font-medium">
-          Place Bet
+        <button
+          onClick={placeBet}
+          className="flex-1 bg-green-500 py-2 px-8 rounded-lg font-medium"
+          disabled={!user || loading}
+        >
+          {loading ? "Placing Bet..." : "Place Bet"}
         </button>
       </div>
     </div>
@@ -125,14 +223,6 @@ export default function BetSlip({ match, onClose }) {
 }
 
 BetSlip.propTypes = {
-  match: PropTypes.shape({
-    gameId: PropTypes.string.isRequired,
-    eventName: PropTypes.string.isRequired,
-    home_team: PropTypes.string.isRequired,
-    away_team: PropTypes.string.isRequired,
-    selectedTeam: PropTypes.string.isRequired,
-    betType: PropTypes.string.isRequired,
-    odds: PropTypes.number.isRequired,
-  }),
+  match: PropTypes.object,
   onClose: PropTypes.func.isRequired,
 };

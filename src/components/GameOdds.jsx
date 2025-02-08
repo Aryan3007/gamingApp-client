@@ -22,7 +22,7 @@ const GameOdds = ({ liveData, onBetSelect }) => {
       fancyNumber: odds || 0,
       stake: 0,
       odds: odds || 0,
-      category: "match_odds",
+      category: "match odds",
       type: type.toLowerCase(),
       gameId: game?.event?.event?.id || "",
       eventName: game?.event?.event?.name || "Unknown Market",

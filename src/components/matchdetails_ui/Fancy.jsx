@@ -7,7 +7,6 @@ import BetSlip from "../BetSlip"
 const FancyComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null)
   const prevDataRef = useRef()
-
   useEffect(() => {
     if (prevDataRef.current) {
       const newlySuspended = data.filter(

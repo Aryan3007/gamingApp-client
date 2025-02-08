@@ -117,10 +117,10 @@ const OtherComponent = ({ data, onBetSelect }) => {
         </h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
           <span className="text-xs bg-[#00B2FF] sm:text-sm  text-center w-full max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
-            Yes
+            Back
           </span>
           <span className="text-xs sm:text-sm bg-[#FF7A7F] w-full text-center max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
-            No
+            Lay
           </span>
         </div>
       </div>

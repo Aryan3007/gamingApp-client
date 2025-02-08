@@ -51,7 +51,7 @@ export default function BetSlip({ match, onClose }) {
   }, []);
 
   const handleBetChange = useCallback((value) => {
-    setBetAmount(Math.max(10, Math.min(value, 25000)));
+    setBetAmount(Math.max(0, Math.min(value, 25000)));
   }, []);
 
   const placeBet = async () => {

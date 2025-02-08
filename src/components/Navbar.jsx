@@ -20,6 +20,14 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
     window.location.reload(); // Reload the page to reset the state
   };
 
+  const formatAmount = (amount) => {
+    if (amount >= 1_000_000_000) return (amount / 1_000_000_000).toFixed(2) + "B"; // Billions
+    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + "M"; // Millions
+    if (amount >= 1_000) return (amount / 1_000).toFixed(2) + "K"; // Thousands
+    return amount.toFixed(2); // Normal display
+  };
+  
+
   return (
     <nav className="bg-[#181d26] fixed w-full z-[99]">
       <div className="max-w-full mx-auto px-4">
@@ -50,11 +58,13 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
             {!loading && user ? (
               <div className="flex gap-2">
                 <button className="flex gap-2 text-sm rounded-full px-4 py-1 text-white font-semibold">
-                  <Wallet className="text-white hidden md:flex text-sm" />
-                  Wallet :
+                  <Wallet className="text-white flex text-sm" />
+                  <span className="hidden md:flex">Wallet :</span>
+                  
                   <span className="uppercase text-sm">
-                    {user?.currency} {user?.amount.toFixed(2)}
-                  </span>
+  {user?.currency} {formatAmount(user?.amount)}
+</span>
+
                 </button>
 
                 <button

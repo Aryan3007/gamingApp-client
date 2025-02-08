@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 "use client"
 
 import { useEffect, useState, useMemo, useCallback } from "react"
@@ -15,7 +17,6 @@ import Loader from "../components/Loader"
 import BetSlip from "../components/BetSlip"
 import CricketScore from "../components/matchdetails_ui/CircketScore"
 import { server } from "../constants/config"
-import FullTime from "../components/matchdetails_ui/FullTime"
 import AllGames from "../components/AllGames"
 
 const AllComponents = ({ data, onBetSelect }) => {
@@ -42,7 +43,6 @@ const tabComponents = {
   b_fancy: BFancy,
   odd_even: OddEven,
   line: Line,
-  full_time: FullTime,
 }
 
 const MatchDetails = ({ sportsData }) => {
@@ -97,7 +97,6 @@ const MatchDetails = ({ sportsData }) => {
         b_fancy: [],
         odd_even: [],
         line: [],
-        full_time: [],
       }
 
       if (rawData.getFancy) {

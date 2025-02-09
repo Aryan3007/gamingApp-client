@@ -36,7 +36,7 @@ const OtherComponent = ({ data, onBetSelect }) => {
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,
-      fancyNumber: price,
+      fancyNumber: size,
       stake: 0,
       odds: size,
       category: "fancy",

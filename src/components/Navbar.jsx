@@ -82,7 +82,7 @@ const walletAmount = localStorage.getItem("walletAmount")
                   </Link>
                 ) : (
                   <Link to="/profile">
-                    <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
+                    <button className="border border-zinc-500 text-sm text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
                       Profile
                     </button>
                   </Link>

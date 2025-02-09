@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+"use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Bookmaker from "../components/matchdetails_ui/Bookmaker";
@@ -84,7 +85,7 @@ const MatchDetails = ({ sportsData }) => {
 
     fetchData();
 
-    const intervalId = setInterval(fetchData, 3000);
+    const intervalId = setInterval(fetchData, 500);
 
     return () => clearInterval(intervalId);
   }, [eventId]);

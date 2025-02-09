@@ -93,7 +93,7 @@ const WebsiteManagement = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter Image Title"
-            className="w-full sm:w-auto flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full sm:w-auto text-black flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
             onClick={handleUpload}
@@ -134,7 +134,7 @@ const WebsiteManagement = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{img.title}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
-                    onClick={() => handleDelete(img.id)}
+                    onClick={() => handleDelete(img._id)}
                     className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out flex items-center"
                   >
                     <Trash2 className="w-4 h-4 mr-1" />

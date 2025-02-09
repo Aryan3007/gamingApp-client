@@ -40,7 +40,7 @@ const GameOdds = ({ liveData, onBetSelect }) => {
 
   // Helper function to get the best back/lay price
   const getBestPrice = (prices) => {
-    if (!prices || prices.length === 0) return "-"
+    if (!prices || prices?.length === 0) return "-"
     return prices[0].price.toFixed(2)
   }
 
@@ -107,7 +107,7 @@ const GameOdds = ({ liveData, onBetSelect }) => {
   return (
     <div className="pt-2">
       <div className="flex gap-2 flex-col">
-        {sortedGames && sortedGames.length > 0 ? (
+        {sortedGames && sortedGames?.length > 0 ? (
           sortedGames.map((game, index) => {
             const arrangedRunners = arrangeRunners(game.event?.runners, game.odds?.[0]?.runners)
 

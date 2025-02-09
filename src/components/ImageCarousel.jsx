@@ -50,9 +50,7 @@ const ImageCarousel = () => {
             </div>
           ))
         ) : (
-          <div className="w-full h-44 lg:h-64 flex items-center justify-center bg-gray-200 rounded-lg">
-            <p className="text-gray-600">No images available</p>
-          </div>
+          <></>
         )}
       </Slider>
     </div>

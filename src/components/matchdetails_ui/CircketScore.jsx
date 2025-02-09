@@ -7,7 +7,6 @@ const CricketScore = ({ eventId }) => {
   const [scoreData, setScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
- const url =  import.meta.env.VITE_SCORE;
   useEffect(() => {
     let intervalId;
 
@@ -15,7 +14,7 @@ const CricketScore = ({ eventId }) => {
       try {
     
         const response = await axios.get(
-          `${url}/cricketscore?eventid=${eventId}`
+          `https://testscapi.fpl11.com/api/admin/cricketscore?eventid=${eventId}`
         );
 
         const parser = new DOMParser();

@@ -57,7 +57,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
                     setActiveTab(item.id);
                     setIsOpen(false); // Close sidebar on mobile after selection
                   }}
-                  className={`w-full text-left p-4 hover:bg-gray-700 transition-colors ${
+                  className={`w-full my-1 text-left p-4 hover:bg-gray-700 transition-colors ${
                     activeTab === item.id ? 'bg-gray-700' : ''
                   }`}
                 >

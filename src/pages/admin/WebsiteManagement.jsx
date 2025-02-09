@@ -75,7 +75,7 @@ const WebsiteManagement = () => {
       <h2 className="text-2xl font-bold mb-6 text-gray-200">Manage Website Images</h2>
 
       {/* Upload Section */}
-      <div className="mb-8 p-6 bg-slate-800 rounded-lg shadow-md">
+      <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4 text-gray-200">Upload New Image</h3>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="relative w-full sm:w-auto">
@@ -120,7 +120,7 @@ const WebsiteManagement = () => {
       </div>
 
       {/* Images Table */}
-      <div className="bg-slate-800 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className=" text-left">

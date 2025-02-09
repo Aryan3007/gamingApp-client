@@ -7,7 +7,7 @@ import { userNotExist } from "../redux/reducer/userReducer";
 const Navbar = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
-const walletAmount = localStorage.getItem("walletAmount")
+  const walletAmount = localStorage.getItem("walletAmount");
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Casino", href: "#" },
@@ -22,7 +22,7 @@ const walletAmount = localStorage.getItem("walletAmount")
     dispatch(userNotExist()); // Clear user from Redux state
     navigate("/login");
   };
-  
+
   const formatAmount = (amount) => {
     if (amount >= 1_000_000_000)
       return (amount / 1_000_000_000).toFixed(2) + "B"; // Billions
@@ -31,7 +31,7 @@ const walletAmount = localStorage.getItem("walletAmount")
   };
 
   return (
-    <nav className="bg-[#181d26] fixed w-full z-[99]">
+    <nav className="bg-[#181d26] bg-opacity-70 backdrop-blur-lg  fixed w-full z-[99]">
       <div className="max-w-full mx-auto px-4">
         <div className="flex items-center justify-between lg:justify-between h-12">
           <div className="flex items-center gap-3">
@@ -59,14 +59,15 @@ const walletAmount = localStorage.getItem("walletAmount")
           <div className="flex items-center">
             {!loading && user ? (
               <div className="flex gap-2">
-                <button className="flex gap-2 text-sm rounded-full px-4 py-1 text-white font-semibold">
+                <div className="flex gap-2 cursor-default text-sm rounded-full px-4 py-1 text-white font-semibold">
                   <Wallet className="text-white flex text-sm" />
                   <span className="hidden md:flex">Wallet :</span>
 
                   <span className="uppercase text-sm">
-                    {user?.currency} {walletAmount || formatAmount(user?.amount) }
+                    {user?.currency}{" "}
+                    {walletAmount || formatAmount(user?.amount)}
                   </span>
-                </button>
+                </div>
 
                 <button
                   onClick={handleLogout}
@@ -99,7 +100,7 @@ const walletAmount = localStorage.getItem("walletAmount")
         </div>
       </div>
 
-      <div className="bg-[#181d26] md:hidden flex gap-2 py-2 justify-center text-center">
+      <div className=" md:hidden flex gap-2 py-2 justify-center text-center">
         {navItems.map((item) => (
           <a
             key={item.name}

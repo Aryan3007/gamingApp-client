@@ -37,7 +37,7 @@ const tabContent = {
 
 export default function Content({ activeTab }) {
   return (
-    <div className="flex-1">
+    <div className="flex-1 bg-gradient-to-b from-gray-900 to-gray-950 h-screen">
       <div className=" text-white rounded-lg shadow lg:pt-6 pt-24 p-6">
         {tabContent[activeTab]}
       </div>

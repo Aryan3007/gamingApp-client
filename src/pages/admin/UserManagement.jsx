@@ -293,7 +293,7 @@ const UserForm = () => {
           {users?.map((user, index) => (
             <div
               key={index}
-              className="block hover:scale-95 duration-150 rounded-lg p-4 shadow-sm shadow-indigo-100"
+              className="block bg-gray-800 duration-150 rounded-lg p-4 border border-dashed border-zinc-600"
             >
               <div>
                 <dt className="sr-only">Name</dt>
@@ -354,7 +354,7 @@ const UserForm = () => {
                 {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
                 <button
                   onClick={() => handleBanUser(user._id)}
-                  className={`w-full px-4 text-sm py-2 rounded-lg ${
+                  className={`w-full px-4 text-sm py-2 hover:bg-red-800 duration-200 rounded-lg ${
                     user.status === "banned" ? "bg-red-500" : "bg-orange-500"
                   }`}
                   disabled={user.status === "banned"}
@@ -363,7 +363,7 @@ const UserForm = () => {
                 </button>
 
                 <button
-                  className="bg-green-700 w-full px-4 text-sm py-2 rounded-lg"
+                  className="bg-green-700 hover:bg-green-800 duration-200 w-full px-4 text-sm py-2 rounded-lg"
                   onClick={() => openDialog(user._id)}
                 >
                   Add Money

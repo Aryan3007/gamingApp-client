@@ -101,7 +101,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
   }
 
   return (
-    <div className="space-y-2 mt-4">
+    <div className="space-y-2 mt-2">
       {validMarkets.map((market, index) => (
         <div
           key={`${market.market?.id || index}`}

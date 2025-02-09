@@ -1,6 +1,13 @@
 /* eslint-disable no-unused-vars */
 import axios from "axios";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
@@ -29,19 +36,25 @@ const App = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("authToken");
-      await axios
-        .get(`${server}/api/v1/user/me`, {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${server}/api/v1/user/me`, {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then(({ data }) => dispatch(userExist(data.user)))
-        .catch(() => dispatch(userNotExist()));
+        });
+  
+        localStorage.setItem("walletAmount", response?.data.user.amount)
+        dispatch(userExist(response.data.user));
+      } catch (error) {
+        dispatch(userNotExist());
+      }
     };
+  
     fetchUser();
   }, [dispatch]);
+  
 
   const toggleSidebar = useCallback(() => {
     setShowSideBar(!showsidebar);
@@ -70,7 +83,9 @@ const App = () => {
   }, [showsidebar, toggleSidebar]);
 
   return loading ? (
-    <Suspense fallback={<Loader />}><Loader /></Suspense>
+    <Suspense fallback={<Loader />}>
+      <Loader />
+    </Suspense>
   ) : (
     <Router>
       <Suspense fallback={<Loader />}>
@@ -84,9 +99,21 @@ const App = () => {
           </div>
         )}
         <Routes>
-          <Route path="/" element={<Dashboard sportsData={sportsData} showsidebar={showsidebar} toggleSidebar={toggleSidebar} />} />
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                sportsData={sportsData}
+                showsidebar={showsidebar}
+                toggleSidebar={toggleSidebar}
+              />
+            }
+          />
           <Route path="/login" element={<Login />} />
-          <Route path="/match/:eventId" element={<MatchDetails sportsData={sportsData} />} />
+          <Route
+            path="/match/:eventId"
+            element={<MatchDetails sportsData={sportsData} />}
+          />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />

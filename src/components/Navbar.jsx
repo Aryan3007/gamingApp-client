@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, Wallet, X } from "lucide-react";
@@ -6,7 +7,7 @@ import { userNotExist } from "../redux/reducer/userReducer";
 const Navbar = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
-
+const walletAmount = localStorage.getItem("walletAmount")
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Casino", href: "#" },
@@ -63,7 +64,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
                   <span className="hidden md:flex">Wallet :</span>
 
                   <span className="uppercase text-sm">
-                    {user?.currency} {formatAmount(user?.amount)}
+                    {user?.currency} {walletAmount || formatAmount(user?.amount) }
                   </span>
                 </button>
 

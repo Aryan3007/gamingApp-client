@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -86,7 +87,6 @@ export default function MatchOdds({ eventId, onBetSelect }) {
   const [selectedBet, setSelectedBet] = useState(null);
 
   const handleOddsClick = (matchData, teamName, type, odds, value) => {
-    console.log("object", matchData);
     const betData = {
       home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
       away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
@@ -152,7 +152,7 @@ export default function MatchOdds({ eventId, onBetSelect }) {
 
   return (
     <div>
-      <div className="bg-[#1a2027] mb-4 rounded-lg overflow-hidden w-full">
+      <div className="bg-[#1a2027] mb-2 rounded-lg overflow-hidden w-full">
         <div className="flex flex-wrap sm:flex-nowrap bg-[#2c3847] py-2 justify-between items-center px-4 mb-0">
           <h2 className="text-white text-lg">Match Odds</h2>
           <div className="flex flex-wrap gap-4 items-center">
@@ -206,6 +206,6 @@ export default function MatchOdds({ eventId, onBetSelect }) {
 }
 
 MatchOdds.propTypes = {
-  eventId: PropTypes.number.isRequired,
+  eventId: PropTypes.string.isRequired,
   onBetSelect: PropTypes.func.isRequired,
 };

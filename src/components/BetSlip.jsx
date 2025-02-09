@@ -56,16 +56,18 @@ export default function BetSlip({ match, onClose }) {
 
   const placeBet = async () => {
     const token = localStorage.getItem("authToken");
+    let wallet = Number(localStorage.getItem("walletAmount")); // Convert to number
+  
     if (!token) {
       console.error("No token found");
       return;
     }
-
     if (!match) {
       toast.error("Match details are missing!");
       return;
     }
 
+  
     const payload = {
       eventId: match.eventId,
       match: `${match.home_team} vs ${match.away_team}`,
@@ -77,7 +79,7 @@ export default function BetSlip({ match, onClose }) {
       category: match.category,
       type: match.type,
     };
-
+  
     try {
       setLoading(true);
       const response = await fetch(
@@ -91,11 +93,16 @@ export default function BetSlip({ match, onClose }) {
           body: JSON.stringify(payload),
         }
       );
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         toast.success("Bet placed successfully!");
+  
+        // Deduct stake from wallet and update localStorage
+        const newWalletAmount = wallet - betAmount;
+        localStorage.setItem("walletAmount", newWalletAmount.toString());
+  
         onClose();
       } else {
         toast.error(data.message || "Failed to place bet.");
@@ -107,7 +114,7 @@ export default function BetSlip({ match, onClose }) {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 md:rounded-lg p-4 h-full lg:h-[calc(100vh-64px)]">
       {/* Header */}
@@ -140,7 +147,7 @@ export default function BetSlip({ match, onClose }) {
       </div>
 
       {/* Amount Input */}
-      <div className="flex items-center lg:flex-row gap-2 mb-3 md:mb-6">
+      <div className="flex items-center lg:flex-row gap-2 mb-2 md:mb-6">
         <div className="flex gap-2 items-center">
           <button
             onClick={() => handleBetChange(betAmount - 1)}
@@ -166,15 +173,15 @@ export default function BetSlip({ match, onClose }) {
       {/* Calculations */}
 
       {user && match && (
-        <div className="text-sm flex justify-evenly lg:text-sm mb-4">
-          <div className="flex gap-1 justify-center items-center text-red-500">
+        <div className="text-sm flex justify-evenly gap-2 lg:text-sm mb-2">
+          <div className="flex gap-1 justify-center items-center w-full py-1 bg-red-900 px-3 rounded-md text-white">
             <span className="font-semibold ">Loss:</span>
             <span className="uppercase">
               {user?.currency} {loss?.toFixed(2)}
             </span>
           </div>
-          <div className="flex gap-1 justify-center items-center text-green-500">
-            <span className="font-semibold "> Winnings:</span>
+          <div className="flex gap-1 justify-center items-center w-full py-1 bg-green-900 px-3 rounded-md text-white">
+            <span className="font-semibold "> Profit:</span>
             <span className="uppercase">
               {" "}
               {user?.currency} {profit?.toFixed(2)}

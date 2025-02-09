@@ -105,15 +105,15 @@ const BFancyComponent = ({ data, onBetSelect }) => {
   }
 
   return (
-    <div className=" bg-[#1a2027] rounded-lg overflow-hidden mt-4">
+    <div className=" bg-[#1a2027] rounded-lg overflow-hidden mt-2">
        <div className="flex flex-wrap sm:flex-nowrap justify-between items-center p-3 bg-[#2c3847]">
         <h3 className="text-white font-medium w-full sm:w-auto mb-2 sm:mb-0">B_Fancy Markets</h3>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
-        <span className="text-xs bg-[#00B2FF] sm:text-sm  text-center w-full max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
-            Back
-          </span>
           <span className="text-xs sm:text-sm bg-[#FF7A7F] w-full text-center max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
-            Lay
+            No
+          </span>
+        <span className="text-xs bg-[#00B2FF] sm:text-sm  text-center w-full max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
+            Yes
           </span>
         </div>
       </div>
@@ -124,8 +124,8 @@ const BFancyComponent = ({ data, onBetSelect }) => {
                     <span className="text-white text-sm">{market.market?.name || "Unknown Market"}</span>
                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                       <div className="flex gap-2">
-                        {renderOddsBox(market.odds?.back?.[0], market, "Back")}
                         {renderOddsBox(market.odds?.lay?.[0], market, "Lay")}
+                        {renderOddsBox(market.odds?.back?.[0], market, "Back")}
                       </div>
                     </div>
                   </div>

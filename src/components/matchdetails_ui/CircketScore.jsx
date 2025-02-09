@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import  { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -5,7 +7,7 @@ const CricketScore = ({ eventId }) => {
   const [scoreData, setScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+ const url =  import.meta.env.VITE_SCORE;
   useEffect(() => {
     let intervalId;
 
@@ -13,7 +15,7 @@ const CricketScore = ({ eventId }) => {
       try {
     
         const response = await axios.get(
-          `https://testscapi.fpl11.com/api/admin/cricketscore?eventid=${eventId}`
+          `${url}/cricketscore?eventid=${eventId}`
         );
 
         const parser = new DOMParser();
@@ -55,7 +57,7 @@ const CricketScore = ({ eventId }) => {
   if (loading) return <div className="text-white h-24 w-full flex justify-center items-center text-center">Loading scores...</div>;
 
   return (
-    <div className="p-4 sm:p-6 bg-[#1a2027] border-dashed border-zinc-700 border my-4 rounded-lg">
+    <div className="p-4 sm:p-6 bg-[#1a2027] border-dashed border-zinc-700 border my-2 rounded-lg">
       <div className="flex flex-wrap justify-between items-center text-white text-xs sm:text-sm">
         <div className="w-full sm:w-auto mb-2 sm:mb-0">
           <h2 className="font-semibold text-sm sm:text-lg">{scoreData.team1.name}</h2>

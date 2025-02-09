@@ -12,6 +12,7 @@ export default function BetSlip({ match, onClose }) {
   const { user } = useSelector((state) => state.userReducer);
   const prevMatch = useRef(null); // Store previous match data
 
+
   // Only update state if the match has actually changed
   useEffect(() => {
     if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
@@ -24,7 +25,7 @@ export default function BetSlip({ match, onClose }) {
     return match
       ? calculateProfitAndLoss(
           betAmount,
-          match.fancyNumber,
+          match.odds,
           match.type,
           match.category
         )

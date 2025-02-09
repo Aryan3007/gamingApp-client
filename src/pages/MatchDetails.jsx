@@ -107,7 +107,6 @@ const MatchDetails = ({ sportsData }) => {
       if (rawData.getFancy) {
         rawData.getFancy.forEach((market) => {
           const name = market.market.name.toLowerCase();
-
           if (name.includes("only")) {
             categories.over.push(market);
           } else if (name.includes("over")) {

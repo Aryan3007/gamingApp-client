@@ -1,30 +1,32 @@
-"use client"
+"use client";
 
-import { memo, useState, useEffect, useRef } from "react"
-import isEqual from "react-fast-compare"
-import BetSlip from "../BetSlip"
+import { memo, useState, useEffect, useRef } from "react";
+import isEqual from "react-fast-compare";
+import BetSlip from "../BetSlip";
 
 const FancyComponent = ({ data, onBetSelect }) => {
-  const [selectedBet, setSelectedBet] = useState(null)
-  const prevDataRef = useRef()
+  const [selectedBet, setSelectedBet] = useState(null);
+  const prevDataRef = useRef();
   useEffect(() => {
     if (prevDataRef.current) {
       const newlySuspended = data.filter(
         (market) =>
           market.odds?.status === "SUSPENDED" &&
           prevDataRef.current.find(
-            (prevMarket) => prevMarket.market.id === market.market.id && prevMarket.odds?.status !== "SUSPENDED",
-          ),
-      )
+            (prevMarket) =>
+              prevMarket.market.id === market.market.id &&
+              prevMarket.odds?.status !== "SUSPENDED"
+          )
+      );
       if (newlySuspended.length > 0) {
         // Update the lastUpdated field for newly suspended markets
         newlySuspended.forEach((market) => {
-          market.lastUpdated = new Date().toISOString()
-        })
+          market.lastUpdated = new Date().toISOString();
+        });
       }
     }
-    prevDataRef.current = data
-  }, [data])
+    prevDataRef.current = data;
+  }, [data]);
 
   const handleOddsClick = (market, odds, type, price, size) => {
     const betData = {
@@ -33,20 +35,20 @@ const FancyComponent = ({ data, onBetSelect }) => {
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,
-      fancyNumber: price ,
-      stake: 0, 
+      fancyNumber: price,
+      stake: 0,
       odds: size,
-      category: "fancy", 
+      category: "fancy",
       type: type.toLowerCase(),
       gameId: market.market?.id || "",
       eventName: market.market?.name || "Unknown Market",
       selectedTeam: market.market?.name || "Unknown Market",
       betType: type,
       size: size,
-    }
-    setSelectedBet(betData)
-    onBetSelect(betData)
-  }
+    };
+    setSelectedBet(betData);
+    onBetSelect(betData);
+  };
 
   const renderOddsBox = (odds, market, type) => {
     if (!odds) {
@@ -58,9 +60,9 @@ const FancyComponent = ({ data, onBetSelect }) => {
         >
           <span className="text-gray-500 text-xs">-</span>
         </div>
-      )
+      );
     }
-    const isActive = odds && odds.price > 0 && odds.size > 0
+    const isActive = odds && odds.price > 0 && odds.size > 0;
 
     return (
       <button
@@ -70,36 +72,41 @@ const FancyComponent = ({ data, onBetSelect }) => {
               ? "bg-[#00B2FF] hover:bg-[#00A1E6]"
               : "bg-[#00b3ff36]"
             : isActive
-              ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
-              : "bg-[#ff7a7e42]"
+            ? "bg-[#FF7A7F] hover:bg-[#FF6B6F]"
+            : "bg-[#ff7a7e42]"
         } rounded flex flex-col items-center justify-center transition-colors`}
-        onClick={() => isActive && handleOddsClick(market, odds, type, odds.price, odds.size)}
+        onClick={() =>
+          isActive && handleOddsClick(market, odds, type, odds.price, odds.size)
+        }
         disabled={!isActive}
       >
         {isActive ? (
           <>
-            <span className="text-black text-sm font-semibold">{odds.price.toFixed(2)}</span>
+            <span className="text-black text-sm font-semibold">
+              {odds.price.toFixed(2)}
+            </span>
             <span className="text-black text-xs">{Math.floor(odds.size)}</span>
           </>
         ) : (
           <span className="text-red-500 font-semibold text-xs">Suspended</span>
         )}
       </button>
-    )
-  }
+    );
+  };
 
   const sortMarkets = (markets) => {
-    const activeMarkets = markets.filter((market) => market.odds?.status !== "SUSPENDED")
+    const activeMarkets = markets.filter(
+      (market) => market.odds?.status !== "SUSPENDED"
+    );
     const suspendedMarkets = markets
       .filter((market) => market.odds?.status === "SUSPENDED")
-      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
-    return [...activeMarkets, ...suspendedMarkets.slice(0, 5)]
-  }
+      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    return [...activeMarkets, ...suspendedMarkets.slice(0, 5)];
+  };
 
   if (!Array.isArray(data)) {
-    return <div className="text-white">No player data available</div>
+    return <div className="text-white">No player data available</div>;
   }
-
 
   return (
     <div className=" bg-[#1a2027] rounded-lg overflow-hidden mt-2">
@@ -118,9 +125,14 @@ const FancyComponent = ({ data, onBetSelect }) => {
       </div>
       {sortMarkets(data)?.map((market, index) => {
         return (
-          <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
+          <div
+            key={`${market.market?.id || index}`}
+            className="border-b border-[#2c3847]"
+          >
             <div className="flex items-center justify-between p-3">
-              <span className="text-white text-sm">{market.market?.name || "Unknown Market"}</span>
+              <span className="text-white text-sm">
+                {market.market?.name || "Unknown Market"}
+              </span>
               <div className="flex gap-2 w-full sm:w-auto justify-end">
                 <div className="flex gap-2">
                   {renderOddsBox(market.odds?.lay?.[0], market, "Lay")}
@@ -130,22 +142,27 @@ const FancyComponent = ({ data, onBetSelect }) => {
             </div>
             {selectedBet && selectedBet.marketId === market.market.id && (
               <div className="lg:hidden mt-2">
-                <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
+                <BetSlip
+                  match={selectedBet}
+                  onClose={() => setSelectedBet(null)}
+                />
               </div>
             )}
           </div>
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
 const arePropsEqual = (prevProps, nextProps) => {
-  return isEqual(prevProps.data, nextProps.data) && prevProps.onBetSelect === nextProps.onBetSelect
-}
+  return (
+    isEqual(prevProps.data, nextProps.data) &&
+    prevProps.onBetSelect === nextProps.onBetSelect
+  );
+};
 
-const Fancy = memo(FancyComponent, arePropsEqual)
-Fancy.displayName = "Fancy"
+const Fancy = memo(FancyComponent, arePropsEqual);
+Fancy.displayName = "Fancy";
 
-export default Fancy
-
+export default Fancy;

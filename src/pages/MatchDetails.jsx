@@ -107,7 +107,7 @@ const MatchDetails = ({ sportsData }) => {
             categories.over.push(market)
           } else if (name.includes("over")) {
             categories.fancy.push(market)
-          } else if (name.includes("total") || name.includes("odd")) {
+          } else if (name.includes("total")) {
             categories.odd_even.push(market)
           } else if (
             name.includes("innings") ||

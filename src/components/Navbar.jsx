@@ -1,9 +1,12 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import {  Menu, Wallet, X } from "lucide-react";
+import { Menu, Wallet, X } from "lucide-react";
+import { userNotExist } from "../redux/reducer/userReducer";
 
 const Navbar = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);
+  const dispatch = useDispatch();
+
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Casino", href: "#" },
@@ -15,18 +18,16 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
-    
+    dispatch(userNotExist()); // Clear user from Redux state
     navigate("/login");
-    window.location.reload(); // Reload the page to reset the state
-  };
-
-  const formatAmount = (amount) => {
-    if (amount >= 1_000_000_000) return (amount / 1_000_000_000).toFixed(2) + "B"; // Billions
-    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + "M"; // Millions
-    if (amount >= 1_000) return (amount / 1_000).toFixed(2) + "K"; // Thousands
-    return amount.toFixed(2); // Normal display
   };
   
+  const formatAmount = (amount) => {
+    if (amount >= 1_000_000_000)
+      return (amount / 1_000_000_000).toFixed(2) + "B"; // Billions
+    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + "M"; // Millions
+    return amount.toFixed(2); // Normal display
+  };
 
   return (
     <nav className="bg-[#181d26] fixed w-full z-[99]">
@@ -60,28 +61,27 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
                 <button className="flex gap-2 text-sm rounded-full px-4 py-1 text-white font-semibold">
                   <Wallet className="text-white flex text-sm" />
                   <span className="hidden md:flex">Wallet :</span>
-                  
-                  <span className="uppercase text-sm">
-  {user?.currency} {formatAmount(user?.amount)}
-</span>
 
+                  <span className="uppercase text-sm">
+                    {user?.currency} {formatAmount(user?.amount)}
+                  </span>
                 </button>
 
                 <button
                   onClick={handleLogout}
-                  className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-800 transition duration-150"
+                  className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-500 transition duration-150"
                 >
                   Logout
                 </button>
                 {user?.role === "admin" ? (
                   <Link to="/admin">
-                    <button className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-800 transition duration-150">
+                    <button className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-500 transition duration-150">
                       Admin
                     </button>
                   </Link>
                 ) : (
                   <Link to="/profile">
-                    <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-800 transition duration-150">
+                    <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
                       Profile
                     </button>
                   </Link>
@@ -89,7 +89,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
               </div>
             ) : (
               <Link to={"/login"}>
-                <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-800 transition duration-150">
+                <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
                   Login
                 </button>
               </Link>

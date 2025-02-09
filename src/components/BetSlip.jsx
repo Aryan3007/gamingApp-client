@@ -1,17 +1,18 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Clock } from "lucide-react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
 import { calculateProfitAndLoss } from "../utils/calculateProfitAndLoss";
+import axios, { all } from "axios";
 
 export default function BetSlip({ match, onClose }) {
   const [betAmount, setBetAmount] = useState(100);
+  const [allBets, setAllBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.userReducer);
   const prevMatch = useRef(null); // Store previous match data
-
 
   // Only update state if the match has actually changed
   useEffect(() => {
@@ -52,13 +53,13 @@ export default function BetSlip({ match, onClose }) {
   }, []);
 
   const handleBetChange = useCallback((value) => {
-    setBetAmount(Math.max(0 , Math.min(value, 50000)));
+    setBetAmount(Math.max(0, Math.min(value, 50000)));
   }, []);
 
   const placeBet = async () => {
     const token = localStorage.getItem("authToken");
     let wallet = Number(localStorage.getItem("walletAmount")); // Convert to number
-  
+
     if (!token) {
       console.error("No token found");
       return;
@@ -68,7 +69,6 @@ export default function BetSlip({ match, onClose }) {
       return;
     }
 
-  
     const payload = {
       eventId: match.eventId,
       match: `${match.home_team} vs ${match.away_team}`,
@@ -80,7 +80,7 @@ export default function BetSlip({ match, onClose }) {
       category: match.category,
       type: match.type,
     };
-  
+
     try {
       setLoading(true);
       const response = await fetch(
@@ -94,16 +94,16 @@ export default function BetSlip({ match, onClose }) {
           body: JSON.stringify(payload),
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         toast.success("Bet placed successfully!");
-  
+
         // Deduct stake from wallet and update localStorage
         const newWalletAmount = wallet - betAmount;
         localStorage.setItem("walletAmount", newWalletAmount.toString());
-  
+
         onClose();
       } else {
         toast.error(data.message || "Failed to place bet.");
@@ -115,7 +115,38 @@ export default function BetSlip({ match, onClose }) {
       setLoading(false);
     }
   };
-  
+
+  const getTransactions = async (userId) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/bet/transactions?userId=${user._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Filter only "pending" bets
+      const pendingBets = response.data.bets.filter(
+        (bet) => bet.status === "pending"
+      );
+
+      setAllBets(pendingBets);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    getTransactions();
+  }, []);
+
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 md:rounded-lg p-4 h-full lg:h-[calc(100vh-64px)]">
       {/* Header */}
@@ -226,6 +257,60 @@ export default function BetSlip({ match, onClose }) {
           {loading ? "Placing Bet..." : "Place Bet"}
         </button>
       </div>
+
+
+{ user && (
+  <div className="mt-4 overflow-y-auto h-fit">
+        {allBets.map((bet, index) => (
+          <div
+            key={index}
+            className="bg-[#242a31] rounded-lg p-2 mb-2 hover:bg-gray-700 transition-all duration-200"
+          >
+            <div className="flex flex-col space-y-3">
+              {/* Match and Time */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">
+                    {bet.match}
+                  </h3>
+                  <div className="flex items-center text-gray-400 text-sm mt-1"></div>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    bet.status === "pending"
+                      ? "bg-yellow-500/20 text-yellow-500"
+                      : "bg-green-500/20 text-green-500"
+                  }`}
+                >
+                  {bet.status}
+                </span>
+              </div>
+
+              {/* Betting Details */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-row justify-center items-center gap-2">
+                  <span className="text-gray-400 text-xs flex items-center">
+                    Stake
+                  </span>
+                  <span className="text-white text-xs font-medium uppercase">
+                    {user.currency} {bet.stake}
+                  </span>
+                </div>
+                <div className="flex flex-row justify-center items-center gap-2">
+                  <span className="text-gray-400 text-xs flex items-center">
+                    Payout
+                  </span>
+                  <span className="text-white text-xs font-medium uppercase">
+                    {user.currency} {bet.payout}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+)}
+      
     </div>
   );
 }

@@ -3,13 +3,15 @@
 
 import Allrequests from "./Allrequests";
 import UserManagement from "./UserManagement";
+import WebsiteManagement from "./WebsiteManagement";
 
 const tabContent = {
   dashboard: (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Dashboard Overview</h2>
-      <p>Welcome to your dashboard. Here's an overview of your key metrics.</p>
-    </div>
+    <div className="min-h-screen">
+    <main className="">
+      <WebsiteManagement />
+    </main>
+  </div>
   ),
   users: (
     <div className="min-h-screen">

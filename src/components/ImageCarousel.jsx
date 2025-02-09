@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import axios from "axios";
+import { server } from "../constants/config";
+import toast from "react-hot-toast";
 
 const ImageCarousel = () => {
+  const [images, setImages] = useState([]);
+
+  // Carousel settings
   const settings = {
     dots: true,
     infinite: true,
@@ -15,25 +21,39 @@ const ImageCarousel = () => {
     arrows: false,
   };
 
-  const images = [
-    "https://images.unsplash.com/photo-1599054802207-91d346adc120?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1595364301252-eb84b36555b9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1600196245390-039527aad831?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1603665230556-b5bb38f82591?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  ];
+  // Fetch images from API
+  const fetchImages = async () => {
+    try {
+      const response = await axios.get(`${server}/api/v1/misc/get-images`);
+      const imageUrls = response.data.data.map((image) => image.image.url);
+      setImages(imageUrls);
+    } catch (error) {
+      toast.error("Failed to fetch images");
+    }
+  };
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
   return (
-    <div className="w-full rounded-lg overflow-hidden mx-auto mb-1">
+    <div className="w-full rounded-lg cursor-not-allowed overflow-hidden mx-auto mb-1">
       <Slider {...settings}>
-        {images.map((image, index) => (
-          <div key={index}>
-            <img
-              src={image}
-              alt={`Slide ${index + 1}`}
-              className="w-full h-44 lg:h-64 overflow-hidden rounded-lg shadow-lg"
-            />
+        {images.length > 0 ? (
+          images.map((url, index) => (
+            <div key={index}>
+              <img
+                src={url}
+                alt={`Slide ${index + 1}`}
+                className="w-full h-44 lg:h-64 object-cover rounded-lg shadow-lg"
+              />
+            </div>
+          ))
+        ) : (
+          <div className="w-full h-44 lg:h-64 flex items-center justify-center bg-gray-200 rounded-lg">
+            <p className="text-gray-600">No images available</p>
           </div>
-        ))}
+        )}
       </Slider>
     </div>
   );

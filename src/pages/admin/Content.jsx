@@ -8,10 +8,10 @@ import WebsiteManagement from "./WebsiteManagement";
 const tabContent = {
   dashboard: (
     <div className="min-h-screen">
-    <main className="">
-      <WebsiteManagement />
-    </main>
-  </div>
+      <main className="">
+        <WebsiteManagement />
+      </main>
+    </div>
   ),
   users: (
     <div className="min-h-screen">
@@ -38,11 +38,9 @@ const tabContent = {
 export default function Content({ activeTab }) {
   return (
     <div className="flex-1">
-     
-      <div className=" text-white rounded-lg shadow lg:pt-6 pt-16 p-6">
+      <div className=" text-white rounded-lg shadow lg:pt-6 pt-24 p-6">
         {tabContent[activeTab]}
       </div>
     </div>
   );
 }
-

@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
 import { calculateProfitAndLoss } from "../utils/helper";
-
 export default function BetSlip({ match, onClose }) {
   const [betAmount, setBetAmount] = useState(100);
   const [allBets, setAllBets] = useState([]);

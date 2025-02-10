@@ -1,23 +1,26 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/display-name */
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
-import PropTypes from "prop-types";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
 import { calculateProfitAndLoss } from "../utils/helper";
-export default function BetSlip({ match, onClose }) {
+
+const BetSlip = memo(({ match, onClose }) => {
   const [betAmount, setBetAmount] = useState(100);
   const [allBets, setAllBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.userReducer);
-  const prevMatch = useRef(null); // Store previous match data
+  const prevMatch = useRef(null);
+
+  console.log("hello");
 
   // Only update state if the match has actually changed
   useEffect(() => {
     if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
-      prevMatch.current = match; // Update the stored match
+      prevMatch.current = match;
     }
   }, [match]);
 
@@ -56,48 +59,40 @@ export default function BetSlip({ match, onClose }) {
     setBetAmount(Math.max(0, Math.min(value, 50000)));
   }, []);
 
-  const placeBet = async () => {
+  const placeBet = useCallback(async () => {
     const token = localStorage.getItem("authToken");
 
-    if (!token) {
-      console.error("No token found");
+    if (!token || !match) {
+      toast.error("Match details are missing or user not authenticated!");
       return;
     }
-    if (!match) {
-      toast.error("Match details are missing!");
-      return;
-    }
-
-    const payload = {
-      eventId: match.eventId,
-      match: `${match.home_team} vs ${match.away_team}`,
-      marketId: match.marketId,
-      selectionId: match.selectionId,
-      fancyNumber: match.fancyNumber,
-      stake: betAmount,
-      odds: match.odds,
-      category: match.category,
-      type: match.type,
-    };
 
     try {
       setLoading(true);
-      const response = await fetch(
+      const { data } = await axios.post(
         `${server}/api/v1/bet/place?userId=${user._id}`,
         {
-          method: "POST",
+          eventId: match.eventId,
+          match: `${match.home_team} vs ${match.away_team}`,
+          marketId: match.marketId,
+          selectionId: match.selectionId,
+          fancyNumber: match.fancyNumber,
+          stake: betAmount,
+          odds: match.odds,
+          category: match.category,
+          type: match.type,
+        },
+        {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(payload),
         }
       );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Bet placed successfully!");
+      if (data.success) {
+        toast.success(data.message);
         onClose();
       } else {
         toast.error(data.message || "Failed to place bet.");
@@ -108,14 +103,15 @@ export default function BetSlip({ match, onClose }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, match, betAmount, onClose]);
 
-  const getTransactions = async () => {
+  const getTransactions = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.error("No token found");
       return;
     }
+
     try {
       const response = await axios.get(
         `${server}/api/v1/bet/transactions?userId=${user._id}`,
@@ -136,11 +132,11 @@ export default function BetSlip({ match, onClose }) {
       console.error("Error fetching transactions:", error);
       return null;
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     getTransactions();
-  }, [placeBet, user]);
+  }, [getTransactions]);
 
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
@@ -326,9 +322,6 @@ export default function BetSlip({ match, onClose }) {
       )}
     </div>
   );
-}
+});
 
-BetSlip.propTypes = {
-  match: PropTypes.object,
-  onClose: PropTypes.func.isRequired,
-};
+export default BetSlip;

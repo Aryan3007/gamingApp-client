@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { lazy, useState } from "react";
+import { lazy, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 
 const BetSlip = lazy(() => import("./BetSlip"));
@@ -36,9 +36,9 @@ const GameOdds = ({ liveData, onBetSelect }) => {
     onBetSelect(betData);
   };
 
-  const handleCloseBetSlip = () => {
+  const handleCloseBetSlip = useCallback(() => {
     setSelectedBet(null);
-  };
+  }, []);
 
   // Helper function to get the best back/lay price
   const getBestPrice = (prices) => {

@@ -1,13 +1,18 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-"use client";
-
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import axios from "axios";
+import {
+  CreditCard,
+  Mail,
+  Plus,
+  Shield,
+  User,
+  UserCircle,
+  Wallet,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { server } from "../constants/config";
-import { Plus } from "lucide-react";
-import { User, Wallet, CreditCard, Mail, UserCircle, Shield } from 'lucide-react';
-
 import Loader from "./../components/Loader";
 
 const Profile = () => {
@@ -114,7 +119,7 @@ const Profile = () => {
     }
   };
 
-  const getTransactions = async (userId) => {
+  const getTransactions = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.error("No token found");
@@ -140,42 +145,55 @@ const Profile = () => {
       console.error("Error fetching transactions:", error);
       return null;
     }
-  };
+  }, [user._id]);
 
   useEffect(() => {
     getTransactions();
-  }, []);
+  }, [getTransactions]);
 
   const renderProfileTab = () => (
     <div className="w-full max-w-2xl mx-auto rounded-lg overflow-hidden">
-    <div className="p-6">
-      <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2 mb-6">
-        <User className="w-6 h-6" />
-        Profile
-      </h2>
+      <div className="p-6">
+        <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2 mb-6">
+          <User className="w-6 h-6" />
+          Profile
+        </h2>
 
-      <div className="flex items-center space-x-4 mb-6">
-        <div className="w-20 h-20 bg-gray-200 rounded-full uppercase flex items-center justify-center text-2xl font-bold text-gray-800">
-          {user?.name?.charAt(0)}
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-20 h-20 bg-gray-200 rounded-full uppercase flex items-center justify-center text-2xl font-bold text-gray-800">
+            {user?.name?.charAt(0)}
+          </div>
+          <div>
+            <h2 className="text-2xl tex font-semibold">{user?.name}</h2>
+            <span className="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+              {user?.status}
+            </span>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl tex font-semibold">{user?.name}</h2>
-          <span className="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-            {user?.status}
-          </span>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProfileItem icon={UserCircle} label="Username" value={user?.name} />
-        <ProfileItem icon={Wallet} label="Wallet Balance" value={`${user?.currency} ${user?.amount}`} />
-        <ProfileItem icon={CreditCard} label="Preferred Currency" value={user?.currency.toUpperCase()} />
-        <ProfileItem icon={Mail} label="Email" value={user?.email} />
-        <ProfileItem icon={User} label="Gender" value={user?.gender} />
-        <ProfileItem icon={Shield} label="Account Status" value={user?.status} statusColor="text-green-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ProfileItem icon={UserCircle} label="Username" value={user?.name} />
+          <ProfileItem
+            icon={Wallet}
+            label="Wallet Balance"
+            value={`${user?.currency} ${user?.amount}`}
+          />
+          <ProfileItem
+            icon={CreditCard}
+            label="Preferred Currency"
+            value={user?.currency.toUpperCase()}
+          />
+          <ProfileItem icon={Mail} label="Email" value={user?.email} />
+          <ProfileItem icon={User} label="Gender" value={user?.gender} />
+          <ProfileItem
+            icon={Shield}
+            label="Account Status"
+            value={user?.status}
+            statusColor="text-green-600"
+          />
+        </div>
       </div>
     </div>
-  </div>
   );
 
   const ProfileItem = ({ icon: Icon, label, value, statusColor }) => (
@@ -183,10 +201,12 @@ const Profile = () => {
       <Icon className="w-5 h-5 text-gray-200" />
       <div>
         <p className="text-sm text-gray-300">{label}</p>
-        <p className={`font-medium ${statusColor || "text-gray-200"}`}>{value}</p>
+        <p className={`font-medium ${statusColor || "text-gray-200"}`}>
+          {value}
+        </p>
       </div>
     </div>
-  )
+  );
   const renderWithdrawalTab = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -205,19 +225,25 @@ const Profile = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-  {withdrawals?.withdrawHistory.map((withdrawal, index) => (
-    <div key={index} className="bg-gray-800 p-4 rounded-lg border-dashed border border-zinc-600">
-      <h1 className="text-white">Receiver Name: {withdrawal.receiverName}</h1>
-      <h1 className="text-white">Contact: {withdrawal.contact}</h1>
-      <h1 className="text-white">Amount: {withdrawal.amount}</h1>
-      <h1 className="text-white">
-        Withdrawal Status:{" "}
-        <span className="text-yellow-400 capitalize">{withdrawal.status}</span>
-      </h1>
-    </div>
-  ))}
-</div>
-
+        {withdrawals?.withdrawHistory.map((withdrawal, index) => (
+          <div
+            key={index}
+            className="bg-gray-800 p-4 rounded-lg border-dashed border border-zinc-600"
+          >
+            <h1 className="text-white">
+              Receiver Name: {withdrawal.receiverName}
+            </h1>
+            <h1 className="text-white">Contact: {withdrawal.contact}</h1>
+            <h1 className="text-white">Amount: {withdrawal.amount}</h1>
+            <h1 className="text-white">
+              Withdrawal Status:{" "}
+              <span className="text-yellow-400 capitalize">
+                {withdrawal.status}
+              </span>
+            </h1>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -233,10 +259,7 @@ const Profile = () => {
       <h1 className="text-xl text-blue-400 mb-4">My Bets</h1>
       <div className="overflow-y-auto grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3  gap-4">
         {allBets.map((bet, index) => (
-          <div
-            key={index}
-            className=" transition-all duration-200"
-          >
+          <div key={index} className=" transition-all duration-200">
             <div className="flex flex-col bg-[#1f2937] space-y-3 border-zinc-600 border rounded-lg p-4 border-dashed">
               {/* Match and Time */}
               <div className="flex justify-between items-start">

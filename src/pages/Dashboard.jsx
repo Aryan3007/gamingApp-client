@@ -1,19 +1,18 @@
-import { useState, useEffect, useRef } from "react";
-import AllGames from "./../components/AllGames";
-import GamesHeader from "./../components/GamesHeader";
-import BetSlip from "../components/BetSlip";
-import Cricket from "../components/ui/Cricket";
-import Football from "../components/ui/Football";
-import Basketball from "../components/ui/Basketball";
-import ImageCarousel from "../components/ImageCarousel";
+/* eslint-disable react/prop-types */
+import { useState, useEffect, useRef, lazy } from "react";
 
+const AllGames = lazy(() => import("./../components/AllGames"));
+const GamesHeader = lazy(() => import("./../components/GamesHeader"));
+const BetSlip = lazy(() => import("../components/BetSlip"));
+const Cricket = lazy(() => import("../components/ui/Cricket"));
+const Football = lazy(() => import("../components/ui/Football"));
+const Basketball = lazy(() => import("../components/ui/Basketball"));
+const ImageCarousel = lazy(() => import("../components/ImageCarousel"));
 
 const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
   const [activeTab, setActiveTab] = useState("cricket");
   const [selectedBet, setSelectedBet] = useState(null);
-  const sidebarRef = useRef(null); // Ref for the sidebar
-
-
+  const sidebarRef = useRef(null);
 
   const handleBetSelection = (betData) => {
     setSelectedBet(betData);
@@ -40,27 +39,43 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showsidebar]);
+  }, [showsidebar, toggleSidebar]);
 
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "cricket":
-        return <Cricket liveData={sportsData} onBetSelect={handleBetSelection} />;
+        return (
+          <Cricket liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
       case "football":
-        return <Football liveData={sportsData} onBetSelect={handleBetSelection} />;
+        return (
+          <Football liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
       case "basketball":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-        case "tennis":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-        case "boxing":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-           case "horse":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-        case "politics":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-        case "kabaddi":
-        return <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />;
-       
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+      case "tennis":
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+      case "boxing":
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+      case "horse":
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+      case "politics":
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+      case "kabaddi":
+        return (
+          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+        );
+
       default:
         return <div>Select a sport to display</div>;
     }
@@ -75,11 +90,9 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
             <AllGames sportsData={sportsData} />
           </div>
 
-         
-
           {/* Main Content */}
           <div className="lg:col-span-7 md:col-span-12 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto">
-            <ImageCarousel/>
+            <ImageCarousel />
             <GamesHeader activeTab={activeTab} setActiveTab={setActiveTab} />
             {renderActiveComponent()}
           </div>

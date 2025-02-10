@@ -231,11 +231,11 @@ const Profile = () => {
   const renderMyBetsTab = () => (
     <div className=" p-4 rounded-lg">
       <h1 className="text-xl text-blue-400 mb-4">My Bets</h1>
-      <div className="overflow-y-auto  flex-1">
+      <div className="overflow-y-auto grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3  gap-4">
         {allBets.map((bet, index) => (
           <div
             key={index}
-            className=" grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3 mb-2 transition-all duration-200"
+            className=" transition-all duration-200"
           >
             <div className="flex flex-col bg-[#1f2937] space-y-3 border-zinc-600 border rounded-lg p-4 border-dashed">
               {/* Match and Time */}

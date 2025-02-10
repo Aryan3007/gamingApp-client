@@ -113,7 +113,7 @@ export default function BetSlip({ match, onClose }) {
       return
     }
     try {
-      const response = await axios.get(`http://localhost:3000/api/v1/bet/transactions?userId=${user._id}`, {
+      const response = await axios.get(`${server}/api/v1/bet/transactions?userId=${user._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -133,7 +133,7 @@ export default function BetSlip({ match, onClose }) {
 
   useEffect(() => {
     getTransactions()
-  }, [placeBet])
+  }, [placeBet, user])
 
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
@@ -271,7 +271,7 @@ export default function BetSlip({ match, onClose }) {
                       </span>
 
                     </div><div className="flex flex-row justify-center items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Payout</span>
+                      <span className="text-gray-400 text-xs flex items-center">Category</span>
                       <span className="text-white text-xs font-medium capitalize">
                        {bet.category
                         }

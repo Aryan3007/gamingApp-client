@@ -96,14 +96,14 @@ export default function MatchOdds({ eventId, onBetSelect }) {
         matchData?.event?.runners?.find((r) => r.name === teamName)?.id || null,
       fancyNumber: odds || 0,
       stake: 0,
-      odds: value || 0,
+      odds: odds || 0,
       category: "match odds",
       type: type.toLowerCase(),
       gameId: matchData?.market?.id || "",
       eventName: teamName,
       selectedTeam: teamName,
       betType: type,
-      size: value || 0,
+      size: odds || 0,
     };
 
     setSelectedBet(betData);

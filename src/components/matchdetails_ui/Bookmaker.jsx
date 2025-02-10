@@ -28,9 +28,9 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
       gameId: market?.market?.id || "",
       eventName: market?.market?.name || "Unknown Market",
       selectedTeam: runner?.name || market.market?.name,
-
+      size: odds?.price || 0,
       betType: type,
-      odds: odds?.size || 0,
+      odds: odds?.price || 0,
       marketName: market?.market?.name || "Unknown Market",
       runnerName: runner?.name || "Unknown Runner",
     };

@@ -59,6 +59,35 @@ const BetSlip = memo(({ match, onClose }) => {
     setBetAmount(Math.max(0, Math.min(value, 50000)));
   }, []);
 
+  const getTransactions = useCallback(async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `${server}/api/v1/bet/transactions?userId=${user._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Filter only "pending" bets
+      // Filter only "pending" bets and sort them (newest first)
+      const pendingBets = response.data.bets
+        .filter((bet) => bet.status === "pending")
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setAllBets(pendingBets);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      return null;
+    }
+  }, [user]);
+
   const placeBet = useCallback(async () => {
     const token = localStorage.getItem("authToken");
 
@@ -92,6 +121,7 @@ const BetSlip = memo(({ match, onClose }) => {
       );
 
       if (data.success) {
+        getTransactions();
         toast.success(data.message);
         onClose();
       } else {
@@ -103,36 +133,7 @@ const BetSlip = memo(({ match, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [user, match, betAmount, onClose]);
-
-  const getTransactions = useCallback(async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `${server}/api/v1/bet/transactions?userId=${user._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      // Filter only "pending" bets
-      // Filter only "pending" bets and sort them (newest first)
-      const pendingBets = response.data.bets
-        .filter((bet) => bet.status === "pending")
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      setAllBets(pendingBets);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      return null;
-    }
-  }, [user]);
+  }, [user, match, betAmount, onClose, getTransactions]);
 
   useEffect(() => {
     getTransactions();
@@ -291,10 +292,10 @@ const BetSlip = memo(({ match, onClose }) => {
                     </div>{" "}
                     <div className="flex flex-row justify-start items-center gap-1">
                       <span className="text-gray-400 text-xs flex items-center">
-                        Run :
+                        Odds :
                       </span>
                       <span className="text-white text-xs font-medium uppercase">
-                        {bet.fancyNumber}
+                        {bet.odds}
                       </span>
                     </div>
                     <div className="flex flex-row justify-start items-center gap-1">
@@ -310,9 +311,19 @@ const BetSlip = memo(({ match, onClose }) => {
                         Category :
                       </span>
                       <span className="text-white text-xs font-medium capitalize">
-                        {bet.category}({bet.type})
+                        {bet.category} ({bet.type})
                       </span>
                     </div>
+                    {bet.fancyNumber && (
+                      <div className="flex flex-row justify-start items-center gap-1">
+                        <span className="text-gray-400 text-xs flex items-center">
+                          Run :
+                        </span>
+                        <span className="text-white text-xs font-medium capitalize">
+                          {bet.fancyNumber}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

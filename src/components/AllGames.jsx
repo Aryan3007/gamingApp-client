@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Search, Activity, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Static sports data with live cricket data to be added
@@ -59,7 +60,6 @@ export default function AllGames({ sportsData }) {
   const [openSeries, setOpenSeries] = useState(null);
   const [cricketGames, setCricketGames] = useState([]);
   const [totalGames, setTotalGames] = useState(0);
-  const [inPlayCount, setInPlayCount] = useState(0);
 
   const handleSportsData = (data) => {
     try {
@@ -100,12 +100,6 @@ export default function AllGames({ sportsData }) {
       // Update cricket games with series grouping
       setCricketGames(subItems);
 
-      // Count in-play games safely
-      const liveGames = cricketData.filter(
-        (match) => match.odds?.[0]?.inplay
-      ).length;
-      setInPlayCount(liveGames);
-
       // Update total games count
       const cricketCount = cricketData.length;
       const otherSportsCount = staticSports.reduce(
@@ -117,7 +111,6 @@ export default function AllGames({ sportsData }) {
       console.error("Error processing sports data:", error);
       // Set default values in case of error
       setCricketGames([]);
-      setInPlayCount(0);
       setTotalGames(staticSports.reduce((acc, sport) => acc + sport.count, 0));
     }
   };

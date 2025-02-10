@@ -1,8 +1,9 @@
-"use client";
+/* eslint-disable react/prop-types */
 
-import { memo, useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, lazy } from "react";
 import isEqual from "react-fast-compare";
-import BetSlip from "../BetSlip";
+
+const BetSlip = lazy(() => import("../BetSlip"));
 
 const OtherComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null);
@@ -36,9 +37,9 @@ const OtherComponent = ({ data, onBetSelect }) => {
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,
-      fancyNumber: size,
+      fancyNumber: price || 0,
       stake: 0,
-      odds: size,
+      odds: size || 0,
       category: "fancy",
       type: type.toLowerCase(),
       gameId: market.market?.id || "",
@@ -124,26 +125,34 @@ const OtherComponent = ({ data, onBetSelect }) => {
           </span>
         </div>
       </div>
-       {sortMarkets(data)?.map((market, index) => {
-             return (
-               <div key={`${market.market?.id || index}`} className="border-b border-[#2c3847]">
-                 <div className="flex items-center justify-between p-3">
-                   <span className="text-white text-sm">{market.market?.name || "Unknown Market"}</span>
-                   <div className="flex gap-2 w-full sm:w-auto justify-end">
-                     <div className="flex gap-2">
-                       {renderOddsBox(market.odds?.lay?.[0], market, "Lay")}
-                       {renderOddsBox(market.odds?.back?.[0], market, "Back")}
-                     </div>
-                   </div>
-                 </div>
-                 {selectedBet && selectedBet.marketId === market.market.id && (
-                   <div className="lg:hidden mt-2">
-                     <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
-                   </div>
-                 )}
-               </div>
-             )
-           })}
+      {sortMarkets(data)?.map((market, index) => {
+        return (
+          <div
+            key={`${market.market?.id || index}`}
+            className="border-b border-[#2c3847]"
+          >
+            <div className="flex items-center justify-between p-3">
+              <span className="text-white text-sm">
+                {market.market?.name || "Unknown Market"}
+              </span>
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <div className="flex gap-2">
+                  {renderOddsBox(market.odds?.lay?.[0], market, "Lay")}
+                  {renderOddsBox(market.odds?.back?.[0], market, "Back")}
+                </div>
+              </div>
+            </div>
+            {selectedBet && selectedBet.marketId === market.market.id && (
+              <div className="lg:hidden mt-2">
+                <BetSlip
+                  match={selectedBet}
+                  onClose={() => setSelectedBet(null)}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

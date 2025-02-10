@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import axios from "axios";
-import { server } from "../constants/config";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import { server } from "../constants/config";
 
 const ImageCarousel = () => {
   const [images, setImages] = useState([]);
@@ -28,7 +28,7 @@ const ImageCarousel = () => {
       const imageUrls = response.data.data.map((image) => image.image.url);
       setImages(imageUrls);
     } catch (error) {
-      toast.error("Failed to fetch images");
+      toast.error("Failed to fetch images", error);
     }
   };
 

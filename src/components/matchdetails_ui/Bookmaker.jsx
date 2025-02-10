@@ -1,9 +1,8 @@
-"use client";
-
-import { memo, useState } from "react";
+import { lazy, memo, useState } from "react";
 import PropTypes from "prop-types";
 import isEqual from "lodash/isEqual";
-import BetSlip from "../BetSlip";
+
+const BetSlip = lazy(() => import("../BetSlip"));
 
 const BookmakerComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null);
@@ -22,7 +21,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
       marketId: market?.market?.id || "",
       selectionId: runner?.selectionId || null,
       stake: 0,
-      fancyNumber: odds?.price || 0,
+      fancyNumber: null,
       category: "bookmaker",
       type: type.toLowerCase(),
       gameId: market?.market?.id || "",

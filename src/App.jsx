@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import axios from "axios";
 import {
   lazy,
@@ -11,9 +10,9 @@ import {
 import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { io } from "socket.io-client";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
-import { io } from "socket.io-client";
 
 const Loader = lazy(() => import("./components/Loader"));
 const Navbar = lazy(() => import("./components/Navbar"));
@@ -21,14 +20,14 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./pages/MatchDetails"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
 const socket = io(server);
 
 const App = () => {
-  const { user, loading } = useSelector((state) => state.userReducer);
+  const { loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
   const [showsidebar, setShowSideBar] = useState(false);
   const [sportsData, setSportsData] = useState([]);
@@ -44,17 +43,16 @@ const App = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-  
-        localStorage.setItem("walletAmount", response?.data.user.amount)
+
         dispatch(userExist(response.data.user));
       } catch (error) {
+        console.log(error);
         dispatch(userNotExist());
       }
     };
-  
+
     fetchUser();
   }, [dispatch]);
-  
 
   const toggleSidebar = useCallback(() => {
     setShowSideBar(!showsidebar);

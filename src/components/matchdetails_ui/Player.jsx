@@ -1,6 +1,9 @@
-import { memo, useState, useEffect, useRef } from "react";
+/* eslint-disable react/prop-types */
+
+import { memo, useState, useEffect, useRef, lazy } from "react";
 import isEqual from "react-fast-compare";
-import BetSlip from "../BetSlip";
+
+const BetSlip = lazy(() => import("../BetSlip"));
 
 const PlayerComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null);
@@ -34,9 +37,9 @@ const PlayerComponent = ({ data, onBetSelect }) => {
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,
-      fancyNumber: size,
+      fancyNumber: price || 0,
       stake: 0,
-      odds: size,
+      odds: size || 0,
       category: "fancy",
       type: type.toLowerCase(),
       gameId: market.market?.id || "",
@@ -118,7 +121,7 @@ const PlayerComponent = ({ data, onBetSelect }) => {
             No
           </span>
           <span className="text-xs bg-[#00B2FF] sm:text-sm  text-center w-full max-w-[70px] lg:min-w-[100px] sm:w-20 text-black py-1 rounded font-semibold">
-            Yes 
+            Yes
           </span>
         </div>
       </div>

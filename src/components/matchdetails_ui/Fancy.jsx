@@ -1,8 +1,9 @@
-"use client";
+/* eslint-disable react/prop-types */
 
-import { memo, useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, lazy } from "react";
 import isEqual from "react-fast-compare";
-import BetSlip from "../BetSlip";
+
+const BetSlip = lazy(() => import("../BetSlip"));
 
 const FancyComponent = ({ data, onBetSelect }) => {
   const [selectedBet, setSelectedBet] = useState(null);
@@ -35,9 +36,9 @@ const FancyComponent = ({ data, onBetSelect }) => {
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,
-      fancyNumber: price,
+      fancyNumber: price || 0,
       stake: 0,
-      odds: size,
+      odds: size || 0,
       category: "fancy",
       type: type.toLowerCase(),
       gameId: market.market?.id || "",

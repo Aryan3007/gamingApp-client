@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-"use client";
 
-import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { lazy, useEffect, useState } from "react";
 import io from "socket.io-client";
-import BetSlip from "../BetSlip";
 import { server } from "../../constants/config";
+
+const BetSlip = lazy(() => import("../BetSlip"));
 
 const socket = io(server);
 
@@ -86,7 +86,7 @@ export default function MatchOdds({ eventId, onBetSelect }) {
   const [sportsData, setSportsData] = useState([]);
   const [selectedBet, setSelectedBet] = useState(null);
 
-  const handleOddsClick = (matchData, teamName, type, odds, value) => {
+  const handleOddsClick = (matchData, teamName, type, odds) => {
     const betData = {
       home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
       away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
@@ -94,7 +94,7 @@ export default function MatchOdds({ eventId, onBetSelect }) {
       marketId: matchData?.event?.market?.id || "",
       selectionId:
         matchData?.event?.runners?.find((r) => r.name === teamName)?.id || null,
-      fancyNumber: odds || 0,
+      fancyNumber: null,
       stake: 0,
       odds: odds || 0,
       category: "match odds",

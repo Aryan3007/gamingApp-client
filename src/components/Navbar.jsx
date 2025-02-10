@@ -1,13 +1,18 @@
 /* eslint-disable react/prop-types */
+import axios from "axios";
+import { Menu, Wallet, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Wallet, X } from "lucide-react";
+import { server } from "../constants/config";
 import { userNotExist } from "../redux/reducer/userReducer";
 
 const Navbar = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
-  const walletAmount = localStorage.getItem("walletAmount");
+  const navigate = useNavigate();
+  const [wallet, setWallet] = useState(0);
+
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Casino", href: "#" },
@@ -15,19 +20,31 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
     { name: "Fantasy", href: "#" },
   ];
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${server}/api/v1/user/me`, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setWallet(response?.data.user.amount);
+      } catch (error) {
+        console.log(error);
+        dispatch(userNotExist());
+      }
+    };
+
+    fetchUser();
+  }, [dispatch]);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     dispatch(userNotExist()); // Clear user from Redux state
     navigate("/login");
-  };
-
-  const formatAmount = (amount) => {
-    if (amount >= 1_000_000_000)
-      return (amount / 1_000_000_000).toFixed(2) + "B"; // Billions
-    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + "M"; // Millions
-    return amount.toFixed(2); // Normal display
   };
 
   return (
@@ -64,8 +81,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
                   <span className="hidden md:flex">Wallet :</span>
 
                   <span className="uppercase text-sm">
-                    {user?.currency}{" "}
-                    {walletAmount || formatAmount(user?.amount)}
+                    {user?.currency} {wallet.toFixed(2)}
                   </span>
                 </div>
 

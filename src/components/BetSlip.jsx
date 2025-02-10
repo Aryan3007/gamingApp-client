@@ -1,11 +1,12 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { Plus, Minus } from "lucide-react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import axios from "axios";
+import { Minus, Plus } from "lucide-react";
 import PropTypes from "prop-types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
-import { calculateProfitAndLoss } from "../utils/calculateProfitAndLoss";
-import axios from "axios";
+import { calculateProfitAndLoss } from "../utils/helper";
 
 export default function BetSlip({ match, onClose }) {
   const [betAmount, setBetAmount] = useState(100);
@@ -116,7 +117,7 @@ export default function BetSlip({ match, onClose }) {
     }
   };
 
-  const getTransactions = async (userId) => {
+  const getTransactions = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.error("No token found");
@@ -131,8 +132,6 @@ export default function BetSlip({ match, onClose }) {
           },
         }
       );
-
-      console.log(response.data);
       // Filter only "pending" bets
       // Filter only "pending" bets and sort them (newest first)
       const pendingBets = response.data.bets

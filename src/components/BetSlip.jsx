@@ -1,30 +1,37 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react"
-import { Plus, Minus } from "lucide-react"
-import PropTypes from "prop-types"
-import toast from "react-hot-toast"
-import { useSelector } from "react-redux"
-import { server } from "../constants/config"
-import { calculateProfitAndLoss } from "../utils/calculateProfitAndLoss"
-import axios from "axios"
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { Plus, Minus } from "lucide-react";
+import PropTypes from "prop-types";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { server } from "../constants/config";
+import { calculateProfitAndLoss } from "../utils/calculateProfitAndLoss";
+import axios from "axios";
 
 export default function BetSlip({ match, onClose }) {
-  const [betAmount, setBetAmount] = useState(100)
-  const [allBets, setAllBets] = useState([])
-  const [loading, setLoading] = useState(false)
-  const { user } = useSelector((state) => state.userReducer)
-  const prevMatch = useRef(null) // Store previous match data
+  const [betAmount, setBetAmount] = useState(100);
+  const [allBets, setAllBets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((state) => state.userReducer);
+  const prevMatch = useRef(null); // Store previous match data
 
   // Only update state if the match has actually changed
   useEffect(() => {
     if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
-      prevMatch.current = match // Update the stored match
+      prevMatch.current = match; // Update the stored match
     }
-  }, [match])
+  }, [match]);
 
   // Memoized profit and loss calculations
   const { profit, loss } = useMemo(() => {
-    return match ? calculateProfitAndLoss(betAmount, match.odds, match.type, match.category) : { profit: 0, loss: 0 }
-  }, [betAmount, match])
+    return match
+      ? calculateProfitAndLoss(
+          betAmount,
+          match.odds,
+          match.type,
+          match.category
+        )
+      : { profit: 0, loss: 0 };
+  }, [betAmount, match]);
 
   // Quick bet options
   const quickBets = useMemo(
@@ -38,28 +45,28 @@ export default function BetSlip({ match, onClose }) {
       { label: "100K", value: 100000 },
       { label: "500K", value: 500000 },
     ],
-    [],
-  )
+    []
+  );
 
   const handleQuickBet = useCallback((amount) => {
-    setBetAmount(amount)
-  }, [])
+    setBetAmount(amount);
+  }, []);
 
   const handleBetChange = useCallback((value) => {
-    setBetAmount(Math.max(0, Math.min(value, 50000)))
-  }, [])
+    setBetAmount(Math.max(0, Math.min(value, 50000)));
+  }, []);
 
   const placeBet = async () => {
-    const token = localStorage.getItem("authToken")
-    const wallet = Number(localStorage.getItem("walletAmount")) // Convert to number
+    const token = localStorage.getItem("authToken");
+    const wallet = Number(localStorage.getItem("walletAmount")); // Convert to number
 
     if (!token) {
-      console.error("No token found")
-      return
+      console.error("No token found");
+      return;
     }
     if (!match) {
-      toast.error("Match details are missing!")
-      return
+      toast.error("Match details are missing!");
+      return;
     }
 
     const payload = {
@@ -72,86 +79,98 @@ export default function BetSlip({ match, onClose }) {
       odds: match.odds,
       category: match.category,
       type: match.type,
-    }
+    };
 
     try {
-      setLoading(true)
-      const response = await fetch(`${server}/api/v1/bet/place?userId=${user._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      })
+      setLoading(true);
+      const response = await fetch(
+        `${server}/api/v1/bet/place?userId=${user._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        toast.success("Bet placed successfully!")
+        toast.success("Bet placed successfully!");
 
         // Deduct stake from wallet and update localStorage
-        const newWalletAmount = wallet - betAmount
-        localStorage.setItem("walletAmount", newWalletAmount.toString())
+        const newWalletAmount = wallet - betAmount;
+        localStorage.setItem("walletAmount", newWalletAmount.toString());
 
-        onClose()
+        onClose();
       } else {
-        toast.error(data.message || "Failed to place bet.")
+        toast.error(data.message || "Failed to place bet.");
       }
     } catch (error) {
-      console.error(error)
-      toast.error("An error occurred while placing the bet.")
+      console.error(error);
+      toast.error("An error occurred while placing the bet.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getTransactions = async (userId) => {
-    const token = localStorage.getItem("authToken")
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      console.error("No token found")
-      return
+      console.error("No token found");
+      return;
     }
     try {
-      const response = await axios.get(`${server}/api/v1/bet/transactions?userId=${user._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      // Filter only "pending" bets
-     // Filter only "pending" bets and sort them (newest first)
-    const pendingBets = response.data.bets
-    .filter((bet) => bet.status === "pending")
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const response = await axios.get(
+        `${server}/api/v1/bet/transactions?userId=${user._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  setAllBets(pendingBets);
+      console.log(response.data);
+      // Filter only "pending" bets
+      // Filter only "pending" bets and sort them (newest first)
+      const pendingBets = response.data.bets
+        .filter((bet) => bet.status === "pending")
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setAllBets(pendingBets);
     } catch (error) {
-      console.error("Error fetching transactions:", error)
-      return null
+      console.error("Error fetching transactions:", error);
+      return null;
     }
-  }
+  };
 
   useEffect(() => {
-    getTransactions()
-  }, [placeBet, user])
+    getTransactions();
+  }, [placeBet, user]);
 
   return (
-    <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
+    <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
       {/* Header */}
-      <div className="flex justify-between items-end md:mb-4">
+      <div className="flex justify-between items-end ">
         <div>
           <h2 className="text-lg capitalize flex font-bold">
-            {match ? `${match.home_team} vs ${match.away_team}` : "Select a bet"}
+            {match
+              ? `${match.home_team} vs ${match.away_team}`
+              : "Select a bet"}
           </h2>
         </div>
       </div>
 
       {/* Match Details */}
-      <div className="mb-4 text-sm lg:text-base">
+      <div className="mb-2 text-sm lg:text-base">
         <div className="md:p-2 p-0 rounded inline-block bg-gray-800">
           <span
             className={`font-semibold ${
-              match?.betType === "Lay" || match?.betType === "No" ? "text-red-400" : "text-blue-400"
+              match?.betType === "Lay" || match?.betType === "No"
+                ? "text-red-400"
+                : "text-blue-400"
             }`}
           >
             {match?.selectedTeam}{" "}
@@ -163,9 +182,12 @@ export default function BetSlip({ match, onClose }) {
       </div>
 
       {/* Amount Input */}
-      <div className="flex items-center lg:flex-row gap-2 mb-2 md:mb-6">
+      <div className="flex items-center lg:flex-row gap-2 mb-2 md:mb-2">
         <div className="flex gap-2 items-center">
-          <button onClick={() => handleBetChange(betAmount - 1)} className="bg-blue-500 p-2 rounded-lg">
+          <button
+            onClick={() => handleBetChange(betAmount - 1)}
+            className="bg-blue-500 p-2 rounded-lg"
+          >
             <Minus size={20} />
           </button>
           <input
@@ -174,7 +196,10 @@ export default function BetSlip({ match, onClose }) {
             onChange={(e) => handleBetChange(Number.parseFloat(e.target.value))}
             className="bg-gray-700 text-center w-32 p-2 rounded-lg"
           />
-          <button onClick={() => handleBetChange(betAmount + 1)} className="bg-blue-500 p-2 rounded-lg">
+          <button
+            onClick={() => handleBetChange(betAmount + 1)}
+            className="bg-blue-500 p-2 rounded-lg"
+          >
             <Plus size={20} />
           </button>
         </div>
@@ -183,7 +208,7 @@ export default function BetSlip({ match, onClose }) {
       {/* Calculations */}
 
       {user && match && (
-        <div className="text-sm flex justify-evenly gap-2 lg:text-sm mb-2">
+        <div className="text-sm flex justify-evenly gap-2 lg:text-sm mb-0">
           <div className="flex gap-1 justify-center items-center w-full py-1 bg-red-900 px-3 rounded-md text-white">
             <span className="font-semibold ">Loss:</span>
             <span className="uppercase">
@@ -201,7 +226,7 @@ export default function BetSlip({ match, onClose }) {
       )}
 
       {/* Quick Bet Amounts */}
-      <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 my-3 md:my-6">
+      <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 my-3 md:my-2">
         {quickBets.map((bet) => (
           <button
             key={bet.value}
@@ -216,10 +241,15 @@ export default function BetSlip({ match, onClose }) {
         ))}
       </div>
 
-      {!user && <p className="text-center mb-2 text-red-500">Login to place bet</p>}
+      {!user && (
+        <p className="text-center mb-2 text-red-500">Login to place bet</p>
+      )}
       {/* Action Buttons */}
       <div className="flex gap-2">
-        <button onClick={onClose} className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium">
+        <button
+          onClick={onClose}
+          className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium"
+        >
           Cancel
         </button>
         <button
@@ -233,7 +263,9 @@ export default function BetSlip({ match, onClose }) {
 
       {user && (
         <div className="mt-4 flex-1 xl:flex hidden overflow-hidden flex-col">
-          <h1 className="mb-2 font-semibold underline text-blue-500">Recent Bets :</h1>
+          <h1 className="mb-2 font-semibold underline text-blue-500">
+            Recent Bets :
+          </h1>
           <div className="overflow-y-auto flex-1">
             {allBets.map((bet, index) => (
               <div
@@ -244,37 +276,53 @@ export default function BetSlip({ match, onClose }) {
                   {/* Match and Time */}
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-sm font-semibold text-white">{bet.match}</h3>
-                      <div className="flex items-center text-gray-400 text-sm mt-1"></div>
+                      <h3 className="text-xs font-semibold text-white">
+                        {bet.match}
+                      </h3>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        bet.status === "pending" ? "bg-yellow-500/20 text-yellow-500" : "bg-green-500/20 text-green-500"
+                      className={` capitalize text-xs font-medium ${
+                        bet.status === "pending"
+                          ? " text-yellow-500"
+                          : " text-green-500"
                       }`}
                     >
-                      {bet.status}
+                      Bet Status : {bet.status}
                     </span>
                   </div>
 
                   {/* Betting Details */}
-                  <div className="grid grid-cols-3 gap-1">
-                    <div className="flex flex-row justify-center items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Stake</span>
+                  <div className="grid grid-cols-2 gap-1">
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <span className="text-gray-400 text-xs flex items-center">
+                        Stake :
+                      </span>
                       <span className="text-white text-xs font-medium uppercase">
                         {user.currency} {bet.stake}
                       </span>
+                    </div>{" "}
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <span className="text-gray-400 text-xs flex items-center">
+                        Run :
+                      </span>
+                      <span className="text-white text-xs font-medium uppercase">
+                        {bet.fancyNumber}
+                      </span>
                     </div>
-                    <div className="flex flex-row justify-center items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Payout</span>
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <span className="text-gray-400 text-xs flex items-center">
+                        Payout :
+                      </span>
                       <span className="text-white text-xs font-medium uppercase">
                         {user.currency} {bet.payout}
                       </span>
-
-                    </div><div className="flex flex-row justify-center items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Category</span>
+                    </div>
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <span className="text-gray-400 text-xs flex items-center">
+                        Category :
+                      </span>
                       <span className="text-white text-xs font-medium capitalize">
-                       {bet.category
-                        }
+                        {bet.category}({bet.type})
                       </span>
                     </div>
                   </div>
@@ -285,11 +333,10 @@ export default function BetSlip({ match, onClose }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 BetSlip.propTypes = {
   match: PropTypes.object,
   onClose: PropTypes.func.isRequired,
-}
-
+};

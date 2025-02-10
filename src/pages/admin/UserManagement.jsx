@@ -1,17 +1,23 @@
-/* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { server } from "../../constants/config";
+'use client';
+
+import { useState, useEffect } from "react"
+import axios from "axios"
+import toast from "react-hot-toast"
+import { server } from "../../constants/config"
+import { FaUser, FaEnvelope, FaMoneyBillWave, FaDollarSign, FaCheckCircle, FaUserTag, FaVenusMars, FaBan, FaPlus, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
 const UserForm = () => {
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isAddingUser, setIsAddingUser] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedUserID, setSelectedUserID] = useState(null);
-  const [amount, setAmount] = useState(0);
+  const [users, setUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [isAddingUser, setIsAddingUser] = useState(false)
+  const [isAddMoneyDialogOpen, setIsAddMoneyDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedUserID, setSelectedUserID] = useState(null)
+  const [amount, setAmount] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
   const [newUserData, setNewUserData] = useState({
     name: "",
     email: "",
@@ -20,69 +26,81 @@ const UserForm = () => {
     role: "user",
     gender: "",
     amount: "",
-  });
+  })
+
+  const usersPerPage = 10
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const token = localStorage.getItem("authToken");
-      setIsLoading(true);
-      setError(null);
+    fetchUsers()
+  }, [])
 
-      try {
-        const response = await axios.get(`${server}/api/v1/user/allusers`, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  useEffect(() => {
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    setFilteredUsers(filtered)
+    setCurrentPage(1)
+  }, [searchTerm, users])
 
-        if (Array.isArray(response.data.users)) {
-          setUsers(response.data.users);
-        } else {
-          throw new Error("Invalid response format");
-        }
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Failed to fetch users. Try again later."
-        );
-        toast.error(error || "Failed to fetch users.");
-      } finally {
-        setIsLoading(false);
+  const fetchUsers = async () => {
+    const token = localStorage.getItem("authToken")
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await axios.get(`${server}/api/v1/user/allusers`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (Array.isArray(response.data.users)) {
+        setUsers(response.data.users)
+        setFilteredUsers(response.data.users)
+      } else {
+        throw new Error("Invalid response format")
       }
-    };
-
-    fetchUsers();
-  }, []);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to fetch users. Try again later."
+      )
+      toast.error(error || "Failed to fetch users.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const validateNewUser = () => {
     if (!newUserData.name.trim()) {
-      toast.error("Name is required");
-      return false;
+      toast.error("Name is required")
+      return false
     }
     if (!newUserData.email.trim()) {
-      toast.error("Email is required");
-      return false;
+      toast.error("Email is required")
+      return false
     }
     if (!newUserData.password.trim()) {
-      toast.error("Password is required");
-      return false;
+      toast.error("Password is required")
+      return false
     }
     if (!newUserData.gender) {
-      toast.error("Gender selection is required");
-      return false;
+      toast.error("Gender selection is required")
+      return false
     }
     if (!newUserData.amount || newUserData.amount <= 0) {
-      toast.error("Amount must be greater than 0");
-      return false;
+      toast.error("Amount must be greater than 0")
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const postNewUser = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken")
 
-    if (!validateNewUser()) return;
+    if (!validateNewUser()) return
 
     try {
       const response = await axios.post(
@@ -92,19 +110,20 @@ const UserForm = () => {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
-      );
+      )
 
-      toast.success("User added successfully");
-      setUsers((prev) => [...prev, response.data.user]); // Assuming `response.data.user` contains the new user
-      setIsAddingUser(false);
-      resetForm();
+      toast.success("User added successfully")
+      setUsers((prev) => [...prev, response.data.user])
+      setFilteredUsers((prev) => [...prev, response.data.user])
+      setIsAddingUser(false)
+      resetForm()
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           "Failed to add user. Please try again later."
-      );
+      )
     }
-  };
+  }
 
   const resetForm = () => {
     setNewUserData({
@@ -115,11 +134,11 @@ const UserForm = () => {
       role: "user",
       gender: "",
       amount: "",
-    });
-  };
+    })
+  }
 
   const handleBanUser = async (userId) => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken")
 
     try {
       const response = await axios.post(
@@ -128,154 +147,345 @@ const UserForm = () => {
         {
           headers: { Authorization: `Bearer ${token}` },
         }
-      );
+      )
 
-      toast.success("User banned successfully");
+      toast.success("User banned successfully")
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === userId ? { ...user, status: "banned" } : user
         )
-      );
+      )
+      setFilteredUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, status: "banned" } : user
+        )
+      )
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           "Failed to ban the user. Please try again later."
-      );
-      console.error("Error banning user:", error);
+      )
+      console.error("Error banning user:", error)
     }
-  };
+  }
 
-  const openDialog = (userId) => {
-    setSelectedUserID(userId);
-    setIsDialogOpen(true);
-  };
-  const closeDialog = () => {
-    setSelectedUserID(null);
-    setIsDialogOpen(false);
-  };
+  const openAddMoneyDialog = (userId) => {
+    setSelectedUserID(userId)
+    setIsAddMoneyDialogOpen(true)
+  }
 
-  const handleAddMoney = async (userId) => {
-    const token = localStorage.getItem("authToken");
+  const closeAddMoneyDialog = () => {
+    setSelectedUserID(null)
+    setIsAddMoneyDialogOpen(false)
+    setAmount(0)
+  }
+
+  const handleAddMoney = async () => {
+    const token = localStorage.getItem("authToken")
 
     try {
       const response = await axios.put(
-        `${server}/api/v1/user/addamount/${userId}`,
+        `${server}/api/v1/user/addamount/${selectedUserID}`,
         { amount },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
-      );
-      toast.success(response.data?.message);
-      closeDialog();
-      setAmount(0);
+      )
+      toast.success(response.data?.message)
+      closeAddMoneyDialog()
+      fetchUsers() // Refresh user list
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           "Failed to update amount. Please try again later."
-      );
-      console.error("Error updating amount:", error);
+      )
+      console.error("Error updating amount:", error)
     }
-  };
+  }
+
+  const openDeleteDialog = (userId) => {
+    setSelectedUserID(userId)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const closeDeleteDialog = () => {
+    setSelectedUserID(null)
+    setIsDeleteDialogOpen(false)
+  }
+
+  const handleDeleteUser = async () => {
+    const token = localStorage.getItem("authToken")
+
+    try {
+      await axios.delete(`${server}/api/v1/user/${selectedUserID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      toast.success("User deleted successfully")
+      setUsers((prevUsers) => prevUsers.filter(user => user._id !== selectedUserID))
+      setFilteredUsers((prevUsers) => prevUsers.filter(user => user._id !== selectedUserID))
+      closeDeleteDialog()
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to delete the user. Please try again later."
+      )
+      console.error("Error deleting user:", error)
+    }
+  }
+
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <h1 className="text-xl font-semibold mb-4">User Management</h1>
+    <div className="max-w-6xl mx-auto p-4  text-white">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">User Management</h1>
         <button
           onClick={() => setIsAddingUser(true)}
-          className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
         >
-          Add User
+          <FaPlus className="mr-2" /> Add User
         </button>
       </div>
+
+      <div className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-800 text-white rounded-md pl-10"
+          />
+          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <p>Loading users...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className=" bg-gray-800 rounded-lg overflow-hidden">
+            <thead className="bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Currency</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
+              {currentUsers.map((user) => (
+                <tr key={user._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex capitalize items-center">
+                      <FaUser className="mr-2 text-gray-400" />
+                      {user.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <FaEnvelope className="mr-2 text-gray-400" />
+                      {user.email}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <FaMoneyBillWave className="mr-2 text-gray-400" />
+                      {user.amount.toFixed(2)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex uppercase items-center">
+                      {user.currency}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex capitalize items-center">
+                      <FaCheckCircle className={`mr-2 ${user.status === 'banned' ? 'text-red-500' : 'text-green-500'}`} />
+                      {user.status}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex capitalize items-center">
+                      <FaUserTag className="mr-2 text-gray-400" />
+                      {user.role}
+                    </div>
+                  </td>
+                 
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleBanUser(user._id)}
+                        disabled={user.status === "banned"}
+                        className={`px-3 py-1 rounded text-white flex items-center ${
+                          user.status === "banned"
+                            ? "bg-gray-600 cursor-not-allowed"
+                            : "bg-red-600 hover:bg-red-700"
+                        }`}
+                      >
+                        <FaBan className="mr-1" />
+                        {user.status === "banned" ? "Banned" : "Ban"}
+                      </button>
+                      <button
+                        onClick={() => openAddMoneyDialog(user._id)}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"
+                      >
+                        <FaPlus className="mr-1" />
+                        Add Money
+                      </button>
+                      <button
+                        onClick={() => openDeleteDialog(user._id)}
+                        className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 flex items-center"
+                      >
+                        <FaTrash className="mr-1" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="mt-4 flex justify-center">
+        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-700 bg-gray-800 text-sm font-medium text-gray-400 hover:bg-gray-700"
+          >
+            <span className="sr-only">Previous</span>
+            <FaChevronLeft className="h-5 w-5" aria-hidden="true" />
+          </button>
+          {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => paginate(index + 1)}
+              className={`relative inline-flex items-center px-4 py-2 border border-gray-700 bg-gray-800 text-sm font-medium ${
+                currentPage === index + 1 ? 'text-blue-500' : 'text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
+            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-700 bg-gray-800 text-sm font-medium text-gray-400 hover:bg-gray-700"
+          >
+            <span className="sr-only">Next</span>
+            <FaChevronRight className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </nav>
+      </div>
+
+      {/* Add User Dialog */}
       {isAddingUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 text-black rounded-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Add New User</h2>
+          <div className="bg-gray-800 p-6 rounded-lg w-96">
+            <h2 className="text-xl font-semibold mb-4">Add New User</h2>
             <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={newUserData.name}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, name: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newUserData.email}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, email: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={newUserData.password}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, password: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <select
-                value={newUserData.currency}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, currency: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="INR">INR</option>
-                <option value="EUR">EUR</option>
-                <option value="USD">USD</option>
-              </select>
-              <select
-                value={newUserData.role}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, role: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              <select
-                value={newUserData.gender}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, gender: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Initial Amount"
-                value={newUserData.amount}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, amount: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={newUserData.name}
+                  onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={newUserData.email}
+                  onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={newUserData.password}
+                  onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label htmlFor="currency" className="block text-sm font-medium text-gray-300">Currency</label>
+                <select
+                  id="currency"
+                  value={newUserData.currency}
+                  onChange={(e) => setNewUserData({ ...newUserData, currency: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  <option value="INR">INR</option>
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-300">Role</label>
+                <select
+                  id="role"
+                  value={newUserData.role}
+                  onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-300">Gender</label>
+                <select
+                  id="gender"
+                  value={newUserData.gender}
+                  onChange={(e) => setNewUserData({ ...newUserData, gender: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="amount" className="block text-sm font-medium text-gray-300">Initial Amount</label>
+                <input
+                  type="number"
+                  id="amount"
+                  value={newUserData.amount}
+                  onChange={(e) => setNewUserData({ ...newUserData, amount: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+              </div>
             </div>
-            <div className="mt-6 flex justify-end space-x-4">
+            <div className="mt-6 flex justify-end space-x-3">
               <button
-                onClick={() => {
-                  setIsAddingUser(false);
-                  resetForm();
-                }}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                onClick={() => setIsAddingUser(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
               >
                 Cancel
               </button>
               <button
                 onClick={postNewUser}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Add User
               </button>
@@ -284,128 +494,64 @@ const UserForm = () => {
         </div>
       )}
 
-      {isLoading ? (
-        <p>Loading users...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <div className="grid grid-cols-1 mt-8 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {users?.map((user, index) => (
-            <div
-              key={index}
-              className="block bg-gray-800 duration-150 rounded-lg p-4 border border-dashed border-zinc-600"
-            >
-              <div>
-                <dt className="sr-only">Name</dt>
-                <dd className="font-medium capitalize">{user.name}</dd>
-              </div>
-              <div className="mt-2">
-                <dl>
-                  <div>
-                    <dt className="sr-only">Amount</dt>
-                    <dd className="text-sm text-gray-400">
-                      Wallet Amount :{" "}
-                      <span className="text-gray-200 uppercase">
-                        {user.currency} {user.amount}
-                      </span>
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="sr-only">Email</dt>
-                    <dd className="text-sm text-gray-400">
-                      Email :<span className="text-gray-200">{user.email}</span>
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="mt-6 flex items-center gap-8 text-xs">
-                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                    <div className="mt-1.5 sm:mt-0">
-                      <p className="text-gray-500">Status</p>
-                      <p
-                        className={`font-medium ${
-                          user.status === "banned"
-                            ? "text-red-500"
-                            : "text-green-500"
-                        }`}
-                      >
-                        {user.status}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                    <div className="mt-1.5 sm:mt-0">
-                      <p className="text-gray-500">Role</p>
-                      <p className="font-medium capitalize">{user.role}</p>
-                    </div>
-                  </div>
-
-                  <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
-                    <div className="mt-1.5 sm:mt-0">
-                      <p className="text-gray-500">Gender</p>
-                      <p className="font-medium">{user.gender}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="gap-4 flex justify-between items-center mt-3">
-                {/* <button className="bg-red-500 px-2 text-sm py-1 rounded-lg">Delete User</button> */}
-                <button
-                  onClick={() => handleBanUser(user._id)}
-                  className={`w-full px-4 text-sm py-2 hover:bg-red-800 duration-200 rounded-lg ${
-                    user.status === "banned" ? "bg-red-500" : "bg-orange-500"
-                  }`}
-                  disabled={user.status === "banned"}
-                >
-                  {user.status === "banned" ? "Banned" : "Ban User"}
-                </button>
-
-                <button
-                  className="bg-green-700 hover:bg-green-800 duration-200 w-full px-4 text-sm py-2 rounded-lg"
-                  onClick={() => openDialog(user._id)}
-                >
-                  Add Money
-                </button>
-              </div>
+      {/* Add Money Dialog */}
+      {isAddMoneyDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-96">
+            <h2 className="text-xl font-semibold mb-4">Add Amount</h2>
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-300">Amount</label>
+              <input
+                type="number"
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
             </div>
-          ))}
-
-          {isDialogOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-                <h2 className="mb-4 text-xl font-semibold text-gray-800">
-                  Add Amount
-                </h2>
-                <input
-                  type="number"
-                  placeholder="Enter amount"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
-                  className="w-full px-4 py-2 mb-4 text-gray-800 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => handleAddMoney(selectedUserID)}
-                    className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  >
-                    Submit
-                  </button>
-                  <button
-                    onClick={closeDialog}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={closeAddMoneyDialog}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddMoney}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Add Money
+              </button>
             </div>
-          )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-96">
+            <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+            <p className="mb-4">Are you sure you want to delete this user? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteDialog}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default UserForm;
+export default UserForm

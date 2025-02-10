@@ -232,7 +232,7 @@ export default function BetSlip({ match, onClose }) {
       </div>
 
       {user && (
-        <div className="mt-4 flex-1 overflow-hidden flex flex-col">
+        <div className="mt-4 flex-1 xl:flex hidden overflow-hidden flex-col">
           <h1 className="mb-2 font-semibold underline text-blue-500">Recent Bets :</h1>
           <div className="overflow-y-auto flex-1">
             {allBets.map((bet, index) => (

@@ -58,7 +58,6 @@ export default function BetSlip({ match, onClose }) {
 
   const placeBet = async () => {
     const token = localStorage.getItem("authToken");
-    const wallet = Number(localStorage.getItem("walletAmount")); // Convert to number
 
     if (!token) {
       console.error("No token found");
@@ -99,11 +98,6 @@ export default function BetSlip({ match, onClose }) {
 
       if (response.ok) {
         toast.success("Bet placed successfully!");
-
-        // Deduct stake from wallet and update localStorage
-        const newWalletAmount = wallet - betAmount;
-        localStorage.setItem("walletAmount", newWalletAmount.toString());
-
         onClose();
       } else {
         toast.error(data.message || "Failed to place bet.");

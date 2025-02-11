@@ -285,7 +285,7 @@ export default function BetSlip({ match, onClose }) {
                           : " text-green-500"
                       }`}
                     >
-                      Bet Status : {bet.status}
+                      Bet Result : {bet.status}
                     </span>
                   </div>
 

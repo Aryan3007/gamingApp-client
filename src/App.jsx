@@ -13,6 +13,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { io } from "socket.io-client";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
+import MyBets from "./pages/MyBets";
 
 const Loader = lazy(() => import("./components/Loader"));
 const Navbar = lazy(() => import("./components/Navbar"));
@@ -114,6 +115,7 @@ const App = () => {
           />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/mybets" element={<MyBets />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

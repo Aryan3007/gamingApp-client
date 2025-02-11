@@ -18,6 +18,7 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
     { name: "Casino", href: "#" },
     { name: "Slot", href: "#" },
     { name: "Fantasy", href: "#" },
+    { name: "My Bets", href: "/mybets" },
   ];
 
   useEffect(() => {
@@ -57,10 +58,12 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
             ) : (
               <Menu className="lg:hidden flex" onClick={toggleSidebar} />
             )}
-
-            <h1 className="text-white hidden sm:flex font-bold text-base md:text-2xl">
-              Cric/Bet
-            </h1>
+            <div className="flex gap-2 justify-center items-center">
+              <img src="/logo.webp" className="h-12 w-12" alt="" />
+              <h1 className=" capitalize text-orange-300 font-serif hidden sm:flex font-bold text-base md:text-2xl">
+                shaktiex
+              </h1>
+            </div>
           </div>
           <div className=" hidden md:flex gap-2 py-2 text-center">
             {navItems.map((item) => (

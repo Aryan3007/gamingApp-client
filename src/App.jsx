@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { io } from "socket.io-client";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
 import MyBets from "./pages/MyBets";
@@ -25,14 +26,24 @@ const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
-const socket = io(server);
+const socket = io(server, { autoConnect: false });
 
 const App = () => {
-  const { loading } = useSelector((state) => state.userReducer);
+  const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
   const [showsidebar, setShowSideBar] = useState(false);
   const [sportsData, setSportsData] = useState([]);
   const sidebarRef = useRef(null);
+
+  const toggleSidebar = useCallback(() => {
+    setShowSideBar((prev) => !prev);
+  }, []);
+
+  const handleClickOutside = useCallback((event) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      setShowSideBar(false);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -55,31 +66,32 @@ const App = () => {
     fetchUser();
   }, [dispatch]);
 
-  const toggleSidebar = useCallback(() => {
-    setShowSideBar(!showsidebar);
-  }, [showsidebar]);
-
   useEffect(() => {
-    socket.on("sportsData", (data) => {
-      setSportsData(data);
-    });
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        toggleSidebar(false);
-      }
-    }
+    socket.on("sportsData", (data) => {
+      setSportsData((prevData) =>
+        JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
+      );
+    });
+
+    return () => socket.off("sportsData");
+  }, []);
+
+  useEffect(() => {
     if (showsidebar) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showsidebar, toggleSidebar]);
+  }, [showsidebar, handleClickOutside]);
 
   return loading ? (
     <Suspense fallback={<Loader />}>
@@ -97,6 +109,7 @@ const App = () => {
             <AllGames sportsData={sportsData} />
           </div>
         )}
+
         <Routes>
           <Route
             path="/"
@@ -108,14 +121,39 @@ const App = () => {
               />
             }
           />
-          <Route path="/login" element={<Login />} />
+
           <Route
             path="/match/:eventId"
             element={<MatchDetails sportsData={sportsData} />}
           />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/mybets" element={<MyBets />} />
+
+          <Route
+            path="/login"
+            element={
+              <ProtectedRoute isAuthenticated={user ? false : true}>
+                <Login />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            element={<ProtectedRoute isAuthenticated={user ? true : false} />}
+          >
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute
+                isAuthenticated={true}
+                adminOnly={true}
+                admin={user?.role === "admin" ? true : false}
+              />
+            }
+          >
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

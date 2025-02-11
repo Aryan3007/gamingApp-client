@@ -1,23 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/display-name */
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
-import PropTypes from "prop-types";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
 import { calculateProfitAndLoss } from "../utils/helper";
-export default function BetSlip({ match, onClose }) {
+
+const BetSlip = memo(({ match, onClose }) => {
   const [betAmount, setBetAmount] = useState(100);
   const [allBets, setAllBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.userReducer);
-  const prevMatch = useRef(null); // Store previous match data
+  const prevMatch = useRef(null);
 
   // Only update state if the match has actually changed
   useEffect(() => {
     if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
-      prevMatch.current = match; // Update the stored match
+      prevMatch.current = match;
     }
   }, [match]);
 
@@ -56,72 +57,13 @@ export default function BetSlip({ match, onClose }) {
     setBetAmount(Math.max(0, Math.min(value, 50000)));
   }, []);
 
-  const placeBet = async () => {
-    const token = localStorage.getItem("authToken");
-    const wallet = Number(localStorage.getItem("walletAmount")); // Convert to number
-
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-    if (!match) {
-      toast.error("Match details are missing!");
-      return;
-    }
-
-    const payload = {
-      eventId: match.eventId,
-      match: `${match.home_team} vs ${match.away_team}`,
-      marketId: match.marketId,
-      selectionId: match.selectionId,
-      fancyNumber: match.fancyNumber,
-      stake: betAmount,
-      odds: match.odds,
-      category: match.category,
-      type: match.type,
-    };
-
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${server}/api/v1/bet/place?userId=${user._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Bet placed successfully!");
-
-        // Deduct stake from wallet and update localStorage
-        const newWalletAmount = wallet - betAmount;
-        localStorage.setItem("walletAmount", newWalletAmount.toString());
-
-        onClose();
-      } else {
-        toast.error(data.message || "Failed to place bet.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("An error occurred while placing the bet.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTransactions = async () => {
+  const getTransactions = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.error("No token found");
       return;
     }
+
     try {
       const response = await axios.get(
         `${server}/api/v1/bet/transactions?userId=${user._id}`,
@@ -142,11 +84,63 @@ export default function BetSlip({ match, onClose }) {
       console.error("Error fetching transactions:", error);
       return null;
     }
-  };
+  }, [user]);
+
+  const placeBet = useCallback(async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      toast.error("You need to login!");
+      return;
+    }
+
+    if (!match) {
+      toast.error("Select a bet first!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data } = await axios.post(
+        `${server}/api/v1/bet/place?userId=${user._id}`,
+        {
+          eventId: match.eventId,
+          match: `${match.home_team} vs ${match.away_team}`,
+          marketId: match.marketId,
+          selectionId: match.selectionId,
+          fancyNumber: match.fancyNumber,
+          stake: betAmount,
+          odds: match.odds,
+          category: match.category,
+          type: match.type,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        getTransactions();
+        toast.success(data.message);
+        onClose();
+      } else {
+        toast.error(data.message || "Failed to place bet.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while placing the bet.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user, match, betAmount, onClose, getTransactions]);
 
   useEffect(() => {
     getTransactions();
-  }, [placeBet, user]);
+  }, [getTransactions]);
 
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
@@ -239,21 +233,18 @@ export default function BetSlip({ match, onClose }) {
         ))}
       </div>
 
-      {!user && (
-        <p className="text-center mb-2 text-red-500">Login to place bet</p>
-      )}
       {/* Action Buttons */}
       <div className="flex gap-2">
         <button
           onClick={onClose}
-          className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium"
+          className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium transition duration-300 hover:bg-red-500 hover:text-white"
         >
           Cancel
         </button>
         <button
           onClick={placeBet}
-          className="flex-1 bg-green-500 py-2 px-8 rounded-lg font-medium"
-          disabled={!user || loading}
+          className="flex-1 bg-green-500 py-2 px-8 rounded-lg font-medium transition duration-300 hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading}
         >
           {loading ? "Placing Bet..." : "Place Bet"}
         </button>
@@ -301,10 +292,10 @@ export default function BetSlip({ match, onClose }) {
                     </div>{" "}
                     <div className="flex flex-row justify-start items-center gap-1">
                       <span className="text-gray-400 text-xs flex items-center">
-                        Run :
+                        Odds :
                       </span>
                       <span className="text-white text-xs font-medium uppercase">
-                        {bet.fancyNumber}
+                        {bet.odds}
                       </span>
                     </div>
                     <div className="flex flex-row justify-start items-center gap-1">
@@ -320,9 +311,19 @@ export default function BetSlip({ match, onClose }) {
                         Category :
                       </span>
                       <span className="text-white text-xs font-medium capitalize">
-                        {bet.category}({bet.type})
+                        {bet.category} ({bet.type})
                       </span>
                     </div>
+                    {bet.fancyNumber && (
+                      <div className="flex flex-row justify-start items-center gap-1">
+                        <span className="text-gray-400 text-xs flex items-center">
+                          Run :
+                        </span>
+                        <span className="text-white text-xs font-medium capitalize">
+                          {bet.fancyNumber}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -332,9 +333,6 @@ export default function BetSlip({ match, onClose }) {
       )}
     </div>
   );
-}
+});
 
-BetSlip.propTypes = {
-  match: PropTypes.object,
-  onClose: PropTypes.func.isRequired,
-};
+export default BetSlip;

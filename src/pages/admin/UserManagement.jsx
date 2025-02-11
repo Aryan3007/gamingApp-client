@@ -1,24 +1,20 @@
-"use client";
-
-import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { server } from "../../constants/config";
 import {
-  FaUser,
-  FaEnvelope,
-  FaMoneyBillWave,
-  FaDollarSign,
-  FaCheckCircle,
-  FaUserTag,
-  FaVenusMars,
   FaBan,
-  FaPlus,
-  FaTrash,
-  FaSearch,
+  FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
+  FaEnvelope,
+  FaMoneyBillWave,
+  FaPlus,
+  FaSearch,
+  FaUser,
+  FaUserTag,
 } from "react-icons/fa";
+import { server } from "../../constants/config";
 
 const UserForm = () => {
   const [users, setUsers] = useState([]);
@@ -27,7 +23,6 @@ const UserForm = () => {
   const [error, setError] = useState(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isAddMoneyDialogOpen, setIsAddMoneyDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [amount, setAmount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,7 +53,7 @@ const UserForm = () => {
     setCurrentPage(1);
   }, [searchTerm, users]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     setIsLoading(true);
     setError(null);
@@ -85,7 +80,7 @@ const UserForm = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [error]);
 
   const validateNewUser = () => {
     if (!newUserData.name.trim()) {
@@ -155,7 +150,7 @@ const UserForm = () => {
     const token = localStorage.getItem("authToken");
 
     try {
-      const response = await axios.post(
+      const { data } = await axios.post(
         `${server}/api/v1/user/userstatus/${userId}`,
         { status: "banned" },
         {
@@ -163,7 +158,7 @@ const UserForm = () => {
         }
       );
 
-      toast.success("User banned successfully");
+      toast.success(data.message);
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === userId ? { ...user, status: "banned" } : user

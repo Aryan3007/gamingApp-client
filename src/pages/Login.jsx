@@ -1,22 +1,20 @@
-"use client"
-
-import axios from "axios"
-import { useState } from "react"
-import toast from "react-hot-toast"
-import { useDispatch } from "react-redux"
-import { server } from "../constants/config"
-import { userExist } from "../redux/reducer/userReducer"
-import { useNavigate } from "react-router-dom"
+import axios from "axios";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { server } from "../constants/config";
+import { userExist } from "../redux/reducer/userReducer";
 
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const toastId = toast.loading("Logging In...")
+    e.preventDefault();
+    const toastId = toast.loading("Logging In...");
 
     try {
       const { data } = await axios.post(
@@ -30,45 +28,56 @@ const Login = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
-      )
+        }
+      );
 
-      localStorage.setItem("authToken", data.token)
-      dispatch(userExist(data.user))
-      toast.success(data.message, { id: toastId })
-      navigate("/")
+      localStorage.setItem("authToken", data.token);
+      dispatch(userExist(data.user));
+      toast.success(data.message, { id: toastId });
+      navigate("/");
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         toast.error(error.response.data.message, {
           id: toastId,
-        })
+        });
       } else {
         toast.error("Something went wrong. Please try again later.", {
           id: toastId,
-        })
+        });
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950 flex">
       {/* Left side with logo */}
       <div className="w-[80%] hidden justify-center items-center lg:flex p-8">
-      <div>
-            <h1 className="text-4xl max-w-3xl font-bold text-white mb-2">Hi, Welcome back</h1>
-          </div>
+        <div>
+          <h1 className="text-4xl max-w-3xl font-bold text-white mb-2">
+            Hi, Welcome back
+          </h1>
+        </div>
       </div>
 
       {/* Right side with login form */}
       <div className="lg:w-1/2 w-full flex flex-col items-center justify-center pt-4 px-6">
         <div className="max-w-md w-full space-y-8">
-        <div>
-            <h2 className="text-2xl font-semibold text-white mb-8">Sign in to Crick/bet</h2>
+          <div>
+            <h2 className="text-2xl font-semibold text-white mb-8">
+              Sign in to Crick/bet
+            </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Email *
               </label>
               <div className="mt-1 relative">
@@ -85,7 +94,10 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Password *
               </label>
               <div className="mt-1 relative">
@@ -121,8 +133,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
-
+export default Login;

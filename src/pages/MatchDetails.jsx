@@ -1,23 +1,25 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-"use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Bookmaker from "../components/matchdetails_ui/Bookmaker";
-import Fancy from "../components/matchdetails_ui/Fancy";
-import Player from "../components/matchdetails_ui/Player";
-import Other from "../components/matchdetails_ui/Other";
-import BFancy from "../components/matchdetails_ui/BFancy";
-import OddEven from "../components/matchdetails_ui/OddEven";
-import Line from "../components/matchdetails_ui/Line";
-import MatchOdds from "../components/matchdetails_ui/MatchOdds";
 import axios from "axios";
+import { lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Loader from "../components/Loader";
-import BetSlip from "../components/BetSlip";
-import CricketScore from "../components/matchdetails_ui/CircketScore";
 import { server } from "../constants/config";
-import AllGames from "../components/AllGames";
+
+const AllGames = lazy(() => import("../components/AllGames"));
+const BetSlip = lazy(() => import("../components/BetSlip"));
+const BFancy = lazy(() => import("../components/matchdetails_ui/BFancy"));
+const Bookmaker = lazy(() => import("../components/matchdetails_ui/Bookmaker"));
+const Fancy = lazy(() => import("../components/matchdetails_ui/Fancy"));
+const Line = lazy(() => import("../components/matchdetails_ui/Line"));
+const MatchOdds = lazy(() => import("../components/matchdetails_ui/MatchOdds"));
+const OddEven = lazy(() => import("../components/matchdetails_ui/OddEven"));
+const Other = lazy(() => import("../components/matchdetails_ui/Other"));
+const Player = lazy(() => import("../components/matchdetails_ui/Player"));
+const CricketScore = lazy(() =>
+  import("../components/matchdetails_ui/CircketScore")
+);
 
 const AllComponents = ({ data, onBetSelect }) => {
   return (
@@ -48,7 +50,6 @@ const tabComponents = {
 const MatchDetails = ({ sportsData }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [data, setData] = useState(null);
-  const [bookmakers, setBookmakers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { eventId } = useParams();
@@ -70,7 +71,6 @@ const MatchDetails = ({ sportsData }) => {
         if (response.status !== 200) {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-        setBookmakers(response.data.getBookmaker);
         setData(response.data);
       } catch (err) {
         console.error("Fetch error:", err);

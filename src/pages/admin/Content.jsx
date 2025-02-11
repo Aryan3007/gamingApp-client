@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable react/no-unescaped-entities */
+import { lazy } from "react";
 
-import Allrequests from "./Allrequests";
-import UserManagement from "./UserManagement";
-import WebsiteManagement from "./WebsiteManagement";
+const Allrequests = lazy(() => import("./Allrequests"));
+const UserManagement = lazy(() => import("./UserManagement"));
+const WebsiteManagement = lazy(() => import("./WebsiteManagement"));
 
 const tabContent = {
   dashboard: (
@@ -35,7 +35,7 @@ const tabContent = {
   ),
 };
 
-export default function Content({ activeTab }) {
+const Content = ({ activeTab }) => {
   return (
     <div className="flex-1 bg-gradient-to-b from-gray-900 to-gray-950 h-screen">
       <div className=" text-white rounded-lg shadow lg:pt-6 pt-24 p-6">
@@ -43,4 +43,6 @@ export default function Content({ activeTab }) {
       </div>
     </div>
   );
-}
+};
+
+export default Content;

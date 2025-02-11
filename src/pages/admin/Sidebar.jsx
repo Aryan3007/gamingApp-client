@@ -1,18 +1,18 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useState } from "react";
 
 const menuItems = [
-  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-  { id: 'users', icon: '👥', label: 'Users' },
-  { id: 'requests', icon: '🛍️', label: 'All Requests' },
-  { id: 'settings', icon: '⚙️', label: 'Settings' },
+  { id: "dashboard", icon: "📊", label: "Dashboard" },
+  { id: "users", icon: "👥", label: "Users" },
+  { id: "requests", icon: "🛍️", label: "All Requests" },
+  { id: "settings", icon: "⚙️", label: "Settings" },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   };
 
   return (
@@ -42,7 +42,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       {/* Sidebar */}
       <div
         className={`fixed top-24 lg:top-0 left-0 z-30 w-64  bg-gray-800 text-white h-full transition-transform duration-300 ease-in-out transform ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? "translate-x-0" : "-translate-x-full"
         } md:relative md:translate-x-0`}
       >
         <div className="p-4">
@@ -58,7 +58,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
                     setIsOpen(false); // Close sidebar on mobile after selection
                   }}
                   className={`w-full my-1 text-left p-4 hover:bg-gray-700 transition-colors ${
-                    activeTab === item.id ? 'bg-gray-700' : ''
+                    activeTab === item.id ? "bg-gray-700" : ""
                   }`}
                 >
                   <span className="mr-2" role="img" aria-label={item.label}>
@@ -81,5 +81,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       )}
     </>
   );
-}
+};
 
+export default Sidebar;

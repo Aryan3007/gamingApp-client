@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 import {
   lazy,
@@ -16,6 +17,7 @@ import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
 import MyBets from "./pages/MyBets";
 
+// Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
 const Navbar = lazy(() => import("./components/Navbar"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -26,6 +28,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
+// Socket.io connection
 const socket = io(server, { autoConnect: false });
 
 const App = () => {
@@ -121,39 +124,47 @@ const App = () => {
               />
             }
           />
-
           <Route
             path="/match/:eventId"
             element={<MatchDetails sportsData={sportsData} />}
           />
+          <Route path="/mybets" element={<MyBets />} />
 
+          {/* Public Route: Login */}
           <Route
             path="/login"
             element={
-              <ProtectedRoute isAuthenticated={user ? false : true}>
+              <ProtectedRoute isAuthenticated={!user}>
                 <Login />
               </ProtectedRoute>
             }
           />
 
+          {/* Protected Route: Only logged-in users */}
           <Route
-            element={<ProtectedRoute isAuthenticated={user ? true : false} />}
-          >
-            <Route path="/profile" element={<Profile />} />
-          </Route>
+            path="/profile"
+            element={
+              <ProtectedRoute isAuthenticated={!!user}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
+          {/* Admin Protected Route */}
           <Route
+            path="/admin"
             element={
               <ProtectedRoute
-                isAuthenticated={true}
+                isAuthenticated={!!user}
                 adminOnly={true}
-                admin={user?.role === "admin" ? true : false}
-              />
+                admin={user?.role === "admin"}
+              >
+                <AdminDashboard />
+              </ProtectedRoute>
             }
-          >
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Route>
+          />
 
+          {/* 404 Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

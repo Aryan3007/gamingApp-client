@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, lazy } from "react";
+import Footer from "../components/Footer";
 
 const AllGames = lazy(() => import("./../components/AllGames"));
 const GamesHeader = lazy(() => import("./../components/GamesHeader"));
@@ -95,6 +96,7 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
             <ImageCarousel />
             <GamesHeader activeTab={activeTab} setActiveTab={setActiveTab} />
             {renderActiveComponent()}
+            <Footer/>
           </div>
 
           {/* Right Sidebar */}

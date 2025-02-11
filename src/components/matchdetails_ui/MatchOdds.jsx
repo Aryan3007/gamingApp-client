@@ -170,10 +170,10 @@ export default function MatchOdds({ eventId, onBetSelect }) {
         <div className="py-2 px-4">
           {runnersWithOdds.map((runner, index) => {
             // Format back odds - extract price and size from each back entry
-            const backOdds = (runner.back || []).map((odds) => [
-              odds.price,
-              odds.size,
-            ]);
+            const backOdds = (runner.back || [])
+            .map((odds) => [odds.price, odds.size])
+            .reverse(); // Reverses the order
+          
 
             // Format lay odds - extract price and size from each lay entry
             const layOdds = (runner.lay || []).map((odds) => [

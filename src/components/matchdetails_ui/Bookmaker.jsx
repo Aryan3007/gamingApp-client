@@ -15,8 +15,8 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
 
   const handleOddsClick = (market, runner, type, odds) => {
     const betData = {
-      home_team: market?.runners?.[0]?.name || "Unknown",
-      away_team: market?.runners?.[1]?.name || "Unknown",
+      home_team: market?.eventDetails?.runners?.[0]?.name || "Unknown",
+      away_team: market?.eventDetails?.runners?.[1]?.name || "Unknown",
       eventId: market?.eventId || "",
       marketId: market?.market?.id || "",
       selectionId: runner?.selectionId || null,

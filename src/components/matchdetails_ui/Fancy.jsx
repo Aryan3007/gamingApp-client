@@ -31,8 +31,8 @@ const FancyComponent = ({ data, onBetSelect }) => {
 
   const handleOddsClick = (market, odds, type, price, size) => {
     const betData = {
-      home_team: market.runners?.[0]?.name || "Fancy",
-      away_team: market.runners?.[1]?.name || "Fancy",
+      home_team: market.eventDetails?.runners?.[0]?.name || "Fancy",
+      away_team: market.eventDetails?.runners?.[1]?.name || "Fancy",
       eventId: market.eventId || "",
       marketId: market.market?.id || "",
       selectionId: odds?.selectionId || null,

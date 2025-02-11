@@ -1,25 +1,23 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+"use client";
 
+import { useEffect, useState, useMemo, useCallback } from "react";
+import Bookmaker from "../components/matchdetails_ui/Bookmaker";
+import Fancy from "../components/matchdetails_ui/Fancy";
+import Player from "../components/matchdetails_ui/Player";
+import Other from "../components/matchdetails_ui/Other";
+import BFancy from "../components/matchdetails_ui/BFancy";
+import OddEven from "../components/matchdetails_ui/OddEven";
+import Line from "../components/matchdetails_ui/Line";
+import MatchOdds from "../components/matchdetails_ui/MatchOdds";
 import axios from "axios";
-import { lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Loader from "../components/Loader";
+import BetSlip from "../components/BetSlip";
+import CricketScore from "../components/matchdetails_ui/CircketScore";
 import { server } from "../constants/config";
-
-const AllGames = lazy(() => import("../components/AllGames"));
-const BetSlip = lazy(() => import("../components/BetSlip"));
-const BFancy = lazy(() => import("../components/matchdetails_ui/BFancy"));
-const Bookmaker = lazy(() => import("../components/matchdetails_ui/Bookmaker"));
-const Fancy = lazy(() => import("../components/matchdetails_ui/Fancy"));
-const Line = lazy(() => import("../components/matchdetails_ui/Line"));
-const MatchOdds = lazy(() => import("../components/matchdetails_ui/MatchOdds"));
-const OddEven = lazy(() => import("../components/matchdetails_ui/OddEven"));
-const Other = lazy(() => import("../components/matchdetails_ui/Other"));
-const Player = lazy(() => import("../components/matchdetails_ui/Player"));
-const CricketScore = lazy(() =>
-  import("../components/matchdetails_ui/CircketScore")
-);
+import AllGames from "../components/AllGames";
 
 const AllComponents = ({ data, onBetSelect }) => {
   return (
@@ -50,6 +48,7 @@ const tabComponents = {
 const MatchDetails = ({ sportsData }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [data, setData] = useState(null);
+  const [bookmakers, setBookmakers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { eventId } = useParams();
@@ -71,6 +70,7 @@ const MatchDetails = ({ sportsData }) => {
         if (response.status !== 200) {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
+        setBookmakers(response.data.getBookmaker);
         setData(response.data);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -95,7 +95,7 @@ const MatchDetails = ({ sportsData }) => {
 
     const categorizeMarkets = (rawData) => {
       const categories = {
-        bookmaker: rawData.getBookmaker || [],
+        bookmaker: rawData.getBookmaker.map((market) => ({ ...market, eventDetails: rawData.eventDetail })) || [],
         fancy: [],
         player: [],
         over: [],
@@ -106,32 +106,28 @@ const MatchDetails = ({ sportsData }) => {
 
       if (rawData.getFancy) {
         rawData.getFancy.forEach((market) => {
-          const name = market.market.name.toLowerCase();
+          const marketWithEventDetails = { ...market, eventDetails: rawData.eventDetail }
+          const name = market.market.name.toLowerCase()
           if (name.includes("only")) {
-            categories.over.push(market);
+            categories.over.push(marketWithEventDetails)
           } else if (name.includes("over")) {
-            categories.fancy.push(market);
+            categories.fancy.push(marketWithEventDetails)
           } else if (name.includes("total")) {
-            categories.odd_even.push(market);
+            categories.odd_even.push(marketWithEventDetails)
           } else if (
             name.includes("innings") ||
             name.includes("top") ||
             name.includes("most") ||
             name.includes("highest")
           ) {
-            categories.line.push(market);
-          } else if (
-            name.startsWith("fall of") ||
-            name.startsWith("caught") ||
-            name.startsWith("match ")
-          ) {
-            categories.b_fancy.push(market);
+            categories.line.push(marketWithEventDetails)
+          } else if (name.startsWith("fall of") || name.startsWith("caught") || name.startsWith("match ")) {
+            categories.b_fancy.push(marketWithEventDetails)
           } else {
-            categories.player.push(market);
+            categories.player.push(marketWithEventDetails)
           }
-        });
+        })
       }
-
       return Object.fromEntries(
         Object.entries(categories).filter(([_, value]) => value.length > 0)
       );

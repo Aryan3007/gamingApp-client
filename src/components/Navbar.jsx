@@ -1,13 +1,16 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
 import { Menu, Wallet, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { server } from "../constants/config";
 import { userNotExist } from "../redux/reducer/userReducer";
+import isEqual from "react-fast-compare";
 
-const Navbar = ({ toggleSidebar, showsidebar }) => {
+const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
+  console.log("Navbar Rendered!"); // Check if re-rendering still happens
+
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -31,16 +34,21 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         setWallet(response?.data.user.amount);
       } catch (error) {
         console.log(error);
         dispatch(userNotExist());
       }
     };
-
-    fetchUser();
+  
+    fetchUser(); // Initial fetch
+  
+    const interval = setInterval(fetchUser, 1000); // Call API every 1 second
+  
+    return () => clearInterval(interval); // Cleanup on component unmount
   }, [dispatch]);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -121,17 +129,30 @@ const Navbar = ({ toggleSidebar, showsidebar }) => {
 
       <div className=" md:hidden flex gap-2 py-2 justify-center text-center">
         {navItems.map((item) => (
-          <a
+          <Link
             key={item.name}
-            href={item.href}
+            to={item.href}
             className="block text-gray-300 text-sm hover:bg-blue-700 hover:text-white px-3 py-2 rounded-md  font-medium"
           >
             {item.name}
-          </a>
+          </Link>
         ))}
       </div>
     </nav>
   );
 };
+
+
+const arePropsEqual = (prevProps, nextProps) => {
+  return (
+    isEqual(prevProps.toggleSidebar, nextProps.toggleSidebar) &&
+    prevProps.toggleSidebar === nextProps.toggleSidebar
+  );
+};
+
+
+const Navbar = memo(NavbarCompoennt, arePropsEqual);
+Navbar.displayName = "Navbar";
+
 
 export default Navbar;

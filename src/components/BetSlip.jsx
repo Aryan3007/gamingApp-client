@@ -54,7 +54,7 @@ const BetSlip = memo(({ match, onClose }) => {
   }, []);
 
   const handleBetChange = useCallback((value) => {
-    setBetAmount(Math.max(0, Math.min(value, 50000)));
+    setBetAmount(Math.max(0, Math.min(value, 500000)));
   }, []);
 
   const getTransactions = useCallback(async () => {
@@ -145,19 +145,24 @@ const BetSlip = memo(({ match, onClose }) => {
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
       {/* Header */}
-      <div className="flex justify-between items-end ">
+      <div className="flex justify-between items-start ">
         <div>
-          <h2 className="text-lg capitalize flex font-bold">
+          <h2 className="text-lg capitalize max-w-52 mb-2 flex font-bold">
             {match
               ? `${match.home_team} vs ${match.away_team}`
               : "Select a bet"}
           </h2>
         </div>
+
+        <div className="text-sm">
+          <h1>Min : 100</h1>
+          <h1>Max : 50L</h1>
+        </div>
       </div>
 
       {/* Match Details */}
       <div className="mb-2 text-sm lg:text-base">
-        <div className="md:p-2 p-0 rounded inline-block bg-gray-800">
+        <div className="md:p-2 p-0 max-w-52 rounded inline-block bg-gray-800">
           <span
             className={`font-semibold ${
               match?.betType === "Lay" || match?.betType === "No"
@@ -167,7 +172,7 @@ const BetSlip = memo(({ match, onClose }) => {
           >
             {match?.selectedTeam}{" "}
           </span>
-          <span className="text-gray-400">
+          <span className="text-gray-400 ">
             ({match?.betType} @ {match?.fancyNumber})
           </span>
         </div>

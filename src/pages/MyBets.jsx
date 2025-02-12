@@ -201,12 +201,16 @@ const MyBetsComponent = () => {
                 <tr key={index} className="hover:bg-[#1f2937]/50 transition-colors">
                   <td className="px-4 py-3 text-sm text-white">{bet.match}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        bet.status === "pending" ? "bg-yellow-500/20 text-yellow-500" : "bg-green-500/20 text-green-500"
+                  <span
+                      className={`capitalize text-xs font-medium ${
+                        bet.status === "pending"
+                          ? "text-yellow-500"
+                          : bet.status === "lost"
+                          ? "text-red-500"
+                          : "text-green-500"
                       }`}
                     >
-                      {bet.status}
+                     {bet.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-white">

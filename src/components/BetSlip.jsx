@@ -75,9 +75,7 @@ const BetSlip = memo(({ match, onClose }) => {
       );
       // Filter only "pending" bets
       // Filter only "pending" bets and sort them (newest first)
-      const pendingBets = response.data.bets
-        .filter((bet) => bet.status === "pending")
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pendingBets = response.data.bets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       setAllBets(pendingBets);
     } catch (error) {
@@ -275,13 +273,15 @@ const BetSlip = memo(({ match, onClose }) => {
                       </h3>
                     </div>
                     <span
-                      className={` capitalize text-xs font-medium ${
+                      className={`capitalize text-xs font-medium ${
                         bet.status === "pending"
-                          ? " text-yellow-500"
-                          : " text-green-500"
+                          ? "text-yellow-500"
+                          : bet.status === "lost"
+                          ? "text-red-500"
+                          : "text-green-500"
                       }`}
                     >
-                      Bet Result : {bet.status}
+                      Bet Result: {bet.status}
                     </span>
                   </div>
 

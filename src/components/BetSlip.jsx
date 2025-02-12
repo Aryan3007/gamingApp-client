@@ -66,7 +66,7 @@ const BetSlip = memo(({ match, onClose }) => {
 
     try {
       const response = await axios.get(
-        `${server}/api/v1/bet/transactions?userId=${user._id}`,
+        `${server}api/v1/bet/transactions?userId=${user._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -102,7 +102,7 @@ const BetSlip = memo(({ match, onClose }) => {
     try {
       setLoading(true);
       const { data } = await axios.post(
-        `${server}/api/v1/bet/place?userId=${user._id}`,
+        `${server}api/v1/bet/place?userId=${user._id}`,
         {
           eventId: match.eventId,
           match: `${match.home_team} vs ${match.away_team}`,

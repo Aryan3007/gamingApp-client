@@ -9,7 +9,6 @@ import { userNotExist } from "../redux/reducer/userReducer";
 import isEqual from "react-fast-compare";
 
 const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
-  console.log("Navbar Rendered!"); // Check if re-rendering still happens
 
   const { user, loading } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
@@ -26,9 +25,11 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return; // Don't call API if no token
+  
       try {
-        const token = localStorage.getItem("authToken");
-        const response = await axios.get(`${server}/api/v1/user/me`, {
+        const response = await axios.get(`${server}api/v1/user/me`, {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -42,12 +43,14 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
       }
     };
   
-    fetchUser(); // Initial fetch
+    if (localStorage.getItem("authToken")) {
+      fetchUser(); // Initial fetch
+      const interval = setInterval(fetchUser, 1000); // Call API every 1 second
   
-    const interval = setInterval(fetchUser, 1000); // Call API every 1 second
-  
-    return () => clearInterval(interval); // Cleanup on component unmount
+      return () => clearInterval(interval); // Cleanup on component unmount
+    }
   }, [dispatch]);
+  
   
 
   const handleLogout = () => {
@@ -75,13 +78,13 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
           </div>
           <div className=" hidden md:flex gap-2 py-2 text-center">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
                 className="block text-gray-300  hover:text-blue-500 hover:border-b border-blue-500 md:px-3 md:py-2  text-base font-medium"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
           </div>
           <div className="flex items-center">
@@ -132,7 +135,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
           <Link
             key={item.name}
             to={item.href}
-            className="block text-gray-300 text-sm hover:bg-blue-700 hover:text-white px-3 py-2 rounded-md  font-medium"
+            className="block text-gray-300 text-sm hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md  font-medium"
           >
             {item.name}
           </Link>

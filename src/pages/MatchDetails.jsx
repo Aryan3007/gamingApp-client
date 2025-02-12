@@ -64,7 +64,7 @@ const MatchDetails = ({ sportsData }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${server}/api/v1/getMarkets?eventId=${eventId}`
+          `${server}api/v1/getMarkets?eventId=${eventId}`
         );
 
         if (response.status !== 200) {

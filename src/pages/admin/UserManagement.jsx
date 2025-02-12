@@ -59,7 +59,7 @@ const UserForm = () => {
     setError(null);
 
     try {
-      const response = await axios.get(`${server}/api/v1/user/allusers`, {
+      const response = await axios.get(`${server}api/v1/user/allusers`, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -113,7 +113,7 @@ const UserForm = () => {
 
     try {
       const response = await axios.post(
-        `${server}/api/v1/user/new`,
+        `${server}api/v1/user/new`,
         newUserData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -151,7 +151,7 @@ const UserForm = () => {
 
     try {
       const { data } = await axios.post(
-        `${server}/api/v1/user/userstatus/${userId}`,
+        `${server}api/v1/user/userstatus/${userId}`,
         { status: "banned" },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -194,7 +194,7 @@ const UserForm = () => {
 
     try {
       const response = await axios.put(
-        `${server}/api/v1/user/addamount/${selectedUserID}`,
+        `${server}api/v1/user/addamount/${selectedUserID}`,
         { amount },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -411,7 +411,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, name: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
               <div>

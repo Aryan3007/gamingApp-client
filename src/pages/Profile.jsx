@@ -40,7 +40,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${server}/api/v1/payment/status/withdraw?userId=${user?._id}`,
+          `${server}api/v1/payment/status/withdraw?userId=${user?._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -60,7 +60,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${server}/api/v1/payment/status/deposit?userId=${user?._id}`,
+          `${server}api/v1/payment/status/deposit?userId=${user?._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ const Profile = () => {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.post(
-        `${server}/api/v1/payment/request/withdraw?userId=${user?._id}`,
+        `${server}api/v1/payment/request/withdraw?userId=${user?._id}`,
         formData,
         {
           headers: {
@@ -127,7 +127,7 @@ const Profile = () => {
     }
     try {
       const response = await axios.get(
-        `${server}/api/v1/bet/transactions?userId=${user._id}`,
+        `${server}api/v1/bet/transactions?userId=${user._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

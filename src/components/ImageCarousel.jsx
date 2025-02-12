@@ -24,7 +24,7 @@ const ImageCarousel = () => {
   // Fetch images from API
   const fetchImages = async () => {
     try {
-      const response = await axios.get(`${server}/api/v1/misc/get-images`);
+      const response = await axios.get(`${server}api/v1/misc/get-images`);
       const imageUrls = response.data.data.map((image) => image.image.url);
       setImages(imageUrls);
     } catch (error) {

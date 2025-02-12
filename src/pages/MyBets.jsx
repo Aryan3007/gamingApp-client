@@ -27,7 +27,7 @@ const MyBetsComponent = () => {
     }
   
     try {
-      const response = await axios.get(`${server}/api/v1/bet/transactions?userId=${user._id}`, {
+      const response = await axios.get(`${server}api/v1/bet/transactions?userId=${user._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

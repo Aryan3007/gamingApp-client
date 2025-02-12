@@ -10,11 +10,19 @@ const WebsiteManagement = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const token = localStorage.getItem("authToken");
 
   // Fetch images
   const fetchImages = async () => {
+    const token = localStorage.getItem("authToken");
+
     try {
-      const response = await axios.get(`${server}/api/v1/misc/get-images`);
+      const response = await axios.get(`${server}api/v1/misc/get-images`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setImages(response.data.data);
     } catch (error) {
       toast.error("Failed to fetch images");
@@ -36,15 +44,20 @@ const WebsiteManagement = () => {
       toast.error("Please select a file and enter a title.");
       return;
     }
-
+    
+    
     setIsUploading(true);
     const formData = new FormData();
     formData.append("image", file);
     formData.append("title", title);
+    const token = localStorage.getItem("authToken");
 
     try {
-      await axios.post(`${server}/api/v1/misc/add-image`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await axios.post(`${server}api/v1/misc/add-image`, formData, {
+        headers: { "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+
+         },
       });
       toast.success("Image uploaded successfully!");
       setFile(null);
@@ -59,8 +72,15 @@ const WebsiteManagement = () => {
 
   // Handle image deletion
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("authToken");
+
     try {
-      await axios.delete(`${server}/api/v1/misc/dlt-image/${id}`);
+      await axios.delete(`${server}api/v1/misc/dlt-image/${id}`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toast.success("Image deleted!");
       fetchImages();
     } catch (error) {

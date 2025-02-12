@@ -80,7 +80,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
             {navItems.map((item) => (
               <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className="block text-gray-300  hover:text-blue-500 hover:border-b border-blue-500 md:px-3 md:py-2  text-base font-medium"
               >
                 {item.name}

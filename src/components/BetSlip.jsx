@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable react/display-name */
+"use client";
+
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -13,26 +14,31 @@ const BetSlip = memo(({ match, onClose }) => {
   const [allBets, setAllBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.userReducer);
-  const prevMatch = useRef(null);
+  const prevMatchRef = useRef(null);
 
-  // Only update state if the match has actually changed
+  // Use useRef to store mutable values that persist across re-renders
+  const matchRef = useRef(match);
+
+  // Update the ref when match changes
   useEffect(() => {
-    if (match && JSON.stringify(match) !== JSON.stringify(prevMatch.current)) {
-      prevMatch.current = match;
+    if (JSON.stringify(match) !== JSON.stringify(prevMatchRef.current)) {
+      matchRef.current = match;
+      prevMatchRef.current = match;
     }
   }, [match]);
 
   // Memoized profit and loss calculations
   const { profit, loss } = useMemo(() => {
-    return match
+    const currentMatch = matchRef.current;
+    return currentMatch
       ? calculateProfitAndLoss(
           betAmount,
-          match.odds,
-          match.type,
-          match.category
+          currentMatch.odds,
+          currentMatch.type,
+          currentMatch.category
         )
       : { profit: 0, loss: 0 };
-  }, [betAmount, match]);
+  }, [betAmount]);
 
   // Quick bet options
   const quickBets = useMemo(
@@ -73,9 +79,10 @@ const BetSlip = memo(({ match, onClose }) => {
           },
         }
       );
-      // Filter only "pending" bets
       // Filter only "pending" bets and sort them (newest first)
-      const pendingBets = response.data.bets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pendingBets = response.data.bets.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
       setAllBets(pendingBets);
     } catch (error) {
@@ -86,13 +93,14 @@ const BetSlip = memo(({ match, onClose }) => {
 
   const placeBet = useCallback(async () => {
     const token = localStorage.getItem("authToken");
+    const currentMatch = matchRef.current;
 
     if (!token) {
       toast.error("You need to login!");
       return;
     }
 
-    if (!match) {
+    if (!currentMatch) {
       toast.error("Select a bet first!");
       return;
     }
@@ -102,15 +110,15 @@ const BetSlip = memo(({ match, onClose }) => {
       const { data } = await axios.post(
         `${server}api/v1/bet/place?userId=${user._id}`,
         {
-          eventId: match.eventId,
-          match: `${match.home_team} vs ${match.away_team}`,
-          marketId: match.marketId,
-          selectionId: match.selectionId,
-          fancyNumber: match.fancyNumber,
+          eventId: currentMatch.eventId,
+          match: `${currentMatch.home_team} vs ${currentMatch.away_team}`,
+          marketId: currentMatch.marketId,
+          selectionId: currentMatch.selectionId,
+          fancyNumber: currentMatch.fancyNumber,
           stake: betAmount,
-          odds: match.odds,
-          category: match.category,
-          type: match.type,
+          odds: currentMatch.odds,
+          category: currentMatch.category,
+          type: currentMatch.type,
         },
         {
           withCredentials: true,
@@ -134,11 +142,13 @@ const BetSlip = memo(({ match, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [user, match, betAmount, onClose, getTransactions]);
+  }, [user, betAmount, onClose, getTransactions]);
 
   useEffect(() => {
     getTransactions();
   }, [getTransactions]);
+
+  const currentMatch = matchRef.current;
 
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
@@ -146,8 +156,8 @@ const BetSlip = memo(({ match, onClose }) => {
       <div className="flex justify-between items-start ">
         <div>
           <h2 className="text-lg capitalize max-w-52 mb-2 flex font-bold">
-            {match
-              ? `${match.home_team} vs ${match.away_team}`
+            {currentMatch
+              ? `${currentMatch.home_team} vs ${currentMatch.away_team}`
               : "Select a bet"}
           </h2>
         </div>
@@ -163,15 +173,15 @@ const BetSlip = memo(({ match, onClose }) => {
         <div className="md:p-2 p-0 max-w-52 rounded inline-block bg-gray-800">
           <span
             className={`font-semibold ${
-              match?.betType === "Lay" || match?.betType === "No"
+              currentMatch?.betType === "Lay" || currentMatch?.betType === "No"
                 ? "text-red-400"
                 : "text-blue-400"
             }`}
           >
-            {match?.selectedTeam}{" "}
+            {currentMatch?.selectedTeam}{" "}
           </span>
           <span className="text-gray-400 ">
-            ({match?.betType} @ {match?.odds})
+            ({currentMatch?.betType} @ {currentMatch?.odds})
           </span>
         </div>
       </div>
@@ -201,8 +211,7 @@ const BetSlip = memo(({ match, onClose }) => {
       </div>
 
       {/* Calculations */}
-
-      {user && match && (
+      {user && currentMatch && (
         <div className="text-sm flex justify-evenly gap-2 lg:text-sm mb-0">
           <div className="flex gap-1 justify-center items-center w-full py-1 bg-red-900 px-3 rounded-md text-white">
             <span className="font-semibold ">Loss:</span>
@@ -316,7 +325,9 @@ const BetSlip = memo(({ match, onClose }) => {
                         Category :
                       </span>
                       <span className="text-white text-xs font-medium capitalize">
-                        {bet.category} ({bet.type})
+                        {bet.category === "fancy"
+                          ? `Fancy (${bet.type === "back" ? "Yes" : "No"})`
+                          : `${bet.category} (${bet.type})`}
                       </span>
                     </div>
                     {bet.fancyNumber && (
@@ -339,5 +350,7 @@ const BetSlip = memo(({ match, onClose }) => {
     </div>
   );
 });
+
+BetSlip.displayName = "BetSlip";
 
 export default BetSlip;

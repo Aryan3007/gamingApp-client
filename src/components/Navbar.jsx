@@ -130,12 +130,12 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
         </div>
       </div>
 
-      <div className=" md:hidden flex py-2 justify-center text-center">
+      <div className=" md:hidden flex pb-2 justify-center text-center">
         {navItems.map((item) => (
           <Link
             key={item.name}
             to={item.href}
-            className="block text-gray-300 text-sm hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md  font-medium"
+            className="block text-gray-300 text-sm hover:bg-blue-500 hover:text-white px-3 py-1 rounded-md  font-medium"
           >
             {item.name}
           </Link>

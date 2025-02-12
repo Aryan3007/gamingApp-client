@@ -72,7 +72,6 @@ const MatchDetails = ({ sportsData }) => {
         }
         setBookmakers(response.data.getBookmaker);
         setData(response.data);
-        console.log(response.data);
       } catch (err) {
         console.error("Fetch error:", err);
         setError(

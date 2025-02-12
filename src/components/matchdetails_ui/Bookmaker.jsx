@@ -39,7 +39,7 @@ const BookmakerComponent = ({ data, onBetSelect }) => {
   };
 
   const renderOddsBox = (odds, market, runner, type) => {
-    const isActive = odds && odds.price > 0 && odds.size > 0;
+    const isActive = odds  && odds.size > 0;
 
     if (!isActive) {
       return (

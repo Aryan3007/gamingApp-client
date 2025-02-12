@@ -393,9 +393,9 @@ const UserForm = () => {
 
       {/* Add User Dialog */}
       {isAddingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-gray-800 p-6 rounded-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">Add New User</h2>
+        <div className="fixed z-[99] inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-4 rounded-lg w-96">
+            <h2 className="text-xl font-semibold mb-2">Add New User</h2>
             <div className="space-y-4">
               <div>
                 <label
@@ -411,7 +411,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, name: e.target.value })
                   }
-                  className="mt-1 block w-full h-10 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 h-10 p-4 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -428,7 +428,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, email: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10 p-4 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -445,7 +445,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, password: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10 p-4 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -461,7 +461,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, currency: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10  rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 >
                   <option value="INR">INR</option>
                   <option value="EUR">EUR</option>
@@ -481,7 +481,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, role: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10  rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
@@ -500,7 +500,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, gender: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10  rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -522,7 +522,7 @@ const UserForm = () => {
                   onChange={(e) =>
                     setNewUserData({ ...newUserData, amount: e.target.value })
                   }
-                  className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full h-10 p-4 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
             </div>
@@ -559,9 +559,10 @@ const UserForm = () => {
               <input
                 type="number"
                 id="amount"
+                placeholder="enter amount to add"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                className="mt-1 h-10 p-4 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               />
             </div>
             <div className="mt-6 flex justify-end space-x-3">

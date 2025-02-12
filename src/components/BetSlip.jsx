@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-"use client";
 
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
@@ -60,7 +59,7 @@ const BetSlip = memo(({ match, onClose }) => {
   }, []);
 
   const handleBetChange = useCallback((value) => {
-    setBetAmount(Math.max(0, Math.min(value, 500000)));
+    setBetAmount(value);
   }, []);
 
   const getTransactions = useCallback(async () => {

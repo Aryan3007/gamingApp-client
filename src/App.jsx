@@ -15,18 +15,21 @@ import { io } from "socket.io-client";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { server } from "./constants/config";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
-import MyBets from "./pages/MyBets";
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
 const Navbar = lazy(() => import("./components/Navbar"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
+const MyBets = lazy(() => import("./pages/MyBets"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./pages/MatchDetails"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Layout = lazy(() => import("./pages/admin/Layout"));
+const WebsiteManagement = lazy(() => import("./pages/admin/WebsiteManagement"));
+const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
+const Allrequests = lazy(() => import("./pages/admin/Allrequests"));
 
 // Socket.io connection
 const socket = io(server, { autoConnect: false });
@@ -128,7 +131,6 @@ const App = () => {
             path="/match/:eventId"
             element={<MatchDetails sportsData={sportsData} />}
           />
-          <Route path="/mybets" element={<MyBets />} />
 
           {/* Public Route: Login */}
           <Route
@@ -150,16 +152,33 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/mybets"
+            element={
+              <ProtectedRoute isAuthenticated={!!user}>
+                <MyBets />
+              </ProtectedRoute>
+            }
+          />
           {/* Admin Protected Route */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <ProtectedRoute
                 isAuthenticated={!!user}
                 adminOnly={true}
                 admin={user?.role === "admin"}
               >
-                <AdminDashboard />
+                <Layout>
+                  <Routes>
+                    <Route path="/requests" element={<Allrequests />} />
+                    <Route
+                      path="/usermanagement"
+                      element={<UserManagement />}
+                    />
+                    <Route path="/management" element={<WebsiteManagement />} />
+                  </Routes>
+                </Layout>
               </ProtectedRoute>
             }
           />

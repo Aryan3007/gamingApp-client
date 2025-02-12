@@ -8,7 +8,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen pt-12">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <Content activeTab={activeTab} />
     </div>
   );

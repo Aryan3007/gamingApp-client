@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const menuItems = [
-  { id: "dashboard", icon: "📊", label: "Dashboard" },
-  { id: "users", icon: "👥", label: "Users" },
-  { id: "requests", icon: "🛍️", label: "All Requests" },
-  { id: "settings", icon: "⚙️", label: "Settings" },
+  { id: "dashboard", icon: "📊", label: "Dashboard", href: "/admin" },
+  { id: "users", icon: "👥", label: "Users", href: "/admin/usermanagement" },
+  { id: "requests", icon: "🛍️", label: "All Bets", href: "/admin/requests" },
+  { id: "settings", icon: "⚙️", label: "Settings", href: "/admin/management" },
 ];
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
@@ -19,7 +20,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     <>
       {/* Hamburger button for mobile */}
       <button
-        className="fixed top-28 mb-4 left-2 z-20 md:hidden bg-gray-800 text-white p-2 rounded-md"
+        className="fixed top-28 left-2 z-20 lg:hidden bg-gray-800 text-white p-2 rounded-md"
         onClick={toggleSidebar}
         aria-label="Toggle menu"
       >
@@ -41,7 +42,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-24 lg:top-0 left-0 z-30 w-64  bg-gray-800 text-white h-full transition-transform duration-300 ease-in-out transform ${
+        className={`fixed top-24 lg:top-0  bg-gray-800 left-0 z-30 w-64  text-white h-full transition-transform duration-300 ease-in-out transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:relative md:translate-x-0`}
       >
@@ -52,12 +53,13 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           <ul>
             {menuItems.map((item) => (
               <li key={item.id}>
-                <button
+                <Link
+                  to={item.href}
                   onClick={() => {
                     setActiveTab(item.id);
                     setIsOpen(false); // Close sidebar on mobile after selection
                   }}
-                  className={`w-full my-1 text-left p-4 hover:bg-gray-700 transition-colors ${
+                  className={`block my-1 p-4 hover:bg-gray-700 transition-colors ${
                     activeTab === item.id ? "bg-gray-700" : ""
                   }`}
                 >
@@ -65,7 +67,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     {item.icon}
                   </span>
                   {item.label}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>
@@ -75,7 +77,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       {/* Overlay to close sidebar on mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0  bg-black bg-opacity-50 z-0 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
           onClick={toggleSidebar}
         ></div>
       )}

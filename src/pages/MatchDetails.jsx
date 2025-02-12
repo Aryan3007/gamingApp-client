@@ -72,6 +72,7 @@ const MatchDetails = ({ sportsData }) => {
         }
         setBookmakers(response.data.getBookmaker);
         setData(response.data);
+        console.log(response.data);
       } catch (err) {
         console.error("Fetch error:", err);
         setError(
@@ -194,11 +195,19 @@ const MatchDetails = ({ sportsData }) => {
         <div className="lg:col-span-7 md:col-span-12 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto">
           {/* Match Score */}
           <div className="p-4 bg-[#262a31] border-dashed border-zinc-700 rounded-lg border">
+            <div className="flex flex-col">
+
             <h1 className="text-2xl font-semibold">
               {data?.eventDetail?.event.name}
             </h1>
-            <div className="flex items-center gap-2 mt-1 text-gray-400">
+            </div>
+            <div className="flex items-start justify-between flex-col md:flex-row mt-1 text-gray-400">
+              <p>
               {formatDate(data?.eventDetail?.event.startDate)}
+              </p>
+              <p className=" text-blue-400">
+              {data?.eventDetail?.series.name}
+            </p>
             </div>
           </div>
 

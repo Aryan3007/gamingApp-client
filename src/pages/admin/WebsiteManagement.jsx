@@ -89,7 +89,7 @@ const WebsiteManagement = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-200">
         Manage Website Images
       </h2>

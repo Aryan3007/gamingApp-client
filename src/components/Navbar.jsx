@@ -43,13 +43,13 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
       }
     };
   
-    if (localStorage.getItem("authToken")) {
+    if (user) {
       fetchUser(); // Initial fetch
       const interval = setInterval(fetchUser, 1000); // Call API every 1 second
   
       return () => clearInterval(interval); // Cleanup on component unmount
     }
-  }, [dispatch]);
+  }, [user, dispatch]);
   
   
 
@@ -60,7 +60,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
   };
 
   return (
-    <nav className="bg-[#181d26] bg-opacity-70 backdrop-blur-lg  fixed w-full z-[99]">
+    <nav className="bg-[#1a2027] bg-opacity-70 backdrop-blur-lg  fixed w-full z-[99]">
       <div className="max-w-full mx-auto px-4">
         <div className="flex items-center justify-between lg:justify-between h-12">
           <div className="flex items-center gap-3">

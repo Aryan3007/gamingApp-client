@@ -138,7 +138,8 @@ const MyBetsComponent = () => {
             >
               <option value="all">All Result</option>
               <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
+              <option value="completed">Lost</option>
+              <option value="completed">Won</option>
             </select>
 
             <select

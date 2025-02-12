@@ -173,7 +173,7 @@ const BetSlip = memo(({ match, onClose }) => {
             {match?.selectedTeam}{" "}
           </span>
           <span className="text-gray-400 ">
-            ({match?.betType} @ {match?.fancyNumber})
+            ({match?.betType} @ {match?.odds})
           </span>
         </div>
       </div>

@@ -90,7 +90,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
           <div className="flex items-center">
             {!loading && user ? (
               <div className="flex gap-2">
-                <div className="flex gap-2 cursor-default text-sm rounded-full px-4 py-1 text-white font-semibold">
+                <div className="flex gap-2 cursor-default justify-center items-center text-sm rounded-full px-4 py-1 text-white font-semibold">
                   <Wallet className="text-white flex text-sm" />
                   <span className="hidden md:flex">Wallet :</span>
 
@@ -130,7 +130,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
         </div>
       </div>
 
-      <div className=" md:hidden flex gap-2 py-2 justify-center text-center">
+      <div className=" md:hidden flex py-2 justify-center text-center">
         {navItems.map((item) => (
           <Link
             key={item.name}

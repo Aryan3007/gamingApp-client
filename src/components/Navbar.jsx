@@ -70,7 +70,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
               <Menu className="lg:hidden flex" onClick={toggleSidebar} />
             )}
             <div className="flex gap-2 justify-center items-center">
-              <img src="/logo.webp" className="h-12 w-12" alt="" />
+              <img src="/logo.webp" className="h-12 hidden md:flex w-12" alt="" />
               <h1 className=" capitalize text-orange-300 font-serif hidden sm:flex font-bold text-base md:text-2xl">
                 shaktiex
               </h1>

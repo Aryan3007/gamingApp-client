@@ -1,154 +1,258 @@
-/* eslint-disable react/prop-types */
+"use client"
 
-import PropTypes from "prop-types";
-import { lazy, useEffect, useState } from "react";
-import io from "socket.io-client";
-import { server } from "../../constants/config";
+import { useState, useEffect, useCallback } from "react"
+import PropTypes from "prop-types"
+import io from "socket.io-client"
+import { server } from "../../constants/config"
+import { calculateProfitAndLoss } from "../../utils/helper"
+import BetSlip from "../BetSlip"
+import axios from "axios"
+import { ChevronRight } from "lucide-react"
 
-const BetSlip = lazy(() => import("../BetSlip"));
+const socket = io(server)
 
-const socket = io(server);
-
-const OddsBox = ({ odds, value, type, onClick }) => {
-  const bgColor = type === "back" ? "bg-[#00B2FF]" : "bg-[#FF7A7F]";
-  const hoverColor =
-    type === "back" ? "hover:bg-[#00A1E6]" : "hover:bg-[#FF6B6F]";
+const OddsBox = ({ odds, value, type, onClick, isSelected }) => {
+  const bgColor = type === "back" ? "bg-[#00B2FF]" : "bg-[#FF7A7F]"
+  const hoverColor = type === "back" ? "hover:bg-[#00A1E6]" : "hover:bg-[#FF6B6F]"
+  const selectedColor = type === "back" ? "bg-[#0077B3]" : "bg-[#FF4D55]"
 
   return (
     <button
       onClick={onClick}
-      className={`${bgColor} ${hoverColor} w-full sm:w-12 min-w-[60px] md:w-16 rounded flex flex-col items-center justify-center transition-colors`}
+      className={`${isSelected ? selectedColor : bgColor} ${hoverColor} w-full sm:w-12 min-w-[60px] md:w-16 rounded flex flex-col items-center justify-center transition-colors p-1`}
     >
-      <span className="text-black font-semibold text-sm sm:text-base">
-        {odds}
-      </span>
+      <span className="text-black font-semibold text-sm sm:text-base">{odds}</span>
       <span className="text-black text-[10px] lg:text-xs">{value / 1000}K</span>
     </button>
-  );
-};
+  )
+}
 
 OddsBox.propTypes = {
   odds: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
   type: PropTypes.oneOf(["back", "lay"]).isRequired,
   onClick: PropTypes.func.isRequired,
-};
+  isSelected: PropTypes.bool.isRequired,
+}
 
-const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData }) => {
+const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData, stake, selectedOdd, selectionId, margins }) => {
+  // Get previous margin for this selection
+  const previousMargin = margins?.selectionId === selectionId ? margins?.profit : margins?.loss
+
+  // Calculate total margin if there's a selected odd
+  let totalMargin = previousMargin || 0
+  if (selectedOdd) {
+    const { profit, loss } = calculateProfitAndLoss(stake, selectedOdd.odds, selectedOdd.type, "match odds")
+
+    if (selectedOdd.selectionId === selectionId) {
+      // For the selected team
+      if (selectedOdd.type === "back") {
+        totalMargin += profit
+      } else {
+        totalMargin -= loss
+      }
+    } else {
+      // For the opposite team
+      if (selectedOdd.type === "back") {
+        totalMargin -= stake
+      } else {
+        totalMargin += profit
+      }
+    }
+  }
+
   return (
     <div className="flex flex-wrap gap-2 sm:flex-nowrap justify-between items-center py-2 border-b border-[#2A3447]">
-      <span className="text-white text-sm w-full sm:w-[200px] mb-0 font-semibold sm:mb-0">
-        {teamName}
-      </span>
+      <div className="flex flex-col">
+        <span className="text-white text-sm w-full sm:w-[200px] mb-0 font-semibold sm:mb-0">{teamName}</span>
+        <span className="w-full flex justify-start text-xs items-center sm:w-[200px] mb-0 font-semibold sm:mb-0">
+          {(previousMargin !== null && previousMargin !== undefined) || selectedOdd ? (
+           <>
+           <span
+             className={
+               previousMargin > 0
+                 ? "text-green-500"
+                 : previousMargin <0
+                 ? "text-red-500" 
+                 :"text-gray-400 text-xs"
+                }
+           >
+             {Math.abs(previousMargin ?? 0)}
+           </span>
+           {selectedOdd && (
+             <>
+               <span className="text-gray-400 scale-75 text-[4px]">
+                 <ChevronRight />
+               </span>
+               <span
+                 className={
+                   totalMargin > 0
+                     ? "text-green-500 text-xs"
+                     : totalMargin === 0
+                       ? "text-gray-400 text-xs"
+                       : "text-red-500 text-xs"
+                 }
+               >
+                 {Math.abs((totalMargin ?? 0).toFixed(0))}
+               </span>
+             </>
+           )}
+         </>
+         
+          ) : null}
+        </span>
+      </div>
       <div className="grid grid-cols-3 sm:flex gap-1 w-full sm:w-auto">
         {backOdds.map(([odds, value], i) => (
-          <OddsBox
-            key={`back-${i}`}
-            odds={odds}
-            value={value}
-            type="back"
-            onClick={() =>
-              onOddsClick(matchData, teamName, "Back", odds, value)
-            }
-          />
+          <div key={`back-${i}`} className="flex flex-col items-center">
+            <OddsBox
+              odds={odds}
+              value={value}
+              type="back"
+              onClick={() => onOddsClick(matchData, teamName, "Back", odds, value, selectionId)}
+              isSelected={
+                selectedOdd &&
+                selectedOdd.selectionId === selectionId &&
+                selectedOdd.type === "back" &&
+                selectedOdd.odds === odds
+              }
+            />
+          </div>
         ))}
         {layOdds.map(([odds, value], i) => (
-          <OddsBox
-            key={`lay-${i}`}
-            odds={odds}
-            value={value}
-            type="lay"
-            onClick={() => onOddsClick(matchData, teamName, "Lay", odds, value)}
-          />
+          <div key={`lay-${i}`} className="flex flex-col items-center">
+            <OddsBox
+              odds={odds}
+              value={value}
+              type="lay"
+              onClick={() => onOddsClick(matchData, teamName, "Lay", odds, value, selectionId)}
+              isSelected={
+                selectedOdd &&
+                selectedOdd.selectionId === selectionId &&
+                selectedOdd.type === "lay" &&
+                selectedOdd.odds === odds
+              }
+            />
+          </div>
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 TeamRow.propTypes = {
   teamName: PropTypes.string.isRequired,
   backOdds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
   layOdds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
   onOddsClick: PropTypes.func.isRequired,
-};
+  matchData: PropTypes.object.isRequired,
+  stake: PropTypes.number.isRequired,
+  selectedOdd: PropTypes.object,
+  selectionId: PropTypes.string.isRequired,
+  margins: PropTypes.object,
+}
 
-// Helper function to arrange runners with draw in the middle
 const arrangeRunners = (runners = [], odds = []) => {
-  if (!runners.length || !odds.length) return [];
-  const draw = runners.find((r) => r?.name === "The Draw");
-  const teams = runners.filter((r) => r?.name !== "The Draw");
+  if (!runners.length || !odds.length) return []
+  const draw = runners.find((r) => r?.name === "The Draw")
+  const teams = runners.filter((r) => r?.name !== "The Draw")
 
-  return [teams[0], draw, teams[1]].filter(Boolean); // Remove null/undefined values
-};
+  return [teams[0], draw, teams[1]].filter(Boolean)
+}
 
-export default function MatchOdds({ eventId, onBetSelect }) {
-  const [sportsData, setSportsData] = useState([]);
-  const [selectedBet, setSelectedBet] = useState(null);
+export default function MatchOdds({ eventId, onBetSelect, stake, setStake, showBetSlip }) {
+  const [sportsData, setSportsData] = useState([])
+  const [selectedBet, setSelectedBet] = useState(null)
+  const [selectedOdd, setSelectedOdd] = useState(null)
+  const [margins, setMargins] = useState(null)
 
-  const handleOddsClick = (matchData, teamName, type, odds) => {
-    const betData = {
-      home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
-      away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
-      eventId: matchData?.event?.event?.id || "",
-      marketId: matchData?.event?.market?.id || "",
-      selectionId:
-        matchData?.event?.runners?.find((r) => r.name === teamName)?.id || null,
-      fancyNumber: null,
-      stake: 0,
-      odds: odds || 0,
-      category: "match odds",
-      type: type.toLowerCase(),
-      gameId: matchData?.market?.id || "",
-      eventName: teamName,
-      selectedTeam: teamName,
-      betType: type,
-      size: odds || 0,
-    };
 
-    setSelectedBet(betData);
-    onBetSelect(betData);
-  };
 
-  const handleCloseBetSlip = () => {
-    setSelectedBet(null);
-  };
+  const handleOddsClick = useCallback(
+    (matchData, teamName, type, odds, value, selectionId) => {
+      const betData = {
+        home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
+        away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
+        eventId: matchData?.event?.event?.id || "",
+        marketId: matchData?.event?.market?.id || "",
+        selectionId: selectionId,
+        fancyNumber: null,
+        stake: stake,
+        odds: odds || 0,
+        category: "match odds",
+        type: type.toLowerCase(),
+        gameId: matchData?.market?.id || "",
+        eventName: teamName,
+        selectedTeam: teamName,
+        betType: type,
+        size: value || 0,
+      }
+
+      setSelectedBet(betData)
+      setSelectedOdd({
+        selectionId,
+        type: type.toLowerCase(),
+        odds,
+      })
+      onBetSelect(betData)
+    },
+    [stake, onBetSelect],
+  )
 
   useEffect(() => {
     socket.on("sportsData", (data) => {
-      setSportsData(data);
-    });
+      setSportsData(data)
+    })
 
     return () => {
-      socket.off("sportsData");
-    };
-  }, []);
+      socket.off("sportsData")
+    }
+  }, [])
 
-  // Find the correct match data from the nested structure
-  const matches = sportsData?.[4]?.[4] || [];
-  const matchData = matches.find((match) => match.event?.event?.id === eventId);
+  const matches = sportsData?.[4]?.[4] || []
+  const matchData = matches.find((match) => match.event?.event?.id === eventId)
+  const oddsData = matchData?.odds?.[0]
+  const runners = arrangeRunners(matchData?.event?.runners, oddsData?.runners || [])
 
-  // Get the first odds entry and its runners
-  const oddsData = matchData?.odds?.[0];
-
-  // Use arrangeRunners to get properly ordered runners
-  const runners = arrangeRunners(
-    matchData?.event?.runners,
-    oddsData?.runners || []
-  );
-
-  // Map the runners to their odds
   const runnersWithOdds = runners.map((runner) => {
-    const runnerOdds = oddsData?.runners?.find(
-      (r) => r.selectionId === runner.id
-    );
+    const runnerOdds = oddsData?.runners?.find((r) => r.selectionId === runner.id)
     return {
       selectionId: runnerOdds?.selectionId,
       name: runner.name,
       back: runnerOdds?.back || [],
       lay: runnerOdds?.lay || [],
-    };
-  });
+    }
+  })
+
+
+
+  const getMargins = useCallback(
+    async (token) => {
+      try {
+        const response = await axios.get(`${server}api/v1/bet/margins?eventId=${eventId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (response.data.success) {
+          // Store the complete margin data
+          console.log(matchData?.event?.market?.id );
+          const marginsData = response.data.margins[matchData?.event?.market?.id ]
+          setMargins(marginsData)
+        }
+      } catch (error) {
+        console.error("Error fetching margins:", error.response?.data || error.message)
+      }
+    },
+    [eventId, matchData?.event?.market?.id ],
+  )
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken")
+    if (token) {
+      getMargins(token)
+    }
+  }, [getMargins])
 
   return (
     <div>
@@ -157,29 +261,16 @@ export default function MatchOdds({ eventId, onBetSelect }) {
           <h2 className="text-white text-lg">Match Odds</h2>
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex gap-1 sm:-translate-x-[130px]">
-              <span className="bg-[#00B2FF] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">
-                Back
-              </span>
-              <span className="bg-[#FF7A7F] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">
-                Lay
-              </span>
+              <span className="bg-[#00B2FF] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">Back</span>
+              <span className="bg-[#FF7A7F] text-black px-6 py-1 rounded text-xs sm:text-sm font-medium">Lay</span>
             </div>
           </div>
         </div>
 
         <div className="py-2 px-4">
           {runnersWithOdds.map((runner, index) => {
-            // Format back odds - extract price and size from each back entry
-            const backOdds = (runner.back || [])
-            .map((odds) => [odds.price, odds.size])
-            .reverse(); // Reverses the order
-          
-
-            // Format lay odds - extract price and size from each lay entry
-            const layOdds = (runner.lay || []).map((odds) => [
-              odds.price,
-              odds.size,
-            ]);
+            const backOdds = (runner.back || []).map((odds) => [odds.price, odds.size]).reverse()
+            const layOdds = (runner.lay || []).map((odds) => [odds.price, odds.size])
 
             return (
               <TeamRow
@@ -189,23 +280,34 @@ export default function MatchOdds({ eventId, onBetSelect }) {
                 layOdds={layOdds}
                 onOddsClick={handleOddsClick}
                 matchData={matchData}
+                stake={stake}
+                selectedOdd={selectedOdd}
+                selectionId={runner.selectionId}
+                margins={margins}
               />
-            );
+            )
           })}
         </div>
       </div>
 
-      {/* BetSlip for mobile */}
-      {selectedBet && (
+      {showBetSlip && (
         <div className="lg:hidden my-4">
-          <BetSlip match={selectedBet} onClose={handleCloseBetSlip} />
+          {selectedBet ? (
+            <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} setStake={setStake} />
+          ) : (
+            <div className="bg-[#1a2027] p-4 rounded-lg text-white text-center">Select an odd to place a bet</div>
+          )}
         </div>
       )}
     </div>
-  );
+  )
 }
 
 MatchOdds.propTypes = {
   eventId: PropTypes.string.isRequired,
   onBetSelect: PropTypes.func.isRequired,
-};
+  stake: PropTypes.number.isRequired,
+  setStake: PropTypes.func.isRequired,
+  showBetSlip: PropTypes.bool.isRequired,
+}
+

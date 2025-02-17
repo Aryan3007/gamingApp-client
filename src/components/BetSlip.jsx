@@ -301,7 +301,7 @@ const BetSlip = memo(({ match, onClose }) => {
                         Stake :
                       </span>
                       <span className="text-white text-xs font-medium uppercase">
-                        {user.currency} {bet.stake}
+                        {user.currency} {bet.stake.toFixed(2)}
                       </span>
                     </div>{" "}
                     <div className="flex flex-row justify-start items-center gap-1">
@@ -317,7 +317,7 @@ const BetSlip = memo(({ match, onClose }) => {
                         Payout :
                       </span>
                       <span className="text-white text-xs font-medium uppercase">
-                        {user.currency} {bet.payout}
+                        {user.currency} {bet.payout.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex flex-row justify-start items-center gap-1">

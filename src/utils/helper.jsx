@@ -36,31 +36,14 @@ const calculateProfitAndLoss = (stake, odds, type, category) => {
 };
 
 const calculateNewMargin = (margin, selectionId, type, profit, loss) => {
-  const isSameSelection = margin.selectionId === selectionId;
+  const isSameSelection = margin?.selectionId === selectionId;
   const isBack = type === "back";
 
   return {
-    newProfit: margin.profit + (isSameSelection === isBack ? profit : loss),
-    newLoss: margin.loss + (isSameSelection === isBack ? loss : profit),
+    newProfit: margin?.profit + (isSameSelection === isBack ? profit : loss),
+    newLoss: margin?.loss + (isSameSelection === isBack ? loss : profit),
   };
 };
-
-
- const calculateCombinedMargin = (
-  previousMargin,
-  previousLoss,
-  newProfit,
-  newLoss,
-  isSelectedTeam,
-) => {
-  if (isSelectedTeam) {
-    return previousMargin + newProfit
-  }
-  return previousLoss + newLoss
-}
-
-
-
 
 const getFormattedTimestamp = () => {
   return new Date()
@@ -76,4 +59,4 @@ const getFormattedTimestamp = () => {
     .replace(",", "");
 };
 
-export { calculateNewMargin,calculateCombinedMargin, calculateProfitAndLoss, getFormattedTimestamp };
+export { calculateNewMargin, calculateProfitAndLoss, getFormattedTimestamp };

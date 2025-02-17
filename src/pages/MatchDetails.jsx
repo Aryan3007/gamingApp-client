@@ -1,23 +1,22 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-"use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Bookmaker from "../components/matchdetails_ui/Bookmaker";
-import Fancy from "../components/matchdetails_ui/Fancy";
-import Player from "../components/matchdetails_ui/Player";
-import Other from "../components/matchdetails_ui/Other";
+import axios from "axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import AllGames from "../components/AllGames";
+import BetSlip from "../components/BetSlip";
+import Loader from "../components/Loader";
 import BFancy from "../components/matchdetails_ui/BFancy";
-import OddEven from "../components/matchdetails_ui/OddEven";
+import Bookmaker from "../components/matchdetails_ui/Bookmaker";
+import CricketScore from "../components/matchdetails_ui/CircketScore";
+import Fancy from "../components/matchdetails_ui/Fancy";
 import Line from "../components/matchdetails_ui/Line";
 import MatchOdds from "../components/matchdetails_ui/MatchOdds";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import Loader from "../components/Loader";
-import BetSlip from "../components/BetSlip";
-import CricketScore from "../components/matchdetails_ui/CircketScore";
+import OddEven from "../components/matchdetails_ui/OddEven";
+import Other from "../components/matchdetails_ui/Other";
+import Player from "../components/matchdetails_ui/Player";
 import { server } from "../constants/config";
-import AllGames from "../components/AllGames";
 
 const AllComponents = ({ data, onBetSelect }) => {
   return (
@@ -95,7 +94,11 @@ const MatchDetails = ({ sportsData }) => {
 
     const categorizeMarkets = (rawData) => {
       const categories = {
-        bookmaker: rawData.getBookmaker.map((market) => ({ ...market, eventDetails: rawData.eventDetail })) || [],
+        bookmaker:
+          rawData.getBookmaker.map((market) => ({
+            ...market,
+            eventDetails: rawData.eventDetail,
+          })) || [],
         fancy: [],
         player: [],
         over: [],
@@ -106,27 +109,34 @@ const MatchDetails = ({ sportsData }) => {
 
       if (rawData.getFancy) {
         rawData.getFancy.forEach((market) => {
-          const marketWithEventDetails = { ...market, eventDetails: rawData.eventDetail }
-          const name = market.market.name.toLowerCase()
+          const marketWithEventDetails = {
+            ...market,
+            eventDetails: rawData.eventDetail,
+          };
+          const name = market.market.name.toLowerCase();
           if (name.includes("only")) {
-            categories.over.push(marketWithEventDetails)
+            categories.over.push(marketWithEventDetails);
           } else if (name.includes("over")) {
-            categories.fancy.push(marketWithEventDetails)
+            categories.fancy.push(marketWithEventDetails);
           } else if (name.includes("total")) {
-            categories.odd_even.push(marketWithEventDetails)
+            categories.odd_even.push(marketWithEventDetails);
           } else if (
             name.includes("innings") ||
             name.includes("top") ||
             name.includes("most") ||
             name.includes("highest")
           ) {
-            categories.line.push(marketWithEventDetails)
-          } else if (name.startsWith("fall of") || name.startsWith("caught") || name.startsWith("match ")) {
-            categories.b_fancy.push(marketWithEventDetails)
+            categories.line.push(marketWithEventDetails);
+          } else if (
+            name.startsWith("fall of") ||
+            name.startsWith("caught") ||
+            name.startsWith("match ")
+          ) {
+            categories.b_fancy.push(marketWithEventDetails);
           } else {
-            categories.player.push(marketWithEventDetails)
+            categories.player.push(marketWithEventDetails);
           }
-        })
+        });
       }
       return Object.fromEntries(
         Object.entries(categories).filter(([_, value]) => value.length > 0)
@@ -195,18 +205,13 @@ const MatchDetails = ({ sportsData }) => {
           {/* Match Score */}
           <div className="p-4 bg-[#262a31] border-dashed border-zinc-700 rounded-lg border">
             <div className="flex flex-col">
-
-            <h1 className="text-2xl font-semibold">
-              {data?.eventDetail?.event.name}
-            </h1>
+              <h1 className="text-2xl font-semibold">
+                {data?.eventDetail?.event.name}
+              </h1>
             </div>
             <div className="flex items-start justify-between flex-col md:flex-row mt-1 text-gray-400">
-              <p>
-              {formatDate(data?.eventDetail?.event.startDate)}
-              </p>
-              <p className=" text-blue-400">
-              {data?.eventDetail?.series.name}
-            </p>
+              <p>{formatDate(data?.eventDetail?.event.startDate)}</p>
+              <p className=" text-blue-400">{data?.eventDetail?.series.name}</p>
             </div>
           </div>
 

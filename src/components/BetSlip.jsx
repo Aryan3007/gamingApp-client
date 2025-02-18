@@ -224,70 +224,46 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
       </div>
 
       {user && (
-        <div className="mt-4 flex-1 xl:flex hidden overflow-hidden flex-col">
-          <h1 className="mb-2 font-semibold underline text-blue-500">Recent Bets :</h1>
-          <div className="overflow-y-auto flex-1">
-            {allBets.map((bet, index) => (
-              <div
-                key={index}
-                className="bg-[#242a31] rounded-lg p-2 mb-2 hover:bg-gray-700 transition-all duration-200"
-              >
-                <div className="flex flex-col space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xs font-semibold text-white">{bet.match}</h3>
-                    </div>
-                    <span
-                      className={`capitalize text-xs font-medium ${
-                        bet.status === "pending"
-                          ? "text-yellow-500"
-                          : bet.status === "lost"
-                            ? "text-red-500"
-                            : "text-green-500"
-                      }`}
-                    >
-                      Bet Result: {bet.status}
-                    </span>
-                  </div>
+  <div className="mt-4 flex-1 xl:flex hidden overflow-hidden flex-col">
+    <h1 className="mb-2 font-semibold underline text-blue-500">Open Bets:</h1>
+    <div className="overflow-y-auto flex-1">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="bg-gray-700">
+            <th className="p-2 text-xs font-semibold text-gray-300">Name</th>
+            <th className="p-2 text-xs font-semibold text-gray-300">Stake</th>
+            <th className="p-2 text-xs font-semibold text-gray-300">Odds</th>
+            {allBets.some((bet) => bet.fancyNumber) && (
+              <th className="p-2 text-xs font-semibold text-gray-300">Run</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {allBets.map((bet, index) => (
+            <tr
+              key={index}
+              className={` ${
+                bet.type === "back" ? "bg-blue-400" : "bg-red-400"
+              } transition-all duration-200`}
+            >
+              <td className="p-2 text-xs text-white border-t border-gray-600">{bet.selection}</td>
+              <td className="p-2 text-xs text-white border-t border-gray-600">
+                {bet.stake.toFixed(2)}
+              </td>
+              <td className="p-2 text-xs text-white border-t border-gray-600">{bet.odds}</td>
+              {allBets.some((bet) => bet.fancyNumber) && (
+                <td className="p-2 text-xs text-white border-t border-gray-600 capitalize">
+                  {bet.fancyNumber || "-"}
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
 
-                  <div className="grid grid-cols-2 gap-1">
-                    <div className="flex flex-row justify-start items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Stake :</span>
-                      <span className="text-white text-xs font-medium uppercase">
-                        {user.currency} {bet.stake.toFixed(2)}
-                      </span>
-                    </div>{" "}
-                    <div className="flex flex-row justify-start items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Odds :</span>
-                      <span className="text-white text-xs font-medium uppercase">{bet.odds}</span>
-                    </div>
-                    <div className="flex flex-row justify-start items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Payout :</span>
-                      <span className="text-white text-xs font-medium uppercase">
-                        {user.currency} {bet.payout.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex flex-row justify-start items-center gap-1">
-                      <span className="text-gray-400 text-xs flex items-center">Category :</span>
-                      <span className="text-white text-xs font-medium capitalize">
-                        {bet.category === "fancy"
-                          ? `Fancy (${bet.type === "back" ? "Yes" : "No"})`
-                          : `${bet.category} (${bet.type})`}
-                      </span>
-                    </div>
-                    {bet.fancyNumber && (
-                      <div className="flex flex-row justify-start items-center gap-1">
-                        <span className="text-gray-400 text-xs flex items-center">Run :</span>
-                        <span className="text-white text-xs font-medium capitalize">{bet.fancyNumber}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 })

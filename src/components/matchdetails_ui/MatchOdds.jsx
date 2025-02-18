@@ -55,13 +55,19 @@ const TeamRow = ({
   let newProfit = 0;
   let newLoss = 0;
 
+  let profit = 0;
+  let loss = 0;
+
   if (selectedOdd) {
-    const { profit, loss } = calculateProfitAndLoss(
+    const res = calculateProfitAndLoss(
       stake,
       selectedOdd.odds,
       selectedOdd.type,
       "match odds"
     );
+    profit = res.profit;
+    loss = res.loss;
+
     const data = calculateNewMargin(
       margin,
       selectedOdd.selectionId,
@@ -81,7 +87,8 @@ const TeamRow = ({
           {teamName}
         </span>
         <span className="w-full flex justify-start text-xs items-center sm:w-[200px] mb-0 font-semibold sm:mb-0">
-          {previousMargin !== null && previousMargin !== undefined && (
+          {((previousMargin !== null && previousMargin !== undefined) ||
+            selectedOdd) && (
             <>
               <span
                 className={`text-xs ${
@@ -96,31 +103,70 @@ const TeamRow = ({
                     : "text-gray-400"
                 }`}
               >
-                {margin?.selectionId === selectionId
-                  ? Math.abs(margin?.profit.toFixed(0))
-                  : Math.abs(margin?.loss.toFixed(0))}
+                {margin
+                  ? margin?.selectionId === selectionId
+                    ? Math.abs(margin?.profit.toFixed(0))
+                    : Math.abs(margin?.loss.toFixed(0))
+                  : 0}
               </span>
-              {selectedOdd && (
+              {selectedOdd && margin ? (
                 <>
                   <span className="text-gray-400 scale-75 text-[4px]">
                     <ChevronRight />
                   </span>
                   <span
                     className={`text-xs ${
-                      (margin.selectionId === selectionId
+                      (margin?.selectionId === selectionId
                         ? newProfit
                         : newLoss) > 0
                         ? "text-green-500"
-                        : (margin.selectionId === selectionId
+                        : (margin?.selectionId === selectionId
                             ? newProfit
                             : newLoss) < 0
                         ? "text-red-500"
                         : "text-gray-400"
                     }`}
                   >
-                    {margin.selectionId === selectionId
+                    {margin?.selectionId === selectionId
                       ? Math.abs(newProfit.toFixed(0))
                       : Math.abs(newLoss.toFixed(0))}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-gray-400 scale-75 text-[4px]">
+                    <ChevronRight />
+                  </span>
+                  <span
+                    className={`text-xs ${
+                      (selectedOdd?.type === "back"
+                        ? selectedOdd?.selectionId === selectionId
+                          ? profit
+                          : loss
+                        : selectedOdd?.selectionId === selectionId
+                        ? loss
+                        : profit) > 0
+                        ? "text-green-500"
+                        : (selectedOdd?.type === "back"
+                            ? selectedOdd?.selectionId === selectionId
+                              ? profit
+                              : loss
+                            : selectedOdd?.selectionId === selectionId
+                            ? loss
+                            : profit) < 0
+                        ? "text-red-500"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {Math.abs(
+                      selectedOdd?.type === "back"
+                        ? selectedOdd?.selectionId === selectionId
+                          ? profit.toFixed(0)
+                          : loss.toFixed(0)
+                        : selectedOdd?.selectionId === selectionId
+                        ? loss.toFixed(0)
+                        : profit.toFixed(0)
+                    )}
                   </span>
                 </>
               )}

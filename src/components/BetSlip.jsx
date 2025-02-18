@@ -1,34 +1,39 @@
-"use client"
+"use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import axios from "axios"
-import { Minus, Plus } from "lucide-react"
-import toast from "react-hot-toast"
-import { useSelector } from "react-redux"
-import { server } from "../constants/config"
-import { calculateProfitAndLoss } from "../utils/helper"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import { Minus, Plus } from "lucide-react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { server } from "../constants/config";
+import { calculateProfitAndLoss } from "../utils/helper";
 
-const BetSlip = memo(({ match, onClose, setStake }) => {
-  const [betAmount, setBetAmount] = useState(100)
-  const [allBets, setAllBets] = useState([])
-  const [loading, setLoading] = useState(false)
-  const { user } = useSelector((state) => state.userReducer)
-  const prevMatchRef = useRef(null)
-  const matchRef = useRef(match)
+const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
+  const [betAmount, setBetAmount] = useState(100);
+  const [allBets, setAllBets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((state) => state.userReducer);
+  const prevMatchRef = useRef(null);
+  const matchRef = useRef(match);
 
   useEffect(() => {
     if (JSON.stringify(match) !== JSON.stringify(prevMatchRef.current)) {
-      matchRef.current = match
-      prevMatchRef.current = match
+      matchRef.current = match;
+      prevMatchRef.current = match;
     }
-  }, [match])
+  }, [match]);
 
   const { profit, loss } = useMemo(() => {
-    const currentMatch = matchRef.current
+    const currentMatch = matchRef.current;
     return currentMatch
-      ? calculateProfitAndLoss(betAmount, currentMatch.odds, currentMatch.type, currentMatch.category)
-      : { profit: 0, loss: 0 }
-  }, [betAmount])
+      ? calculateProfitAndLoss(
+          betAmount,
+          currentMatch.odds,
+          currentMatch.type,
+          currentMatch.category
+        )
+      : { profit: 0, loss: 0 };
+  }, [betAmount]);
 
   const quickBets = useMemo(
     () => [
@@ -41,69 +46,74 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
       { label: "100K", value: 100000 },
       { label: "500K", value: 500000 },
     ],
-    [],
-  )
+    []
+  );
 
   const handleQuickBet = useCallback(
     (amount) => {
-      setBetAmount(amount)
-      setStake(amount)
+      setBetAmount(amount);
+      setStake(amount);
     },
-    [setStake],
-  )
+    [setStake]
+  );
 
   const handleBetChange = useCallback(
     (value) => {
-      const newAmount = Math.max(0, Math.min(value, 500000))
-      setBetAmount(newAmount)
-      setStake(newAmount)
+      const newAmount = Math.max(0, Math.min(value, 500000));
+      setBetAmount(newAmount);
+      setStake(newAmount);
     },
-    [setStake],
-  )
+    [setStake]
+  );
 
   const getTransactions = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      console.error("No token found")
-      return
+      console.error("No token found");
+      return;
     }
 
     try {
-      const response = await axios.get(`${server}api/v1/bet/transactions?userId=${user._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      const pendingBets = response.data.bets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      const response = await axios.get(
+        `${server}api/v1/bet/transactions?eventId=${eventId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const pendingBets = response.data.bets.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
-      setAllBets(pendingBets)
+      setAllBets(pendingBets);
     } catch (error) {
-      console.error("Error fetching transactions:", error)
-      return null
+      console.error("Error fetching transactions:", error);
+      return null;
     }
-  }, [user])
+  }, [eventId]);
 
   const placeBet = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
-    const currentMatch = matchRef.current
+    const token = localStorage.getItem("authToken");
+    const currentMatch = matchRef.current;
 
     if (!token) {
-      toast.error("You need to login!")
-      return
+      toast.error("You need to login!");
+      return;
     }
 
     if (!currentMatch) {
-      toast.error("Select a bet first!")
-      return
+      toast.error("Select a bet first!");
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const { data } = await axios.post(
         `${server}api/v1/bet/place?userId=${user._id}`,
         {
           eventId: currentMatch.eventId,
-          selection:currentMatch.selectedTeam,
+          selection: currentMatch.selectedTeam,
           match: `${currentMatch.home_team} vs ${currentMatch.away_team}`,
           marketId: currentMatch.marketId,
           selectionId: currentMatch.selectionId,
@@ -119,36 +129,39 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        },
-      )
+        }
+      );
 
       if (data.success) {
-        getTransactions()
-        toast.success(data.message)
-        onClose()
+        getTransactions();
+        betPlaced()
+        toast.success(data.message);
+        onClose();
       } else {
-        toast.error(data.message || "Failed to place bet.")
+        toast.error(data.message || "Failed to place bet.");
       }
     } catch (error) {
-      console.error(error)
-      toast.error("An error occurred while placing the bet.")
+      console.error(error);
+      toast.error("An error occurred while placing the bet.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user, betAmount, onClose, getTransactions])
+  }, [user, betAmount, onClose, getTransactions, betPlaced]);
 
   useEffect(() => {
-    getTransactions()
-  }, [getTransactions])
+    getTransactions();
+  }, [getTransactions]);
 
-  const currentMatch = matchRef.current
+  const currentMatch = matchRef.current;
 
   return (
     <div className="lg:bg-[#21252b] bg-[#1a2027] lg:rounded-md rounded-none md:border border-0 border-zinc-700 border-dashed text-white w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
       <div className="flex justify-between items-start ">
         <div>
           <h2 className="text-lg capitalize max-w-52 mb-2 flex font-bold">
-            {currentMatch ? `${currentMatch.home_team} vs ${currentMatch.away_team}` : "Select a bet"}
+            {currentMatch
+              ? `${currentMatch.home_team} vs ${currentMatch.away_team}`
+              : "Select a bet"}
           </h2>
         </div>
 
@@ -162,7 +175,9 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
         <div className="md:p-2 p-0 max-w-52 rounded inline-block bg-gray-800">
           <span
             className={`font-semibold ${
-              currentMatch?.betType === "Lay" || currentMatch?.betType === "No" ? "text-red-400" : "text-blue-400"
+              currentMatch?.betType === "Lay" || currentMatch?.betType === "No"
+                ? "text-red-400"
+                : "text-blue-400"
             }`}
           >
             {currentMatch?.selectedTeam}{" "}
@@ -175,7 +190,10 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
 
       <div className="flex items-center lg:flex-row gap-2 mb-2 md:mb-2">
         <div className="flex gap-2 items-center">
-          <button onClick={() => handleBetChange(betAmount - 1)} className="bg-blue-500 p-2 rounded-lg">
+          <button
+            onClick={() => handleBetChange(betAmount - 1)}
+            className="bg-blue-500 p-2 rounded-lg"
+          >
             <Minus size={20} />
           </button>
           <input
@@ -184,13 +202,14 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
             onChange={(e) => handleBetChange(Number.parseFloat(e.target.value))}
             className="bg-gray-700 text-center w-32 p-2 rounded-lg"
           />
-          <button onClick={() => handleBetChange(betAmount + 1)} className="bg-blue-500 p-2 rounded-lg">
+          <button
+            onClick={() => handleBetChange(betAmount + 1)}
+            className="bg-blue-500 p-2 rounded-lg"
+          >
             <Plus size={20} />
           </button>
         </div>
       </div>
-
-      
 
       <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 my-3 md:my-2">
         {quickBets.map((bet) => (
@@ -223,52 +242,64 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
         </button>
       </div>
 
-      {user && (
-  <div className="mt-4 flex-1 xl:flex hidden overflow-hidden flex-col">
-    <h1 className="mb-2 font-semibold underline text-blue-500">Open Bets:</h1>
-    <div className="overflow-y-auto flex-1">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-700">
-            <th className="p-2 text-xs font-semibold text-gray-300">Selection</th>
-            <th className="p-2 text-xs font-semibold text-gray-300">Stake</th>
-            <th className="p-2 text-xs font-semibold text-gray-300">Odds</th>
-            {allBets.some((bet) => bet.fancyNumber) && (
-              <th className="p-2 text-xs font-semibold text-gray-300">Run</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {allBets.map((bet, index) => (
-            <tr
-              key={index}
-              className={` ${
-                bet.type === "back" ? "bg-[#68bbff]" : "bg-[#ff6b6f]"
-              } transition-all duration-200`}
-            >
-              <td className="p-2 text-xs text-black border-t border-gray-600">{bet.selection}</td>
-              <td className="p-2 text-xs text-black border-t border-gray-600">
-                {bet.stake.toFixed(2)}
-              </td>
-              <td className="p-2 text-xs text-black border-t border-gray-600">{bet.odds}</td>
-              {allBets.some((bet) => bet.fancyNumber) && (
-                <td className="p-2 text-xs text-black border-t border-gray-600 capitalize">
-                  {bet.fancyNumber || "-"}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {user && eventId && (
+        <div className="mt-4 flex-1 lg:flex hidden overflow-hidden flex-col">
+          <h1 className="mb-2 font-semibold underline text-blue-500">
+            Open Bets:
+          </h1>
+          <div className="overflow-y-auto flex-1">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-700">
+                  <th className="p-2 text-xs font-semibold text-gray-300">
+                    Selection
+                  </th>
+                  <th className="p-2 text-xs font-semibold text-gray-300">
+                    Stake
+                  </th>
+                  <th className="p-2 text-xs font-semibold text-gray-300">
+                    Odds
+                  </th>
+                  {allBets.some((bet) => bet.fancyNumber) && (
+                    <th className="p-2 text-xs font-semibold text-gray-300">
+                      Run
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {allBets.map((bet, index) => (
+                  <tr
+                    key={index}
+                    className={` ${
+                      bet.type === "back" ? "bg-[#68bbff]" : "bg-[#ff6b6f]"
+                    } transition-all duration-200`}
+                  >
+                    <td className="p-2 text-xs text-black border-t border-gray-600">
+                      {bet.selection}
+                    </td>
+                    <td className="p-2 text-xs text-black border-t border-gray-600">
+                      {bet.stake.toFixed(2)}
+                    </td>
+                    <td className="p-2 text-xs text-black border-t border-gray-600">
+                      {bet.odds}
+                    </td>
+                    {allBets.some((bet) => bet.fancyNumber) && (
+                      <td className="p-2 text-xs text-black border-t border-gray-600 capitalize">
+                        {bet.fancyNumber || "-"}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
+  );
+});
 
-    </div>
-  )
-})
+BetSlip.displayName = "BetSlip";
 
-BetSlip.displayName = "BetSlip"
-
-export default BetSlip
-
+export default BetSlip;

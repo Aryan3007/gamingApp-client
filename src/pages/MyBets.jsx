@@ -5,6 +5,7 @@ import { server } from "../constants/config"
 import axios from "axios"
 import { useSelector } from "react-redux"
 import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react"
+import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO } from "date-fns"
 
 const MyBetsComponent = () => {
   const [allBets, setAllBets] = useState([])
@@ -12,6 +13,7 @@ const MyBetsComponent = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
+  const [dateFilter, setDateFilter] = useState("all")
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" })
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
@@ -19,23 +21,21 @@ const MyBetsComponent = () => {
 
   const getTransactions = useCallback(async () => {
     if (!user || !user._id) return
-  
+
     const token = localStorage.getItem("authToken")
     if (!token) {
       console.error("No token found")
       return
     }
-  
+
     try {
       const response = await axios.get(`${server}api/v1/bet/transactions?userId=${user._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(response.data.bets);
 
       setAllBets(response.data.bets || [])
-      setFilteredBets(response.data.bets || [])
     } catch (error) {
       console.error("Error fetching transactions:", error)
     }
@@ -43,11 +43,20 @@ const MyBetsComponent = () => {
 
   useEffect(() => {
     getTransactions()
-  }, [user, getTransactions]) // Added getTransactions to dependencies
+  }, [getTransactions])
 
   // Filter and search logic
   useEffect(() => {
     let result = [...allBets]
+
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter(
+        (bet) =>
+          bet.match.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          bet.selection?.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    }
 
     // Apply status filter
     if (statusFilter !== "all") {
@@ -59,13 +68,23 @@ const MyBetsComponent = () => {
       result = result.filter((bet) => bet.category === categoryFilter)
     }
 
-    // Apply search
-    if (searchTerm) {
-      result = result.filter(
-        (bet) =>
-          bet.match.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          bet.category.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+    // Apply date filter
+    if (dateFilter !== "all") {
+      result = result.filter((bet) => {
+        const betDate = parseISO(bet.createdAt)
+        switch (dateFilter) {
+          case "today":
+            return isToday(betDate)
+          case "yesterday":
+            return isYesterday(betDate)
+          case "week":
+            return isThisWeek(betDate)
+          case "month":
+            return isThisMonth(betDate)
+          default:
+            return true
+        }
+      })
     }
 
     // Apply sorting
@@ -82,10 +101,9 @@ const MyBetsComponent = () => {
     }
 
     setFilteredBets(result)
-    setCurrentPage(1) // Reset to first page when filters change
-  }, [allBets, searchTerm, statusFilter, categoryFilter, sortConfig])
+    setCurrentPage(1)
+  }, [allBets, searchTerm, statusFilter, categoryFilter, dateFilter, sortConfig])
 
-  // Get unique categories for filter
   const categories = [...new Set(allBets.map((bet) => bet.category))]
 
   const requestSort = (key) => {
@@ -107,9 +125,7 @@ const MyBetsComponent = () => {
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredBets.slice(indexOfFirstItem, indexOfLastItem)
-
   const totalPages = Math.ceil(filteredBets.length / itemsPerPage)
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   return (
@@ -117,7 +133,6 @@ const MyBetsComponent = () => {
       <div className="flex justify-between lg:flex-row flex-col items-center mb-6">
         <h1 className="text-xl text-blue-400 mb-2">My Bets</h1>
         <div className="flex flex-wrap justify-center items-center gap-4">
-          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -129,7 +144,6 @@ const MyBetsComponent = () => {
             />
           </div>
 
-          {/* Filters */}
           <div className="flex gap-2">
             <select
               value={statusFilter}
@@ -154,6 +168,18 @@ const MyBetsComponent = () => {
                 </option>
               ))}
             </select>
+
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="px-4 py-2 bg-[#1f2937] rounded-lg text-sm text-white border border-zinc-700 focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
           </div>
         </div>
       </div>
@@ -169,13 +195,20 @@ const MyBetsComponent = () => {
                   className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
                   onClick={() => requestSort("match")}
                 >
-                  <div className="flex items-center gap-2">Match {getSortIcon("match")}</div>
+                  <div className="flex items-center gap-2">Event Name {getSortIcon("match")}</div>
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Selection</th>
+                <th
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
+                  onClick={() => requestSort("type")}
+                >
+                  <div className="flex items-center gap-2">Bet Type {getSortIcon("type")}</div>
                 </th>
                 <th
                   className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
-                  onClick={() => requestSort("status")}
+                  onClick={() => requestSort("odds")}
                 >
-                  <div className="flex items-center gap-2">Result {getSortIcon("status")}</div>
+                  <div className="flex items-center gap-2">Odds {getSortIcon("odds")}</div>
                 </th>
                 <th
                   className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
@@ -191,36 +224,50 @@ const MyBetsComponent = () => {
                 </th>
                 <th
                   className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
-                  onClick={() => requestSort("category")}
+                  onClick={() => requestSort("status")}
                 >
-                  <div className="flex items-center gap-2">Category {getSortIcon("category")}</div>
+                  <div className="flex items-center gap-2">Status {getSortIcon("status")}</div>
+                </th>
+                <th
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-400 cursor-pointer"
+                  onClick={() => requestSort("createdAt")}
+                >
+                  <div className="flex items-center gap-2">Place Date {getSortIcon("createdAt")}</div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-700">
               {currentItems.map((bet, index) => (
-                <tr key={index} className="hover:bg-[#1f2937]/50 transition-colors">
+                <tr
+                  key={index}
+                  className={`transition-colors ${
+                    bet.type === "back" ? "bg-blue-500/10" : "bg-pink-500/10"
+                  } hover:bg-[#1f2937]/50`}
+                >
                   <td className="px-4 py-3 text-sm text-white">{bet.match}</td>
+                  <td className="px-4 py-3 text-sm text-white">{bet.selection}</td>
+                  <td className="px-4 py-3 text-sm text-white capitalize">{bet.type}</td>
+                  <td className="px-4 py-3 text-sm text-white">{bet.odds}</td>
+                  <td className="px-4 py-3 text-sm text-white">{bet.stake.toFixed(2)}</td>
+                  <td className={`px-4 py-3 text-sm `}>
+                    {bet.payout.toFixed(2)}
+                  </td>
                   <td className="px-4 py-3">
-                  <span
+                    <span
                       className={`capitalize text-xs font-medium ${
                         bet.status === "pending"
                           ? "text-yellow-500"
                           : bet.status === "lost"
-                          ? "text-red-500"
-                          : "text-green-500"
+                            ? "text-red-500"
+                            : "text-green-500"
                       }`}
                     >
-                     {bet.status}
+                      {bet.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-white">
-                    {user?.currency} {bet.stake}
+                    {format(new Date(bet.createdAt), "yyyy-MM-dd HH:mm:ss")}
                   </td>
-                  <td className="px-4 py-3 text-sm text-white">
-                    {user?.currency} {bet.payout}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-white capitalize">{bet.category}</td>
                 </tr>
               ))}
             </tbody>
@@ -266,9 +313,8 @@ const MyBetsComponent = () => {
   )
 }
 
+const Mybets = memo(MyBetsComponent)
+Mybets.displayName = "Mybets"
 
-const Mybets = memo(MyBetsComponent);
-Mybets.displayName = "Mybets";
+export default Mybets
 
-
-export default Mybets;

@@ -230,7 +230,7 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-gray-700">
-            <th className="p-2 text-xs font-semibold text-gray-300">Name</th>
+            <th className="p-2 text-xs font-semibold text-gray-300">Selection</th>
             <th className="p-2 text-xs font-semibold text-gray-300">Stake</th>
             <th className="p-2 text-xs font-semibold text-gray-300">Odds</th>
             {allBets.some((bet) => bet.fancyNumber) && (
@@ -243,16 +243,16 @@ const BetSlip = memo(({ match, onClose, setStake }) => {
             <tr
               key={index}
               className={` ${
-                bet.type === "back" ? "bg-blue-400" : "bg-red-400"
+                bet.type === "back" ? "bg-[#68bbff]" : "bg-[#ff6b6f]"
               } transition-all duration-200`}
             >
-              <td className="p-2 text-xs text-white border-t border-gray-600">{bet.selection}</td>
-              <td className="p-2 text-xs text-white border-t border-gray-600">
+              <td className="p-2 text-xs text-black border-t border-gray-600">{bet.selection}</td>
+              <td className="p-2 text-xs text-black border-t border-gray-600">
                 {bet.stake.toFixed(2)}
               </td>
-              <td className="p-2 text-xs text-white border-t border-gray-600">{bet.odds}</td>
+              <td className="p-2 text-xs text-black border-t border-gray-600">{bet.odds}</td>
               {allBets.some((bet) => bet.fancyNumber) && (
-                <td className="p-2 text-xs text-white border-t border-gray-600 capitalize">
+                <td className="p-2 text-xs text-black border-t border-gray-600 capitalize">
                   {bet.fancyNumber || "-"}
                 </td>
               )}

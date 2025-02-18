@@ -109,67 +109,68 @@ const TeamRow = ({
                     : Math.abs(margin?.loss.toFixed(0))
                   : 0}
               </span>
-              {selectedOdd && margin ? (
-                <>
-                  <span className="text-gray-400 scale-75 text-[4px]">
-                    <ChevronRight />
-                  </span>
-                  <span
-                    className={`text-xs ${
-                      (margin?.selectionId === selectionId
-                        ? newProfit
-                        : newLoss) > 0
-                        ? "text-green-500"
-                        : (margin?.selectionId === selectionId
-                            ? newProfit
-                            : newLoss) < 0
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {margin?.selectionId === selectionId
-                      ? Math.abs(newProfit.toFixed(0))
-                      : Math.abs(newLoss.toFixed(0))}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="text-gray-400 scale-75 text-[4px]">
-                    <ChevronRight />
-                  </span>
-                  <span
-                    className={`text-xs ${
-                      (selectedOdd?.type === "back"
-                        ? selectedOdd?.selectionId === selectionId
-                          ? profit
-                          : loss
-                        : selectedOdd?.selectionId === selectionId
-                        ? loss
-                        : profit) > 0
-                        ? "text-green-500"
-                        : (selectedOdd?.type === "back"
-                            ? selectedOdd?.selectionId === selectionId
-                              ? profit
-                              : loss
-                            : selectedOdd?.selectionId === selectionId
-                            ? loss
-                            : profit) < 0
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {Math.abs(
-                      selectedOdd?.type === "back"
-                        ? selectedOdd?.selectionId === selectionId
-                          ? profit.toFixed(0)
-                          : loss.toFixed(0)
-                        : selectedOdd?.selectionId === selectionId
-                        ? loss.toFixed(0)
-                        : profit.toFixed(0)
-                    )}
-                  </span>
-                </>
-              )}
+              {selectedOdd &&
+                (margin ? (
+                  <>
+                    <span className="text-gray-400 scale-75 text-[4px]">
+                      <ChevronRight />
+                    </span>
+                    <span
+                      className={`text-xs ${
+                        (margin?.selectionId === selectionId
+                          ? newProfit
+                          : newLoss) > 0
+                          ? "text-green-500"
+                          : (margin?.selectionId === selectionId
+                              ? newProfit
+                              : newLoss) < 0
+                          ? "text-red-500"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {margin?.selectionId === selectionId
+                        ? Math.abs(newProfit.toFixed(0))
+                        : Math.abs(newLoss.toFixed(0))}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-gray-400 scale-75 text-[4px]">
+                      <ChevronRight />
+                    </span>
+                    <span
+                      className={`text-xs ${
+                        (selectedOdd?.type === "back"
+                          ? selectedOdd?.selectionId === selectionId
+                            ? profit
+                            : loss
+                          : selectedOdd?.selectionId === selectionId
+                          ? loss
+                          : profit) > 0
+                          ? "text-green-500"
+                          : (selectedOdd?.type === "back"
+                              ? selectedOdd?.selectionId === selectionId
+                                ? profit
+                                : loss
+                              : selectedOdd?.selectionId === selectionId
+                              ? loss
+                              : profit) < 0
+                          ? "text-red-500"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {Math.abs(
+                        selectedOdd?.type === "back"
+                          ? selectedOdd?.selectionId === selectionId
+                            ? profit.toFixed(0)
+                            : loss.toFixed(0)
+                          : selectedOdd?.selectionId === selectionId
+                          ? loss.toFixed(0)
+                          : profit.toFixed(0)
+                      )}
+                    </span>
+                  </>
+                ))}
             </>
           )}
         </span>

@@ -251,7 +251,14 @@ const arrangeRunners = (runners = [], odds = []) => {
   return [teams[0], draw, teams[1]].filter(Boolean);
 };
 
-const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginAgain }) => {
+const MatchOdds = ({
+  eventId,
+  onBetSelect,
+  stake,
+  setStake,
+  showBetSlip,
+  marginAgain,
+}) => {
   const [sportsData, setSportsData] = useState([]);
   const [selectedBet, setSelectedBet] = useState(null);
   const [selectedOdd, setSelectedOdd] = useState(null);

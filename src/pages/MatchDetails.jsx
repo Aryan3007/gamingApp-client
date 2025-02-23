@@ -1,5 +1,4 @@
-"use client";
-
+/* eslint-disable react/prop-types */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -17,14 +16,22 @@ import Other from "../components/matchdetails_ui/Other";
 import Player from "../components/matchdetails_ui/Player";
 import { server } from "../constants/config";
 
-const AllComponents = ({ data, onBetSelect }) => {
+const AllComponents = ({ data, marginAgain, setStake, eventId, stake, onBetSelect }) => {
   return (
     <>
       {Object.entries(data).map(([key, value]) => {
         const Component = tabComponents[key];
         return Component ? (
           <div key={key} className="mb-8">
-            <Component data={value} onBetSelect={onBetSelect} />
+            <Component
+                    marginAgain={marginAgain}
+
+              stake={stake}
+              eventId={eventId}
+              setStake={setStake}
+              data={value}
+              onBetSelect={onBetSelect}
+            />
           </div>
         ) : null;
       })}
@@ -46,7 +53,6 @@ const tabComponents = {
 const MatchDetails = ({ sportsData }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [data, setData] = useState(null);
-  const [bookmakers, setBookmakers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { eventId } = useParams();
@@ -70,7 +76,6 @@ const MatchDetails = ({ sportsData }) => {
         if (response.status !== 200) {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-        setBookmakers(response.data.getBookmaker);
         setData(response.data);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -140,7 +145,7 @@ const MatchDetails = ({ sportsData }) => {
         });
       }
       return Object.fromEntries(
-        Object.entries(categories).filter(([_, value]) => value.length > 0)
+        Object.entries(categories).filter(([value]) => value.length > 0)
       );
     };
 
@@ -150,11 +155,6 @@ const MatchDetails = ({ sportsData }) => {
   const betPlaced = () => {
     setMarginAgain((prev) => !prev);
   };
-  
-
-  const fancyData = useMemo(() => {
-    return categorizedData?.fancy || [];
-  }, [categorizedData]);
 
   const handleBetSelection = useCallback((bet) => {
     setSelectedBet(bet);
@@ -170,6 +170,10 @@ const MatchDetails = ({ sportsData }) => {
     if (activeTab === "all") {
       return (
         <AllComponents
+        marginAgain={marginAgain}
+          stake={stake}
+          eventId={eventId}
+          setStake={handleStakeChange}
           data={categorizedData}
           onBetSelect={handleBetSelection}
         />
@@ -181,11 +185,24 @@ const MatchDetails = ({ sportsData }) => {
 
     return (
       <ActiveComponent
+      marginAgain={marginAgain}
+
+        stake={stake}
+        eventId={eventId}
+        setStake={handleStakeChange}
         onBetSelect={handleBetSelection}
         data={categorizedData[activeTab]}
       />
     );
-  }, [activeTab, categorizedData, handleBetSelection]);
+  }, [
+    activeTab,
+    marginAgain,
+    handleStakeChange,
+    eventId,
+    categorizedData,
+    handleBetSelection,
+    stake,
+  ]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

@@ -245,7 +245,10 @@ const MyBetsComponent = () => {
                   } hover:bg-[#1f2937]/50`}
                 >
                   <td className="px-4 py-3 text-sm text-white">{bet.match}</td>
-                  <td className="px-4 py-3 text-sm text-white">{bet.selection}</td>
+                  <td className="px-4 py-3 text-sm text-white">
+  {bet.selection}
+  {bet?.fancyNumber && ` (${bet.fancyNumber})`}
+</td>
                   <td className="px-4 py-3 text-sm text-white capitalize">{bet.type}</td>
                   <td className="px-4 py-3 text-sm text-white">{bet.odds}</td>
                   <td className="px-4 py-3 text-sm text-white">{bet.stake.toFixed(2)}</td>

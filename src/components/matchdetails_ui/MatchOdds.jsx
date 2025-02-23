@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";

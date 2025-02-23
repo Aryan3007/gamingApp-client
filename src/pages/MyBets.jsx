@@ -280,7 +280,7 @@ const MyBetsComponent = () => {
                   onClick={() => requestSort("createdAt")}
                 >
                   <div className="flex items-center gap-2">
-                    Place Date {getSortIcon("createdAt")}
+                    Placed Date {getSortIcon("createdAt")}
                   </div>
                 </th>
               </tr>
@@ -288,11 +288,16 @@ const MyBetsComponent = () => {
             <tbody className="divide-y divide-zinc-700">
               {currentItems.map((bet, index) => (
                 <tr
-                  key={index}
-                  className={`transition-colors ${
-                    bet.type === "back" ? "bg-blue-500/10" : "bg-pink-500/10"
-                  } hover:bg-[#1f2937]/50`}
-                >
+                key={index}
+                className={`transition-colors ${
+                  bet.status === "won"
+                    ? "bg-green-800/30"
+                    : bet.status === "lost"
+                    ? "bg-red-800/10"
+                    : "bg-yellow-600/30"
+                } hover:bg-[#1f2937]/50`}
+              >
+              
                   <td className="px-4 py-3 text-sm text-white">{bet.match}</td>
                   <td className="px-4 py-3 text-sm text-white">
                     {bet.selection}
@@ -337,9 +342,8 @@ const MyBetsComponent = () => {
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <div className="text-sm text-gray-400">
-          Showing {indexOfFirstItem + 1} to{" "}
-          {Math.min(indexOfLastItem, filteredBets.length)} of{" "}
-          {filteredBets.length} entries
+          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredBets.length)} of {filteredBets.length}{" "}
+          entries
         </div>
         <div className="flex gap-2">
           <button
@@ -349,19 +353,38 @@ const MyBetsComponent = () => {
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          {[...Array(totalPages).keys()].map((number) => (
-            <button
-              key={number + 1}
-              onClick={() => paginate(number + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === number + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-[#1f2937] text-white"
-              }`}
-            >
-              {number + 1}
-            </button>
-          ))}
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNumber = index + 1
+            // Always show first page, last page, current page, and pages around current page
+            if (
+              pageNumber === 1 ||
+              pageNumber === totalPages ||
+              (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1) ||
+              (pageNumber <= 4 && currentPage <= 3)
+            ) {
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => paginate(pageNumber)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === pageNumber ? "bg-blue-500 text-white" : "bg-[#1f2937] text-white"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              )
+            } else if (
+              (pageNumber === currentPage - 2 && currentPage > 3) ||
+              (pageNumber === currentPage + 2 && currentPage < totalPages - 2)
+            ) {
+              return (
+                <span key={pageNumber} className="px-3 py-1 text-white">
+                  ...
+                </span>
+              )
+            }
+            return null
+          })}
           <button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}

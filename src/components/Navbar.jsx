@@ -16,9 +16,9 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "Casino", href: "#" },
-    { name: "Slot", href: "#" },
-    { name: "Fantasy", href: "#" },
+    { name: "Casino", href: "/casino" },
+    { name: "Slot", href: "/slot" },
+    { name: "Fantasy", href: "/fantasy" },
     { name: "My Bets", href: "/mybets" },
   ];
 

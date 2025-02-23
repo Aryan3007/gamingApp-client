@@ -34,7 +34,6 @@ const useTransactions = (eventId) => {
       setAllBets(pendingBets);
       setError(null);
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to fetch transactions");
       console.error("Error fetching transactions:", error);
     } finally {
       setIsLoading(false);

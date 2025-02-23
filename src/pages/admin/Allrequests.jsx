@@ -31,7 +31,7 @@ const Allrequests = () => {
     }
 
     try {
-      const response = await axios.get(`${server}api/v1/bet/allbets`, {
+      const response = await axios.get(`${server}api/v1/bet/bets`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -180,6 +180,13 @@ const Allrequests = () => {
                 )}
               </th>
               <th
+                onClick={() => handleSort("match")}
+                className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
+              >
+                Selection{" "}
+                
+              </th>
+              <th
                 onClick={() => handleSort("type")}
                 className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
               >
@@ -212,6 +219,12 @@ const Allrequests = () => {
               >
                 Run{" "}
                 
+              </th> <th
+                
+                className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
+              >
+                Category{" "}
+                
               </th>
               <th
                 onClick={() => handleSort("payout")}
@@ -238,10 +251,12 @@ const Allrequests = () => {
             {currentBets.map((bet) => (
               <tr key={bet._id} className="">
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.match}</td>
+                <td className="px-6 py-4 text-sm text-gray-200">{bet.selection}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.type}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.odds}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.stake}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.fancyNumber}</td>
+                <td className="px-6 py-4 text-sm text-gray-200">{bet.category}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.payout.toFixed(2)}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">
                   <div className="relative ">

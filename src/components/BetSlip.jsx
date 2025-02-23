@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
@@ -14,7 +15,7 @@ const useTransactions = (eventId) => {
   const fetchTransactions = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      setError("No authentication token found");
+      console.log("No authentication token found");
       return;
     }
 

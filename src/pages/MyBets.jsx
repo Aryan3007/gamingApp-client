@@ -1,24 +1,22 @@
-"use client";
-
-import { memo, useCallback, useEffect, useState } from "react";
-import { server } from "../constants/config";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import {
-  Search,
-  ChevronDown,
-  ChevronUp,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
 import {
   format,
+  isThisMonth,
+  isThisWeek,
   isToday,
   isYesterday,
-  isThisWeek,
-  isThisMonth,
   parseISO,
 } from "date-fns";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Search,
+} from "lucide-react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { server } from "../constants/config";
 
 const MyBetsComponent = () => {
   const [allBets, setAllBets] = useState([]);
@@ -302,7 +300,8 @@ const MyBetsComponent = () => {
                   </td>
                   <td className="px-4 py-3 text-sm text-white capitalize">
                     {bet.type}
-                  </td> <td className="px-4 py-3 text-sm text-white capitalize">
+                  </td>{" "}
+                  <td className="px-4 py-3 text-sm text-white capitalize">
                     {bet.category}
                   </td>
                   <td className="px-4 py-3 text-sm text-white">{bet.odds}</td>

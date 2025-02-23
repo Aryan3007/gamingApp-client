@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
+import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import AllGames from "../components/AllGames";
 import BetSlip from "../components/BetSlip";
 import Loader from "../components/Loader";
@@ -16,7 +16,14 @@ import Other from "../components/matchdetails_ui/Other";
 import Player from "../components/matchdetails_ui/Player";
 import { server } from "../constants/config";
 
-const AllComponents = ({ data, marginAgain, setStake, eventId, stake, onBetSelect }) => {
+const AllComponents = ({
+  data,
+  marginAgain,
+  setStake,
+  eventId,
+  stake,
+  onBetSelect,
+}) => {
   return (
     <>
       {Object.entries(data).map(([key, value]) => {
@@ -24,8 +31,7 @@ const AllComponents = ({ data, marginAgain, setStake, eventId, stake, onBetSelec
         return Component ? (
           <div key={key} className="mb-8">
             <Component
-                    marginAgain={marginAgain}
-
+              marginAgain={marginAgain}
               stake={stake}
               eventId={eventId}
               setStake={setStake}
@@ -170,7 +176,7 @@ const MatchDetails = ({ sportsData }) => {
     if (activeTab === "all") {
       return (
         <AllComponents
-        marginAgain={marginAgain}
+          marginAgain={marginAgain}
           stake={stake}
           eventId={eventId}
           setStake={handleStakeChange}
@@ -185,8 +191,7 @@ const MatchDetails = ({ sportsData }) => {
 
     return (
       <ActiveComponent
-      marginAgain={marginAgain}
-
+        marginAgain={marginAgain}
         stake={stake}
         eventId={eventId}
         setStake={handleStakeChange}

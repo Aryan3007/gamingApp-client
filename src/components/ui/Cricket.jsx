@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-
 import { lazy, useMemo } from "react";
 
 const GameOdds = lazy(() => import("../GameOdds"));

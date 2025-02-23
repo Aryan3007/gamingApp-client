@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Minus, Plus } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { server } from "../constants/config";
@@ -27,7 +27,7 @@ const useTransactions = (eventId) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       const pendingBets = response.data.bets.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -50,8 +50,13 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
   const { user } = useSelector((state) => state.userReducer);
   const prevMatchRef = useRef(null);
   const matchRef = useRef(match);
-  
-  const { allBets, isLoading: isLoadingTransactions, error: transactionError, fetchTransactions } = useTransactions(eventId);
+
+  const {
+    allBets,
+    isLoading: isLoadingTransactions,
+    error: transactionError,
+    fetchTransactions,
+  } = useTransactions(eventId);
 
   // Constants
   const MIN_BET = 100;
@@ -272,7 +277,9 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
       {user && eventId && (
         <div className="mt-4 flex-1 lg:flex hidden overflow-hidden flex-col">
           <div className="flex justify-between items-center mb-2">
-            <h1 className="font-semibold underline text-blue-500">Open Bets:</h1>
+            <h1 className="font-semibold underline text-blue-500">
+              Open Bets:
+            </h1>
             {isLoadingTransactions && (
               <span className="text-sm text-gray-400">Loading...</span>
             )}

@@ -2,11 +2,11 @@
 import axios from "axios";
 import { Menu, Wallet, X } from "lucide-react";
 import { memo, useEffect, useState } from "react";
+import isEqual from "react-fast-compare";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { server } from "../constants/config";
 import { userNotExist } from "../redux/reducer/userReducer";
-import isEqual from "react-fast-compare";
 
 const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
   const { user, loading } = useSelector((state) => state.userReducer);

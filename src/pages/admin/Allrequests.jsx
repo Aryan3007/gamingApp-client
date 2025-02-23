@@ -1,33 +1,31 @@
-"use client"
-
-import axios from "axios"
-import { useCallback, useEffect, useState } from "react"
-import { useSelector } from "react-redux"
-import { server } from "../../constants/config"
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { server } from "../../constants/config";
 
 const Allrequests = () => {
-  const { user } = useSelector((state) => state.userReducer)
-  const [allBets, setAllBets] = useState([])
-  const [filteredBets, setFilteredBets] = useState([])
+  const { user } = useSelector((state) => state.userReducer);
+  const [allBets, setAllBets] = useState([]);
+  const [filteredBets, setFilteredBets] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [betsPerPage] = useState(10)
-  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false)
-  const [selectedBetId, setSelectedBetId] = useState(null)
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [betsPerPage] = useState(10);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+  const [selectedBetId, setSelectedBetId] = useState(null);
 
   const getTransactions = useCallback(async () => {
-    if (!user || !user._id) return
+    if (!user || !user._id) return;
 
-    const token = localStorage.getItem("authToken")
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      console.error("No token found")
-      return
+      console.error("No token found");
+      return;
     }
 
     try {
@@ -35,59 +33,60 @@ const Allrequests = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      setAllBets(response.data.bets || [])
-      setFilteredBets(response.data.bets || [])
+      });
+      setAllBets(response.data.bets || []);
+      setFilteredBets(response.data.bets || []);
     } catch (error) {
-      console.error("Error fetching transactions:", error)
+      console.error("Error fetching transactions:", error);
     }
-  }, [user])
+  }, [user]);
 
   const handleSort = (key) => {
-    const direction = sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc"
-    setSortConfig({ key, direction })
+    const direction =
+      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
+    setSortConfig({ key, direction });
 
     const sorted = [...filteredBets].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1
-      return 0
-    })
-    setFilteredBets(sorted)
-  }
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    setFilteredBets(sorted);
+  };
 
   const handleSearch = (value) => {
-    setSearchTerm(value)
-    filterBets(value, statusFilter)
-    setCurrentPage(1)
-  }
+    setSearchTerm(value);
+    filterBets(value, statusFilter);
+    setCurrentPage(1);
+  };
 
   const handleStatusFilter = (value) => {
-    setStatusFilter(value)
-    filterBets(searchTerm, value)
-    setCurrentPage(1)
-  }
+    setStatusFilter(value);
+    filterBets(searchTerm, value);
+    setCurrentPage(1);
+  };
 
   const filterBets = (search, status) => {
-    let filtered = [...allBets]
+    let filtered = [...allBets];
 
     if (search) {
       filtered = filtered.filter(
         (bet) =>
           bet.match.toLowerCase().includes(search.toLowerCase()) ||
-          bet.type.toLowerCase().includes(search.toLowerCase()),
-      )
+          bet.type.toLowerCase().includes(search.toLowerCase())
+      );
     }
 
     if (status !== "all") {
-      filtered = filtered.filter((bet) => bet.status === status)
+      filtered = filtered.filter((bet) => bet.status === status);
     }
 
-    setFilteredBets(filtered)
-  }
+    setFilteredBets(filtered);
+  };
 
   const handleStatusChange = async (betId, newStatus) => {
-    const token = localStorage.getItem("authToken")
-    if (!token) return
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
 
     try {
       await axios.post(
@@ -100,33 +99,33 @@ const Allrequests = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
-      )
+        }
+      );
       // Refresh the bets list after status change
-      getTransactions()
-      setIsStatusDropdownOpen(null)
-      setIsSettleModalOpen(false)
+      getTransactions();
+      setIsStatusDropdownOpen(null);
+      setIsSettleModalOpen(false);
     } catch (error) {
-      console.error("Error changing bet status:", error)
+      console.error("Error changing bet status:", error);
     }
-  }
+  };
 
   const openSettleModal = (betId) => {
-    setSelectedBetId(betId)
-    setIsSettleModalOpen(true)
-  }
+    setSelectedBetId(betId);
+    setIsSettleModalOpen(true);
+  };
 
   useEffect(() => {
-    getTransactions()
-  }, [getTransactions])
+    getTransactions();
+  }, [getTransactions]);
 
   // Pagination
-  const indexOfLastBet = currentPage * betsPerPage
-  const indexOfFirstBet = indexOfLastBet - betsPerPage
-  const currentBets = filteredBets.slice(indexOfFirstBet, indexOfLastBet)
-  const totalPages = Math.ceil(filteredBets.length / betsPerPage)
+  const indexOfLastBet = currentPage * betsPerPage;
+  const indexOfFirstBet = indexOfLastBet - betsPerPage;
+  const currentBets = filteredBets.slice(indexOfFirstBet, indexOfLastBet);
+  const totalPages = Math.ceil(filteredBets.length / betsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber)
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto py-8">
@@ -140,7 +139,9 @@ const Allrequests = () => {
         />
         <div className="relative inline-block w-[180px]">
           <button
-            onClick={() => setIsStatusDropdownOpen(isStatusDropdownOpen ? null : "filter")}
+            onClick={() =>
+              setIsStatusDropdownOpen(isStatusDropdownOpen ? null : "filter")
+            }
             className="w-full rounded-md border border-gray-300 bg-gray-900 px-4 py-2 text-left focus:border-blue-500 focus:outline-none"
           >
             {statusFilter === "all" ? "Filter by status" : statusFilter}
@@ -153,8 +154,8 @@ const Allrequests = () => {
                     key={status}
                     className="block w-full px-4 py-2 text-left hover:bg-gray-800"
                     onClick={() => {
-                      handleStatusFilter(status)
-                      setIsStatusDropdownOpen(null)
+                      handleStatusFilter(status);
+                      setIsStatusDropdownOpen(null);
                     }}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -176,7 +177,9 @@ const Allrequests = () => {
               >
                 Match{" "}
                 {sortConfig.key === "match" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
               </th>
               <th
@@ -184,7 +187,6 @@ const Allrequests = () => {
                 className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
               >
                 Selection{" "}
-                
               </th>
               <th
                 onClick={() => handleSort("type")}
@@ -192,7 +194,9 @@ const Allrequests = () => {
               >
                 Type{" "}
                 {sortConfig.key === "type" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
               </th>
               <th
@@ -201,7 +205,9 @@ const Allrequests = () => {
               >
                 Odds{" "}
                 {sortConfig.key === "odds" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
               </th>
               <th
@@ -210,21 +216,16 @@ const Allrequests = () => {
               >
                 Stake{" "}
                 {sortConfig.key === "stake" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
-              </th> 
-               <th
-                
-                className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
-              >
+              </th>
+              <th className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200">
                 Run{" "}
-                
-              </th> <th
-                
-                className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200"
-              >
+              </th>{" "}
+              <th className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-200">
                 Category{" "}
-                
               </th>
               <th
                 onClick={() => handleSort("payout")}
@@ -232,7 +233,9 @@ const Allrequests = () => {
               >
                 Payout{" "}
                 {sortConfig.key === "payout" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
               </th>
               <th
@@ -241,26 +244,38 @@ const Allrequests = () => {
               >
                 Status{" "}
                 {sortConfig.key === "status" && (
-                  <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
                 )}
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-200">Actions</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-200">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-500 bg-gray-800">
             {currentBets.map((bet) => (
               <tr key={bet._id} className="">
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.match}</td>
-                <td className="px-6 py-4 text-sm text-gray-200">{bet.selection}</td>
+                <td className="px-6 py-4 text-sm text-gray-200">
+                  {bet.selection}
+                </td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.type}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.odds}</td>
                 <td className="px-6 py-4 text-sm text-gray-200">{bet.stake}</td>
-                <td className="px-6 py-4 text-sm text-gray-200">{bet.fancyNumber}</td>
-                <td className="px-6 py-4 text-sm text-gray-200">{bet.category}</td>
-                <td className="px-6 py-4 text-sm text-gray-200">{bet.payout.toFixed(2)}</td>
+                <td className="px-6 py-4 text-sm text-gray-200">
+                  {bet.fancyNumber}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-200">
+                  {bet.category}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-200">
+                  {bet.payout.toFixed(2)}
+                </td>
                 <td className="px-6 py-4 text-sm text-gray-200">
                   <div className="relative ">
-                  <td
+                    <td
                       className={`capitalize w-24 text-center ${
                         bet.status === "pending"
                           ? "text-black bg-yellow-500 rounded-lg px-4 py-1"
@@ -269,9 +284,8 @@ const Allrequests = () => {
                           : "text-white bg-green-800 rounded-lg px-4 py-1"
                       }`}
                     >
-                     {bet.status}
+                      {bet.status}
                     </td>
-                  
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-200">
@@ -295,7 +309,9 @@ const Allrequests = () => {
             key={i}
             onClick={() => paginate(i + 1)}
             className={`mx-1 rounded px-3 py-1 ${
-              currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+              currentPage === i + 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             {i + 1}
@@ -333,7 +349,7 @@ const Allrequests = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Allrequests
+export default Allrequests;

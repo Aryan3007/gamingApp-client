@@ -1,11 +1,9 @@
 /* eslint-disable react/prop-types */
-"use client";
-
-import { lazy, memo, useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import isEqual from "lodash/isEqual";
 import axios from "axios";
+import isEqual from "lodash/isEqual";
 import { ChevronRight } from "lucide-react";
+import PropTypes from "prop-types";
+import { lazy, memo, useCallback, useEffect, useState } from "react";
 import { server } from "../../constants/config";
 import { calculateNewMargin, calculateProfitAndLoss } from "../../utils/helper";
 
@@ -237,9 +235,8 @@ const BookmakerComponent = ({
   setStake,
   stake,
   showBetSlip = true,
-  marginAgain
+  marginAgain,
 }) => {
-
   const [selectedBet, setSelectedBet] = useState(null);
   const [selectedOdd, setSelectedOdd] = useState(null);
   const [margin, setMargin] = useState(null);

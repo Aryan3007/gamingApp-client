@@ -35,6 +35,7 @@ const useTransactions = (eventId) => {
       setError(null);
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setError("Failed to fetch transactions");
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +59,6 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
   } = useTransactions(eventId);
 
   // Constants
-  const MIN_BET = 100;
   const MAX_BET = 500000;
 
   useEffect(() => {
@@ -88,45 +88,22 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
 
   const handleQuickBet = useCallback(
     (amount) => {
-      if (amount <= user?.amount) {
-        setBetAmount(amount);
-        setStake(amount);
-      } else {
-        toast.error("Insufficient balance for this bet amount");
-      }
+      setBetAmount(amount);
+      setStake(amount);
     },
-    [setStake, user?.amount]
+    [setStake]
   );
 
   const handleBetChange = useCallback(
     (value) => {
-      const newAmount = Math.max(MIN_BET, Math.min(value, MAX_BET));
-      if (newAmount > user?.amount) {
-        toast.error("Insufficient balance");
-        return;
-      }
+      const newAmount = Math.min(value, MAX_BET);
       setBetAmount(newAmount);
       setStake(newAmount);
     },
-    [setStake, user?.amount]
+    [setStake]
   );
 
-  const validateBet = useCallback(() => {
-    if (!user) return "You need to login first";
-    if (!matchRef.current) return "Please select a bet first";
-    if (betAmount < MIN_BET) return `Minimum bet amount is ${MIN_BET}`;
-    if (betAmount > MAX_BET) return `Maximum bet amount is ${MAX_BET}`;
-    if (betAmount > user.amount) return "Insufficient balance";
-    return null;
-  }, [betAmount, user]);
-
   const placeBet = useCallback(async () => {
-    const validationError = validateBet();
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
-
     const token = localStorage.getItem("authToken");
     const currentMatch = matchRef.current;
 
@@ -147,7 +124,6 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
           type: currentMatch.type,
         },
         {
-          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -169,7 +145,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
     } finally {
       setIsPlacingBet(false);
     }
-  }, [betAmount, user, onClose, betPlaced, fetchTransactions, validateBet]);
+  }, [betAmount, user, onClose, betPlaced, fetchTransactions]);
 
   const currentMatch = matchRef.current;
 
@@ -189,7 +165,6 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
         </div>
 
         <div className="text-sm">
-          <h1>Min : {MIN_BET}</h1>
           <h1>Max : {MAX_BET}</h1>
         </div>
       </div>
@@ -216,7 +191,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
           <button
             onClick={() => handleBetChange(betAmount - 1)}
             className="bg-blue-500 p-2 rounded-lg disabled:opacity-50"
-            disabled={betAmount <= MIN_BET || isPlacingBet}
+            disabled={betAmount <= 0 || isPlacingBet}
           >
             <Minus size={20} />
           </button>
@@ -225,7 +200,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
             value={betAmount}
             onChange={(e) => handleBetChange(Number(e.target.value))}
             className="bg-gray-700 text-center w-32 p-2 rounded-lg"
-            min={MIN_BET}
+            min={0}
             max={MAX_BET}
             disabled={isPlacingBet}
           />

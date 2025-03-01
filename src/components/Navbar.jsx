@@ -71,7 +71,6 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             )}
             <div className="flex items-center gap-2">
               <img src="/logo.webp" className="h-8 w-8" alt="Logo" />
-              <h1 className="text-yellow-500 font-semibold text-lg">SHAKTIEX</h1>
             </div>
           </div>
 

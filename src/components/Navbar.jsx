@@ -2,7 +2,7 @@
 "use client"
 
 import axios from "axios"
-import { Home, Gamepad2, Joystick, Trophy, History, Menu, Wallet, X, LogOut, User, ShieldCheck } from "lucide-react"
+import { Home, Gamepad2, Joystick, Trophy, History, Menu, Wallet, X, LogOut, User, ShieldCheck } from 'lucide-react'
 import { memo, useEffect, useState } from "react"
 import isEqual from "react-fast-compare"
 import { useDispatch, useSelector } from "react-redux"
@@ -62,7 +62,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     <nav className="bg-[rgb(var(--color-primary))] w-full z-[99] shadow-md">
       <div className="max-w-full mx-auto px-2 sm:px-4">
         {/* Mobile Header */}
-        <div className="flex items-center justify-between h-14 md:hidden">
+        <div className="flex items-center justify-between h-fit lg:hidden">
           <div className="flex items-center gap-2">
             {showsidebar ? (
               <X className="h-6 w-6 text-white" onClick={toggleSidebar} />
@@ -71,7 +71,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             )}
             <div className="flex items-center gap-2">
               <img src="/logo.webp" className="h-8 w-8" alt="Logo" />
-              <h1 className="text-white font-semibold text-lg">SHAKTIEX</h1>
+              <h1 className="text-yellow-500 font-semibold text-lg">SHAKTIEX</h1>
             </div>
           </div>
 
@@ -81,7 +81,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 bg-[rgb(var(--color-primary-dark))] rounded-full px-3 py-1">
                   <Wallet className="h-4 w-4 text-white" />
-                  <span className="text-white uppercase text-sm font-medium">
+                  <span className="text-white text-sm font-medium">
                     {user?.currency} {wallet.toFixed(2)}
                   </span>
                 </div>
@@ -103,18 +103,21 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Desktop Header */}
-        <div className="hidden md:flex items-center justify-between h-fit">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/logo.webp" className="h-12 w-12" alt="Logo" />
-              <h1 className="text-white font-semibold text-2xl">Shaktiex</h1>
-            </div>
-            <div className="flex gap-4">
+        <div className="hidden lg:flex h-fit">
+          {/* Left: Logo & Company Name */}
+          <div className="flex items-center gap-2 w-1/4">
+            <img src="/logo.webp" className="h-12 w-12" alt="Logo" />
+            <h1 className="text-white font-semibold text-2xl">Shaktiex</h1>
+          </div>
+
+          {/* Center: Navigation */}
+          <div className="flex items-center justify-center flex-1">
+            <div className="flex gap-2">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center gap-2 px-2 py-2 rounded-lg transition-colors ${
                     location.pathname === item.href
                       ? "text-yellow-500 bg-[rgb(var(--color-primary-dark))]"
                       : "text-gray-100 hover:text-yellow-500 hover:bg-[rgb(var(--color-primary-dark))]"
@@ -127,15 +130,14 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             </div>
           </div>
 
-          {/* Desktop Wallet/Auth */}
-          <div className="flex items-center gap-3">
+          {/* Right: Auth & Wallet */}
+          <div className="flex items-center justify-end w-1/4 gap-3">
             {!loading && user ? (
               <>
                 <div className="flex items-center gap-2 bg-[rgb(var(--color-primary-dark))] rounded-full px-4 py-1.5">
                   <Wallet className="h-5 w-5 text-white" />
-                  <span className="text-white font-medium">Wallet:</span>
                   <span className="text-yellow-500 font-semibold">
-                    {user?.currency} {wallet.toFixed(2)}
+                    {wallet.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -174,16 +176,15 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Mobile Navigation - Two Columns */}
-        <div className="flex items-center justify-evenly gap-1 pb-2 md:hidden">
+        <div className="flex items-center justify-center gap-2 p-2 lg:hidden">
           {navItems.map((item, index) => (
             <Link
               key={item.name}
               to={item.href}
-              className={`flex justify-center items-center bg-[rgb(var(--color-primary-dark))] text-gray-100 py-2 px-3 rounded-lg hover:bg-[rgb(var(--color-primary-darker))] transition-colors text-xs font-medium ${
+              className={`flex justify-center items-center bg-[rgb(var(--color-primary-dark))] text-gray-100 py-2 px-2 rounded-lg hover:bg-[rgb(var(--color-primary-darker))] transition-colors text-sm font-medium ${
                 index === navItems.length - 1 && navItems.length % 2 !== 0 ? "col-span-2" : ""
-              } ${location.pathname === item.href ? "text-white" : "hover:text-yellow-500"}`}
+              } ${location.pathname === item.href ? "text-yellow-500" : "hover:text-yellow-500"}`}
             >
-              <item.icon className="h-4 hidden md:flex w-4 mr-2" />
               {item.name}
             </Link>
           ))}
@@ -201,4 +202,3 @@ const Navbar = memo(NavbarComponent, arePropsEqual)
 Navbar.displayName = "Navbar"
 
 export default Navbar
-

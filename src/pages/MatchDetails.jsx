@@ -208,20 +208,26 @@ const MatchDetails = ({ sportsData }) => {
   if (error) return <p className="text-red-500 p-4 text-center">Error: {error}</p>
 
   return (
-    <div className="bg-[#21252b] pt-28 px-2 md:pt-12">
+    <div className="px-2">
       <div className="max-w-full grid grid-cols-1 md:grid-cols-12 lg:h-[calc(100vh-48px)]">
-        <div className="md:col-span-2 lg:flex hidden bg-[#21252b] overflow-y-auto">
+        <div className="md:col-span-2 lg:flex hidden bg-[rgb(var(--color-background))] overflow-y-auto">
           <AllGames sportsData={sportsData} />
         </div>
 
         <div className="lg:col-span-7 md:col-span-12 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto">
-          <div className="p-4 bg-[#262a31] border-dashed border-zinc-700 rounded-lg border">
+          <div className="p-4 bg-[rgb(var(--color-background))] border-dashed border-[rgb(var(--color-border))] rounded-lg border">
             <div className="flex flex-col">
-              <h1 className="text-2xl font-semibold">{data?.eventDetail?.event.name}</h1>
+              <h1 className="text-2xl font-semibold text-[rgb(var(--color-text-primary))]">
+                {data?.eventDetail?.event.name}
+              </h1>
             </div>
-            <div className="flex items-start justify-between flex-col md:flex-row mt-1 text-gray-400">
-              <p>{formatDate(data?.eventDetail?.event.startDate)}</p>
-              <p className="text-blue-400">{data?.eventDetail?.series.name}</p>
+            <div className="flex items-start justify-between flex-col md:flex-row mt-1">
+              <p className="text-[rgb(var(--color-text-muted))]">
+                {formatDate(data?.eventDetail?.event.startDate)}
+              </p>
+              <p className="text-[rgb(var(--color-primary))]">
+                {data?.eventDetail?.series.name}
+              </p>
             </div>
           </div>
 
@@ -238,11 +244,13 @@ const MatchDetails = ({ sportsData }) => {
           />
 
           {/* Navigation Tabs */}
-          <div className="flex gap-1 lg:gap-2 bg-[#262a31] border-dashed border-zinc-700 overflow-x-auto rounded-lg border p-2">
+          <div className="flex gap-1 lg:gap-2 bg-[rgb(var(--color-background))] border-dashed border-[rgb(var(--color-border))] overflow-x-auto rounded-lg border p-2">
             <button
               key="all"
               className={`px-6 rounded-md py-2 text-sm font-medium transition-colors duration-200 ${
-                activeTab === "all" ? "bg-blue-500" : "text-gray-400 hover:text-blue-500"
+                activeTab === "all" 
+                  ? "bg-[rgb(var(--color-primary))] text-white" 
+                  : "text-[rgb(var(--color-text-muted))] hover:text-[rgb(var(--color-primary))]"
               }`}
               onClick={() => setActiveTab("all")}
             >
@@ -252,7 +260,9 @@ const MatchDetails = ({ sportsData }) => {
               <button
                 key={tab}
                 className={`px-3 rounded-md py-2 text-sm font-medium transition-colors duration-200 ${
-                  activeTab === tab ? "bg-blue-500" : "text-gray-400 hover:text-blue-500"
+                  activeTab === tab 
+                    ? "bg-[rgb(var(--color-primary))] text-white" 
+                    : "text-[rgb(var(--color-text-muted))] hover:text-[rgb(var(--color-primary))]"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -266,7 +276,7 @@ const MatchDetails = ({ sportsData }) => {
         </div>
 
         {/* Bet Slip - Fixed on Right for Large Screens, Moves Below for Small Screens */}
-        <div className="md:col-span-3 lg:flex hidden overflow-y-auto">
+        <div className="md:col-span-3 lg:flex hidden overflow-y-auto border-l border-[rgb(var(--color-border))]">
           <BetSlip
             betPlaced={betPlaced}
             eventId={eventId}

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
+import { Timer, TrendingUp, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const CricketScore = ({ eventId }) => {
@@ -81,34 +82,64 @@ const CricketScore = ({ eventId }) => {
     );
 
   return (
-    <div className="p-4 sm:p-6 bg-[#1a2027] border-dashed border-zinc-700 border my-2 rounded-lg">
-      <div className="flex flex-wrap justify-between items-center text-white text-xs sm:text-sm">
-        <div className="w-full sm:w-auto mb-2 sm:mb-0">
-          <h2 className="font-semibold text-sm sm:text-lg">
-            {scoreData.team1.name}
-          </h2>
-          <span className="text-gray-400 text-[10px] sm:text-sm">
-            {scoreData.team1.rr}
-          </span>
-        </div>
-        <div className="text-center flex-1">
-          <div className="text-base sm:text-xl font-bold">
-            {scoreData.team1.run} : {scoreData.team2.run}
+    <div className="group p-4 sm:p-6 bg-[rgb(var(--color-background))] hover:bg-[rgb(var(--color-background-hover))] border-dashed border-[rgb(var(--color-border))] border my-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md">
+   
+
+    <div className="flex items-center justify-between text-[rgb(var(--color-text-primary))]">
+      {/* Team 1 */}
+      <div className="transition-transform duration-300 group-hover:translate-x-1">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Trophy className="w-3 h-3 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
+          <div>
+            <h2 className="font-bold text-xs sm:text-lg truncate max-w-[80px] sm:max-w-full">
+              {scoreData.team1.name}
+            </h2>
+            <div className="flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3 text-[rgb(var(--color-text-muted))]" />
+              <span className="text-[rgb(var(--color-text-muted))] text-[10px] sm:text-sm">
+                RR: {scoreData.team1.rr}
+              </span>
+            </div>
           </div>
-          <div className="text-[10px] sm:text-xs text-gray-400">
-            {scoreData.team2.over} | {scoreData.team1.over}
-          </div>
-        </div>
-        <div className="w-full sm:w-auto text-right">
-          <h2 className="font-semibold text-sm sm:text-lg">
-            {scoreData.team2.name}
-          </h2>
-          <span className="text-gray-400 text-[10px] sm:text-sm">
-            {scoreData.team2.rr}
-          </span>
         </div>
       </div>
+
+      {/* Score Display */}
+      <div className="text-center px-2 sm:px-4 flex flex-col items-center">
+        <div className="relative">
+          <div className="text-sm sm:text-3xl font-bold bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-primary-dark))] bg-clip-text text-transparent animate-gradient">
+            {scoreData.team1.run}:{scoreData.team2.run}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <Timer className="w-2 h-2 sm:w-3 sm:h-3 text-[rgb(var(--color-text-muted))]" />
+            <div className="text-[12px] sm:text-xs text-[rgb(var(--color-text-muted))]">
+              {scoreData.team2.over}|{scoreData.team1.over}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Team 2 */}
+      <div className="transition-transform duration-300 group-hover:-translate-x-1">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <div className="text-right">
+            <h2 className="font-bold text-xs sm:text-lg truncate max-w-[80px] sm:max-w-full">
+              {scoreData.team2.name}
+            </h2>
+            <div className="flex items-center justify-end gap-1 mt-1">
+              <span className="text-[rgb(var(--color-text-muted))] text-[10px] sm:text-sm">
+                RR: {scoreData.team2.rr}
+              </span>
+              <TrendingUp className="w-3 h-3 text-[rgb(var(--color-text-muted))]" />
+            </div>
+          </div>
+          <Trophy className="w-3 h-3 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
+        </div>
+      </div>
+
+    
     </div>
+  </div>
   );
 };
 

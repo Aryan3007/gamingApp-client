@@ -3,9 +3,93 @@
 @tailwind utilities;
 
 body{
-    background-color: #21252b;
+    background-color: #ffffff;
     color: white;
 }
+
+
+:root {
+  /* Primary colors */
+  --color-primary: 237, 137, 54; /* orange-500 */
+  --color-primary-light: 251, 211, 141; /* orange-300 */
+  --color-primary-lighter: 255, 237, 213; /* orange-100 */
+  --color-primary-dark: 194, 65, 12; /* orange-700 */
+
+  /* Text colors */
+  --color-text-primary: 31, 41, 55; /* gray-800 */
+  --color-text-secondary: 75, 85, 99; /* gray-600 */
+  --color-text-muted: 107, 114, 128; /* gray-500 */
+
+  /* Border colors */
+  --color-border: 254, 215, 170; /* orange-200 */
+
+  /* odds colors */
+  --back-odd: 114, 187, 239;
+  --back-odd-hover: 84, 157, 209;
+  --back-odd-disabled: 214, 229, 247;
+  --lay-odd: 250, 169, 186;
+  --lay-odd-hover: 220, 139, 156;
+  --lay-odd-disabled: 252, 228, 232;
+
+  /* Background colors */
+  --color-background: 255, 255, 255; /* white */
+  --color-background-hover: 255, 237, 213; /* orange-100 */
+
+  /* Betting colors */
+  --color-back: 191, 219, 254; /* blue-200 */
+  --color-back-hover: 147, 197, 253; /* blue-300 */
+  --color-back-disabled: 219, 234, 254; /* blue-100 */
+  --color-lay: 254, 202, 202; /* red-200 */
+  --color-lay-hover: 252, 165, 165; /* red-300 */
+  --color-lay-disabled: 254, 226, 226; /* red-100 */
+}
+
+.dark {
+  /* Primary colors */
+  --color-primary: 249, 115, 22; /* orange-600 */
+  --color-primary-light: 234, 88, 12; /* orange-700 */
+  --color-primary-lighter: 194, 65, 12; /* orange-800 */
+  --color-primary-dark: 154, 52, 18; /* orange-900 */
+
+  /* Text colors */
+  --color-text-primary: 243, 244, 246; /* gray-100 */
+  --color-text-secondary: 209, 213, 219; /* gray-300 */
+  --color-text-muted: 156, 163, 175; /* gray-400 */
+
+  /* Border colors */
+  --color-border: 154, 52, 18; /* orange-900 */
+
+  /* Background colors */
+  --color-background: 31, 41, 55; /* gray-800 */
+  --color-background-hover: 55, 65, 81; /* gray-700 */
+
+  /* Betting colors */
+  --color-back: 30, 58, 138; /* blue-900 */
+  --color-back-hover: 30, 64, 175; /* blue-800 */
+  --color-back-disabled: 30, 58, 138; /* blue-900 with lower opacity */
+  --color-lay: 153, 27, 27; /* red-900 */
+  --color-lay-hover: 185, 28, 28; /* red-800 */
+  --color-lay-disabled: 153, 27, 27; /* red-900 with lower opacity */
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient var(--gradient-animation-duration) ease infinite;
+}
+
+
 
 ::-webkit-scrollbar{
     display: none;

@@ -57,7 +57,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
   };
 
   return (
-    <nav className="bg-[#1a2027] bg-opacity-70 backdrop-blur-lg  fixed w-full z-[99]">
+    <nav className="bg-[#ae4600] w-full z-[99]">
       <div className="max-w-full mx-auto px-4">
         <div className="h-8 justify-start items-center  gap-2 md:hidden flex">
           <img src="/logo.webp" className="h-6 w-6" alt="" />
@@ -86,7 +86,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="block text-gray-300  hover:text-blue-500 hover:border-b border-blue-500 md:px-3 md:py-2  text-base font-medium"
+                className="block text-gray-300  hover:text-organge-500 hover:border-b border-organge-500 md:px-3 md:py-2  text-base font-medium"
               >
                 {item.name}
               </Link>
@@ -106,19 +106,19 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
 
                 <button
                   onClick={handleLogout}
-                  className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-500 transition duration-150"
+                  className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-organge-500 transition duration-150"
                 >
                   Logout
                 </button>
                 {user?.role === "admin" ? (
                   <Link to="/admin">
-                    <button className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-blue-500 transition duration-150">
+                    <button className="border border-zinc-500 text-sm text-white md:px-4 px-1 py-1 rounded-md hover:bg-organge-500 transition duration-150">
                       Admin
                     </button>
                   </Link>
                 ) : (
                   <Link to="/profile">
-                    <button className="border border-zinc-500 text-sm text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
+                    <button className="border border-zinc-500 text-sm text-white px-4 py-1 rounded-md hover:bg-organge-500 transition duration-150">
                       Profile
                     </button>
                   </Link>
@@ -126,7 +126,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
               </div>
             ) : (
               <Link to={"/login"}>
-                <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-blue-500 transition duration-150">
+                <button className="border border-zinc-500 text-white px-4 py-1 rounded-md hover:bg-organge-500 transition duration-150">
                   Login
                 </button>
               </Link>
@@ -140,7 +140,7 @@ const NavbarCompoennt = ({ toggleSidebar, showsidebar }) => {
           <Link
             key={item.name}
             to={item.href}
-            className="block text-gray-300 text-sm hover:bg-blue-500 hover:text-white px-3 py-1 rounded-md  font-medium"
+            className="block text-gray-300 text-sm hover:bg-organge-500 hover:text-white px-3 py-1 rounded-md  font-medium"
           >
             {item.name}
           </Link>

@@ -1,6 +1,6 @@
 const Loader = () => {
   return (
-    <div className="flex justify-center bg-gray-800 items-center w-screen h-screen">
+    <div className="flex justify-center items-center w-screen h-screen">
       <div className="socket">
         <div className="gel center-gel">
           <div className="hex-brick h1" />

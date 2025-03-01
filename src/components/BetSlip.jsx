@@ -103,6 +103,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
     [setStake]
   );
 
+
   const placeBet = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     const currentMatch = matchRef.current;
@@ -132,19 +133,18 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
       );
 
       if (data.success) {
-        await fetchTransactions();
-        betPlaced();
         toast.success(data.message);
+        await fetchTransactions();
+        setIsPlacingBet(false);
+        betPlaced();
         onClose();
       } else {
-        toast.error(data.message || "Failed to place bet");
+        toast.error(data.message);
       }
     } catch (error) {
       console.error("Bet placement error:", error);
-      toast.error(error.response?.data?.message || "Failed to place bet");
-    } finally {
-      setIsPlacingBet(false);
-    }
+      (error.response?.data?.message);
+    } 
   }, [betAmount, user, onClose, betPlaced, fetchTransactions]);
 
   const currentMatch = matchRef.current;
@@ -154,7 +154,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
   }
 
   return (
-    <div className="lg:rounded-md rounded-none md:border border-0 border-[rgb(var(--color-border))] border-dashed bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
+    <div className="lg:rounded-md rounded-none md:border border-[rgb(var(--color-border))]  bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
     <div className="flex justify-between items-start">
       <div>
         <h2 className="text-lg capitalize max-w-52 mb-2 flex font-bold">

@@ -82,7 +82,7 @@ const CricketScore = ({ eventId }) => {
     );
 
   return (
-    <div className="group p-4 sm:p-6 bg-[rgb(var(--color-background))] hover:bg-[rgb(var(--color-background-hover))] border-dashed border-[rgb(var(--color-border))] border my-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md">
+    <div className="group p-4 sm:p-6 bg-[rgb(var(--color-background-hover))] border-[rgb(var(--color-border))] border my-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md">
    
 
     <div className="flex items-center justify-between text-[rgb(var(--color-text-primary))]">

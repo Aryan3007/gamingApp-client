@@ -23,7 +23,7 @@ const GamesHeader = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <div className="h-fit w-full border overflow-x-auto  border-zinc-700 border-dashed rounded-lg p-2 flex items-center">
+    <div className="h-fit w-full border overflow-x-auto border-[rgb(var(--color-border))] border rounded-lg p-2 flex items-center">
       {sports.map((sport) => (
         <div
           key={sport.key}

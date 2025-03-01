@@ -63,7 +63,7 @@ const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData, stake, s
   const filteredLayOdds = layOdds.filter(([value]) => value > 0).slice(0, 1)
 
   return (
-    <div className="flex flex-wrap gap-2 sm:flex-nowrap justify-between items-center py-2">
+    <div className="flex flex-wrap gap-2 py-2 px-4 sm:flex-nowrap justify-between items-center border-b border-[rgb(var(--color-border))]">
       <div className="flex flex-col">
         <span className="text-[rgb(var(--color-text-primary))] text-sm w-full sm:w-[200px] mb-0 font-semibold sm:mb-0">
           {teamName}
@@ -150,7 +150,7 @@ const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData, stake, s
           )}
         </span>
       </div>
-      <div className="grid grid-cols-3 sm:flex gap-1 w-full sm:w-auto">
+      <div className="grid grid-cols-2 sm:flex gap-1 w-full sm:w-auto">
         {filteredBackOdds.map(([odds, value], i) => (
           <div key={`back-${i}`} className="flex flex-col items-center">
             <OddsBox
@@ -287,7 +287,7 @@ const BookmakerComponent = ({
             </div>
           </div>
 
-          <div className="py-2 px-4">
+          <div className="">
             {bookmakerMarket.odds?.runners?.map((runner) => {
               const backOdds = (runner.back || []).map((odds) => [odds.price, odds.size]).reverse()
               const layOdds = (runner.lay || []).map((odds) => [odds.price, odds.size])
@@ -325,9 +325,8 @@ const BookmakerComponent = ({
               betPlaced={betPlaced}
             />
           ) : (
-            <div className="bg-[rgb(var(--color-background))] border border-[rgb(var(--color-border))] p-4 rounded-lg text-[rgb(var(--color-text-primary))] text-center">
-              Select an odd to place a bet
-            </div>
+           <>
+           </>
           )}
         </div>
       )}

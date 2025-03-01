@@ -81,7 +81,7 @@ const TeamRow = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-2 sm:flex-nowrap justify-between items-center py-2  border-[#2A3447]">
+    <div className="flex flex-wrap gap-2 border-b px-4 sm:flex-nowrap justify-between items-center py-2 border-[rgb(var(--color-border))]">
       <div className="flex flex-col">
         <span className="text-black text-sm w-full sm:w-[200px] mb-0 font-semibold sm:mb-0">
           {teamName}
@@ -384,7 +384,7 @@ const MatchOdds = ({
         </div>
       </div>
 
-      <div className="py-2 px-4 bg-[rgb(var(--color-background))]">
+      <div className=" bg-[rgb(var(--color-background))]">
         {runnersWithOdds.map((runner, index) => {
           const backOdds = (runner.back || []).map((odds) => [odds.price, odds.size]).reverse()
           const layOdds = (runner.lay || []).map((odds) => [odds.price, odds.size])
@@ -417,9 +417,8 @@ const MatchOdds = ({
             betPlaced={betPlaced}
           />
         ) : (
-          <div className="bg-[rgb(var(--color-background))] border border-[rgb(var(--color-border))] p-4 rounded-lg text-[rgb(var(--color-text-primary))] text-center shadow-sm">
-            Select an odd to place a bet
-          </div>
+          <>
+          </>
         )}
       </div>
     )}

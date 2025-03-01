@@ -133,7 +133,7 @@ const AllGames = ({ sportsData }) => {
   ];
 
   return (
-    <div className="lg:h-[calc(100vh-64px)] h-full lg:border mt-2 rounded-lg border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] p-4 w-full">
+    <div className="lg:h-[calc(100vh-64px)] h-full lg:border mt-2 lg:rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] p-4 w-full">
       <div className="mb-2">
         <span className="text-xs font-medium text-[rgb(var(--color-text-muted))]">SPORTS</span>
         <span className="float-right text-[rgb(var(--color-primary))] text-sm">{totalGames}</span>
@@ -149,7 +149,7 @@ const AllGames = ({ sportsData }) => {
               className="flex items-center w-full px-2 py-1.5 hover:bg-[rgb(var(--color-background-hover))] rounded-lg transition-colors"
             >
               <span className="mr-2">{sport.icon}</span>
-              <span className="text-lg">{sport.name}</span>
+              <span className="">{sport.name}</span>
               <span className="ml-auto text-[rgb(var(--color-primary))]">{sport.count}</span>
               {sport.subItems?.length > 0 && (
                 <span className="ml-2">

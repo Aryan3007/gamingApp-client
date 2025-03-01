@@ -198,7 +198,7 @@ const App = () => {
         {showsidebar && (
           <div
             ref={sidebarRef}
-            className="md:col-span-2 lg:hidden fixed top-0 left-0 h-full w-80 bg-[#21252b] overflow-y-auto z-[99] shadow-lg"
+            className="md:col-span-2 lg:hidden fixed h-full w-80  overflow-y-auto z-[99] shadow-lg"
           >
             <AllGames sportsData={socketConnected ? sportsData : []} />
           </div>

@@ -1,39 +1,42 @@
-"use client"
+"use client";
 
 /* eslint-disable react/prop-types */
-import axios from "axios"
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
-import AllGames from "../components/AllGames"
-import BetSlip from "../components/BetSlip"
-import Loader from "../components/Loader"
-import BFancy from "../components/matchdetails_ui/BFancy"
-import Bookmaker from "../components/matchdetails_ui/Bookmaker"
-import CricketScore from "../components/matchdetails_ui/CircketScore"
-import Fancy from "../components/matchdetails_ui/Fancy"
-import Line from "../components/matchdetails_ui/Line"
-import MatchOdds from "../components/matchdetails_ui/MatchOdds"
-import OddEven from "../components/matchdetails_ui/OddEven"
-import Other from "../components/matchdetails_ui/Other"
-import Player from "../components/matchdetails_ui/Player"
-import { server } from "../constants/config"
+import axios from "axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import AllGames from "../components/AllGames";
+import BetSlip from "../components/BetSlip";
+import Loader from "../components/Loader";
+import Bookmaker from "../components/matchdetails_ui/Bookmaker";
+import CricketScore from "../components/matchdetails_ui/CircketScore";
+import MatchOdds from "../components/matchdetails_ui/MatchOdds";
+import Market from "../components/matchdetails_ui/Market"; // Import Market component
+import { server } from "../constants/config";
 
 // Separate tabComponents definition to avoid recursive reference
 const tabComponents = {
-  bookmaker: Bookmaker,
-  fancy: Fancy,
-  player: Player,
-  over: Other,
-  b_fancy: BFancy,
-  odd_even: OddEven,
-  line: Line,
-}
+  bookmaker: Bookmaker, // Keep Bookmaker separate as it has unique functionality
+  fancy: (props) => <Market {...props} title="Fancy" type="fancy" />,
+  player: (props) => <Market {...props} title="Player" type="fancy" />,
+  over: (props) => <Market {...props} title="Over" type="fancy" />,
+  b_fancy: (props) => <Market {...props} title="B Fancy" type="fancy" />,
+  odd_even: (props) => <Market {...props} title="Odd Even" type="fancy" />,
+  line: (props) => <Market {...props} title="Line" type="fancy" />,
+};
 
-const AllComponents = ({ data, marginAgain, setStake, eventId, stake, onBetSelect, betPlaced }) => {
+const AllComponents = ({
+  data,
+  marginAgain,
+  setStake,
+  eventId,
+  stake,
+  onBetSelect,
+  betPlaced,
+}) => {
   return (
     <>
       {Object.entries(data).map(([key, value]) => {
-        const Component = tabComponents[key]
+        const Component = tabComponents[key];
         return Component ? (
           <div key={key} className="mb-8">
             <Component
@@ -47,11 +50,11 @@ const AllComponents = ({ data, marginAgain, setStake, eventId, stake, onBetSelec
               showBetSlip={true}
             />
           </div>
-        ) : null
+        ) : null;
       })}
     </>
-  )
-}
+  );
+};
 
 const MatchDetails = ({ sportsData }) => {
   const [activeTab, setActiveTab] = useState("all")
@@ -65,36 +68,41 @@ const MatchDetails = ({ sportsData }) => {
 
   useEffect(() => {
     if (!eventId) {
-      setError("Event ID is missing.")
-      setLoading(false)
-      return
+      setError("Event ID is missing.");
+      setLoading(false);
+      return;
     }
 
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${server}api/v1/getMarkets?eventId=${eventId}`)
+        const response = await axios.get(
+          `${server}api/v1/getMarkets?eventId=${eventId}`
+        );
 
         if (response.status !== 200) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`)
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-        setData(response.data)
+        setData(response.data);
       } catch (err) {
-        console.error("Fetch error:", err)
-        setError(err.response?.data?.message || "Failed to fetch market data. Please try again later.")
+        console.error("Fetch error:", err);
+        setError(
+          err.response?.data?.message ||
+            "Failed to fetch market data. Please try again later."
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
+    fetchData();
 
-    const intervalId = setInterval(fetchData, 1000)
+    const intervalId = setInterval(fetchData, 1000);
 
-    return () => clearInterval(intervalId)
-  }, [eventId])
+    return () => clearInterval(intervalId);
+  }, [eventId]);
 
   const categorizedData = useMemo(() => {
-    if (!data) return null
+    if (!data) return null;
 
     const categorizeMarkets = (rawData) => {
       const categories = {
@@ -109,62 +117,67 @@ const MatchDetails = ({ sportsData }) => {
         b_fancy: [],
         odd_even: [],
         line: [],
-      }
+      };
 
       if (rawData.getFancy) {
         rawData.getFancy.forEach((market) => {
           const marketWithEventDetails = {
             ...market,
             eventDetails: rawData.eventDetail,
-          }
-          const name = market.market.name.toLowerCase()
+          };
+          const name = market.market.name.toLowerCase();
           if (name.includes("only")) {
-            categories.over.push(marketWithEventDetails)
+            categories.over.push(marketWithEventDetails);
           } else if (name.includes("over")) {
-            categories.fancy.push(marketWithEventDetails)
+            categories.fancy.push(marketWithEventDetails);
           } else if (name.includes("total")) {
-            categories.odd_even.push(marketWithEventDetails)
+            categories.odd_even.push(marketWithEventDetails);
           } else if (
             name.includes("innings") ||
             name.includes("top") ||
             name.includes("most") ||
             name.includes("highest")
           ) {
-            categories.line.push(marketWithEventDetails)
-          } else if (name.startsWith("fall of") || name.startsWith("caught") || name.startsWith("match ")) {
-            categories.b_fancy.push(marketWithEventDetails)
+            categories.line.push(marketWithEventDetails);
+          } else if (
+            name.startsWith("fall of") ||
+            name.startsWith("caught") ||
+            name.startsWith("match ")
+          ) {
+            categories.b_fancy.push(marketWithEventDetails);
           } else {
-            categories.player.push(marketWithEventDetails)
+            categories.player.push(marketWithEventDetails);
           }
-        })
+        });
       }
-      return Object.fromEntries(Object.entries(categories).filter(([ value]) => value.length > 0))
-    }
+      return Object.fromEntries(
+        Object.entries(categories).filter(([value]) => value.length > 0)
+      );
+    };
 
-    return categorizeMarkets(data)
-  }, [data])
+    return categorizeMarkets(data);
+  }, [data]);
 
   const betPlaced = useCallback(() => {
-    setSelectedBet(null)
-    setMarginAgain((prev) => !prev)
-  }, [])
+    setSelectedBet(null);
+    setMarginAgain((prev) => !prev);
+  }, []);
 
   const handleBetSelection = useCallback((bet) => {
-    setSelectedBet(bet)
-  }, [])
+    setSelectedBet(bet);
+  }, []);
 
   const handleStakeChange = useCallback((newStake) => {
-    setStake(newStake)
-  }, [])
+    setStake(newStake);
+  }, []);
 
   const activeComponent = useMemo(() => {
-    if (!categorizedData) return null
+    if (!categorizedData) return null;
 
     if (activeTab === "all") {
       return (
         <AllComponents
-        
-          data={categorizedData} // Pass all categorized data for "all" tab
+          data={categorizedData}
           marginAgain={marginAgain}
           setStake={handleStakeChange}
           eventId={eventId}
@@ -172,11 +185,11 @@ const MatchDetails = ({ sportsData }) => {
           onBetSelect={handleBetSelection}
           betPlaced={betPlaced}
         />
-      )
+      );
     }
 
-    const ActiveComponent = tabComponents[activeTab]
-    if (!ActiveComponent) return null
+    const ActiveComponent = tabComponents[activeTab];
+    if (!ActiveComponent) return null;
 
     return (
       <ActiveComponent
@@ -189,11 +202,20 @@ const MatchDetails = ({ sportsData }) => {
         betPlaced={betPlaced}
         showBetSlip={true}
       />
-    )
-  }, [activeTab, marginAgain, handleStakeChange, eventId, categorizedData, handleBetSelection, stake, betPlaced])
+    );
+  }, [
+    activeTab,
+    marginAgain,
+    handleStakeChange,
+    eventId,
+    categorizedData,
+    handleBetSelection,
+    stake,
+    betPlaced,
+  ]);
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
@@ -201,11 +223,12 @@ const MatchDetails = ({ sportsData }) => {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    })
-  }
+    });
+  };
 
-  if (loading) return <Loader message="Loading match details..." />
-  if (error) return <p className="text-red-500 p-4 text-center">Error: {error}</p>
+  if (loading) return <Loader message="Loading match details..." />;
+  if (error)
+    return <p className="text-red-500 p-4 text-center">Error: {error}</p>;
 
   return (
     <div className="px-2">
@@ -215,7 +238,7 @@ const MatchDetails = ({ sportsData }) => {
         </div>
 
         <div className="lg:col-span-7 md:col-span-12 rounded-lg p-2 lg:pt-2 lg:overflow-y-auto">
-          <div className="p-4 bg-[rgb(var(--color-background))] border-dashed border-[rgb(var(--color-border))] rounded-lg border">
+          <div className="p-4 bg-[rgb(var(--color-background))] border-[rgb(var(--color-border))] rounded-lg border">
             <div className="flex flex-col">
               <h1 className="text-2xl font-semibold text-[rgb(var(--color-text-primary))]">
                 {data?.eventDetail?.event.name}
@@ -244,12 +267,12 @@ const MatchDetails = ({ sportsData }) => {
           />
 
           {/* Navigation Tabs */}
-          <div className="flex gap-1 lg:gap-2 bg-[rgb(var(--color-background))] border-dashed border-[rgb(var(--color-border))] overflow-x-auto rounded-lg border p-2">
+          <div className="flex gap-1 my-2 lg:gap-2 bg-[rgb(var(--color-background))] border-[rgb(var(--color-border))] overflow-x-auto rounded-lg border p-2">
             <button
               key="all"
               className={`px-6 rounded-md py-2 text-sm font-medium transition-colors duration-200 ${
-                activeTab === "all" 
-                  ? "bg-[rgb(var(--color-primary))] text-white" 
+                activeTab === "all"
+                  ? "bg-[rgb(var(--color-primary))] text-white"
                   : "text-[rgb(var(--color-text-muted))] hover:text-[rgb(var(--color-primary))]"
               }`}
               onClick={() => setActiveTab("all")}
@@ -260,8 +283,8 @@ const MatchDetails = ({ sportsData }) => {
               <button
                 key={tab}
                 className={`px-3 rounded-md py-2 text-sm font-medium transition-colors duration-200 ${
-                  activeTab === tab 
-                    ? "bg-[rgb(var(--color-primary))] text-white" 
+                  activeTab === tab
+                    ? "bg-[rgb(var(--color-primary))] text-white"
                     : "text-[rgb(var(--color-text-muted))] hover:text-[rgb(var(--color-primary))]"
                 }`}
                 onClick={() => setActiveTab(tab)}
@@ -276,7 +299,7 @@ const MatchDetails = ({ sportsData }) => {
         </div>
 
         {/* Bet Slip - Fixed on Right for Large Screens, Moves Below for Small Screens */}
-        <div className="md:col-span-3 lg:flex hidden overflow-y-auto border-l border-[rgb(var(--color-border))]">
+        <div className="md:col-span-3 lg:flex hidden overflow-y-auto border-[rgb(var(--color-border))]">
           <BetSlip
             betPlaced={betPlaced}
             eventId={eventId}
@@ -287,8 +310,7 @@ const MatchDetails = ({ sportsData }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MatchDetails
-
+export default MatchDetails;

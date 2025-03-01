@@ -174,16 +174,16 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Mobile Navigation - Two Columns */}
-        <div className="flex items-center justify-center gap-2 pb-2 md:hidden">
+        <div className="flex items-center justify-evenly gap-1 pb-2 md:hidden">
           {navItems.map((item, index) => (
             <Link
               key={item.name}
               to={item.href}
-              className={`flex justify-center items-center bg-[rgb(var(--color-primary-dark))] text-gray-100 py-2 px-2 rounded-lg hover:bg-[rgb(var(--color-primary-darker))] transition-colors text-xs font-medium ${
+              className={`flex justify-center items-center bg-[rgb(var(--color-primary-dark))] text-gray-100 py-2 px-3 rounded-lg hover:bg-[rgb(var(--color-primary-darker))] transition-colors text-xs font-medium ${
                 index === navItems.length - 1 && navItems.length % 2 !== 0 ? "col-span-2" : ""
               } ${location.pathname === item.href ? "text-white" : "hover:text-yellow-500"}`}
             >
-              <item.icon className="h-4 w-4 mr-2" />
+              <item.icon className="h-4 hidden md:flex w-4 mr-2" />
               {item.name}
             </Link>
           ))}

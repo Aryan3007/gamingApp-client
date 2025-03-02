@@ -7,7 +7,7 @@ import axios from "axios";
 import { server } from "../constants/config";
 import PropTypes from "prop-types";
 
-const OpenBetsMob = ({ eventId, isLoadingTransactions = false, betPlaced }) => {
+const OpenBetsMob = ({ eventId, isLoadingTransactions = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [allBets, setAllBets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +49,12 @@ const OpenBetsMob = ({ eventId, isLoadingTransactions = false, betPlaced }) => {
   // Fetch transactions initially and set up polling
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions, betPlaced]);
+
+    // Poll for updates every 5 seconds
+    const interval = setInterval(fetchTransactions, 5000);
+
+    return () => clearInterval(interval);
+  }, [fetchTransactions]);
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -188,7 +193,6 @@ const OpenBetsMob = ({ eventId, isLoadingTransactions = false, betPlaced }) => {
 OpenBetsMob.propTypes = {
   eventId: PropTypes.string.isRequired,
   isLoadingTransactions: PropTypes.bool,
-  betPlaced: PropTypes.bool,
 };
 
 export default OpenBetsMob;

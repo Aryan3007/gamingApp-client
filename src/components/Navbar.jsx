@@ -2,7 +2,7 @@
 "use client"
 
 import axios from "axios"
-import { Home, Gamepad2, Joystick, Trophy, History, Menu, Wallet, X, LogOut, User, ShieldCheck } from 'lucide-react'
+import { Home, Gamepad2, Joystick, Trophy, History, Menu, Wallet, X, User } from 'lucide-react'
 import { memo, useEffect, useState } from "react"
 import isEqual from "react-fast-compare"
 import { useDispatch, useSelector } from "react-redux"
@@ -16,6 +16,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [wallet, setWallet] = useState(0)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
@@ -58,9 +59,22 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     navigate("/login")
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownOpen && !event.target.closest('.profile-dropdown')) {
+        setProfileDropdownOpen(false)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileDropdownOpen])
+
   return (
     <nav className="bg-[rgb(var(--color-primary))] w-full z-[99] shadow-md">
-      <div className="max-w-full mx-auto px-2 sm:px-4">
+      <div className="max-w-full mx-auto p-2 sm:px-4">
         {/* Mobile Header */}
         <div className="flex items-center justify-between h-fit lg:hidden">
           <div className="flex items-center gap-2">
@@ -71,6 +85,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             )}
             <div className="flex items-center gap-2">
               <img src="/logo.webp" className="h-8 w-8" alt="Logo" />
+              <h1 className="font-semibold">SHAKTIEX</h1>
             </div>
           </div>
 
@@ -84,19 +99,50 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                     {user?.currency} {wallet.toFixed(2)}
                   </span>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
-                >
-                  Logout
-                </button>
+                <div className="relative profile-dropdown">
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+                  >
+                    Profile
+                  </button>
+                  
+                  {profileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-40 bg-[rgb(var(--color-primary-dark))] rounded-lg shadow-lg py-1 z-10">
+                      <div className="px-3 py-2 border-b border-[rgb(var(--color-primary-darker))]">
+                        <p className="text-white text-sm font-medium">{user?.name || 'User'}</p>
+                      </div>
+                      <Link to="/profile">
+                        <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                          My Profile
+                        </button>
+                      </Link>
+                      {user?.role === "admin" && (
+                        <Link to="/admin">
+                          <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                            Admin Panel
+                          </button>
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
+              <>
               <Link to="/login">
                 <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                   Login
                 </button>
               </Link>
+              
+              </>
             )}
           </div>
         </div>
@@ -136,31 +182,42 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                 <div className="flex items-center gap-2 bg-[rgb(var(--color-primary-dark))] rounded-full px-4 py-1.5">
                   <Wallet className="h-5 w-5 text-white" />
                   <span className="text-yellow-500 font-semibold">
-                    {wallet.toFixed(2)}
+                  <span className="uppercase"> {user?.currency} </span>{wallet.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="relative profile-dropdown">
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                     className="flex items-center gap-2 text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
                   >
-                    <LogOut className="h-4 w-4" />
-                    Logout
+                    <User className="h-4 w-4" />
+                    Profile
                   </button>
-                  {user?.role === "admin" ? (
-                    <Link to="/admin">
-                      <button className="flex items-center gap-2 text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
-                        <ShieldCheck className="h-4 w-4" />
-                        Admin
+                  
+                  {profileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-primary-dark))] rounded-lg shadow-lg py-1 z-10">
+                      <div className="px-4 py-2 border-b border-[rgb(var(--color-primary-darker))]">
+                        <p className="text-white capitalize font-medium">{user?.name || 'User'}</p>
+                      </div>
+                      <Link to="/profile">
+                        <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                          My Profile
+                        </button>
+                      </Link>
+                      {user?.role === "admin" && (
+                        <Link to="/admin">
+                          <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                            Admin Panel
+                          </button>
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+                      >
+                        Logout
                       </button>
-                    </Link>
-                  ) : (
-                    <Link to="/profile">
-                      <button className="flex items-center gap-2 text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
-                        <User className="h-4 w-4" />
-                        Profile
-                      </button>
-                    </Link>
+                    </div>
                   )}
                 </div>
               </>
@@ -175,12 +232,12 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Mobile Navigation - Two Columns */}
-        <div className="flex items-center justify-center gap-2 p-2 lg:hidden">
+        <div className="flex items-center justify-center gap-2 pt-2 lg:hidden">
           {navItems.map((item, index) => (
             <Link
               key={item.name}
               to={item.href}
-              className={`flex justify-center items-center bg-[rgb(var(--color-primary-dark))] text-gray-100 py-2 px-2 rounded-lg hover:bg-[rgb(var(--color-primary-darker))] transition-colors text-sm font-medium ${
+              className={`flex justify-center items-center text-gray-100 py-2 px-2 rounded-lg  transition-colors text-sm font-medium ${
                 index === navItems.length - 1 && navItems.length % 2 !== 0 ? "col-span-2" : ""
               } ${location.pathname === item.href ? "text-yellow-500" : "hover:text-yellow-500"}`}
             >
@@ -201,3 +258,4 @@ const Navbar = memo(NavbarComponent, arePropsEqual)
 Navbar.displayName = "Navbar"
 
 export default Navbar
+

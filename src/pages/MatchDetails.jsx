@@ -12,6 +12,7 @@ import CricketScore from "../components/matchdetails_ui/CircketScore";
 import MatchOdds from "../components/matchdetails_ui/MatchOdds";
 import Market from "../components/matchdetails_ui/Market"; // Import Market component
 import { server } from "../constants/config";
+import OpenBetsMob from "../components/OpenBetsMob";
 
 // Separate tabComponents definition to avoid recursive reference
 const tabComponents = {
@@ -57,14 +58,14 @@ const AllComponents = ({
 };
 
 const MatchDetails = ({ sportsData }) => {
-  const [activeTab, setActiveTab] = useState("all")
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const { eventId } = useParams()
-  const [selectedBet, setSelectedBet] = useState(null)
-  const [marginAgain, setMarginAgain] = useState(false)
-  const [stake, setStake] = useState(100)
+  const [activeTab, setActiveTab] = useState("all");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { eventId } = useParams();
+  const [selectedBet, setSelectedBet] = useState(null);
+  const [marginAgain, setMarginAgain] = useState(false);
+  const [stake, setStake] = useState(100);
 
   useEffect(() => {
     if (!eventId) {
@@ -255,6 +256,8 @@ const MatchDetails = ({ sportsData }) => {
           </div>
 
           <CricketScore eventId={eventId} />
+          <OpenBetsMob eventId={eventId} marginAgain={marginAgain}
+ />
 
           <MatchOdds
             stake={stake}

@@ -6,8 +6,9 @@ import isEqual from "react-fast-compare"
 
 const BetSlip = lazy(() => import("../BetSlip"))
 
-const MarketComponent = ({ data, onBetSelect, title="Market" }) => {
+const MarketComponent = ({ data, onBetSelect, title="Market", betPlaced, setStake }) => {
   const [selectedBet, setSelectedBet] = useState(null)
+
   const prevDataRef = useRef()
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const MarketComponent = ({ data, onBetSelect, title="Market" }) => {
       size: size,
     }
     setSelectedBet(betData)
+    
     onBetSelect(betData)
   }
 
@@ -135,8 +137,17 @@ const MarketComponent = ({ data, onBetSelect, title="Market" }) => {
               </div>
             </div>
             {selectedBet && selectedBet.marketId === market.market.id && (
-              <div className="lg:hidden mt-2">
-                <BetSlip match={selectedBet} onClose={() => setSelectedBet(null)} />
+              <div className="fixed lg:hidden p-2 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+                  <BetSlip
+                    match={selectedBet}
+                    onClose={() => {
+                      setSelectedBet(null);
+                    }}
+                    setStake={setStake}
+                    betPlaced={betPlaced}
+                  />
+                </div>
               </div>
             )}
           </div>

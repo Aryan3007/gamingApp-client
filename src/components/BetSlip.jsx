@@ -168,12 +168,13 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
     </div>
 
     <div className="mb-2 text-sm lg:text-base">
+      <h1 className="p-2 uppercase">{match?.category}</h1>
       <div className="md:p-2 p-0 max-w-full rounded inline-block bg-[rgb(var(--color-background-hover))]">
         <span
           className={`font-semibold ${
             currentMatch?.betType === "Lay" || currentMatch?.betType === "No"
-              ? "text-[rgb(var(--color-lay))]"
-              : "text-[rgb(var(--color-back))]"
+              ? "text-red-500"
+              : "text-blue-500"
           }`}
         >
           {currentMatch?.selectedTeam}{" "}
@@ -229,7 +230,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
 
     <div className="flex gap-2">
       <button
-        onClick={betPlaced}
+        onClick={()=>{betPlaced(); onClose();}}
         className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium transition duration-300 hover:bg-red-500 hover:text-white disabled:opacity-50"
         disabled={isPlacingBet}
       >
@@ -291,6 +292,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
         </div>
       </div>
     )}
+
   </div>
   );
 });

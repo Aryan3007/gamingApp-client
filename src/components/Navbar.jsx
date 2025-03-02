@@ -84,7 +84,6 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
             <div className="flex items-center gap-2">
-              <img src="/logo.webp" className="h-8 w-8" alt="Logo" />
               <h1 className="font-semibold">SHAKTIEX</h1>
             </div>
           </div>

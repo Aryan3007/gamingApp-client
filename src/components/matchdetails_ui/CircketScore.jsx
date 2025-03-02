@@ -89,13 +89,13 @@ const CricketScore = ({ eventId }) => {
       {/* Team 1 */}
       <div className="transition-transform duration-300 group-hover:translate-x-1">
         <div className="flex items-center gap-1 sm:gap-2">
-          <Trophy className="w-3 h-3 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
+          <Trophy className="w-3 hidden md:flex h-3 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
           <div>
             <h2 className="font-bold text-xs sm:text-lg truncate max-w-[80px] sm:max-w-full">
               {scoreData.team1.name}
             </h2>
             <div className="flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3 h-3 text-[rgb(var(--color-text-muted))]" />
+              <TrendingUp className="w-3 h-3 hidden md:flex text-[rgb(var(--color-text-muted))]" />
               <span className="text-[rgb(var(--color-text-muted))] text-[10px] sm:text-sm">
                 RR: {scoreData.team1.rr}
               </span>
@@ -130,10 +130,10 @@ const CricketScore = ({ eventId }) => {
               <span className="text-[rgb(var(--color-text-muted))] text-[10px] sm:text-sm">
                 RR: {scoreData.team2.rr}
               </span>
-              <TrendingUp className="w-3 h-3 text-[rgb(var(--color-text-muted))]" />
+              <TrendingUp className="w-3 hidden md:flex h-3 text-[rgb(var(--color-text-muted))]" />
             </div>
           </div>
-          <Trophy className="w-3 h-3 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
+          <Trophy className="w-3 h-3 hidden md:flex sm:w-5 sm:h-5 text-[rgb(var(--color-primary))]" />
         </div>
       </div>
 

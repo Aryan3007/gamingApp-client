@@ -233,7 +233,7 @@ const BookmakerComponent = ({
     if (token) {
       getMargins(token);
     }
-  }, [getMargins]); // Removed marginAgain from dependencies
+  }, [getMargins, marginAgain]); 
 
   useEffect(() => {
     setSelectedOdd(null)

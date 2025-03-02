@@ -262,9 +262,9 @@ const MatchDetails = ({ sportsData }) => {
           <MatchOdds
             stake={stake}
             marginAgain={marginAgain}
+            eventId={eventId}
             setStake={handleStakeChange}
             onBetSelect={handleBetSelection}
-            eventId={eventId}
             showBetSlip={true}
             betPlaced={betPlaced}
           />

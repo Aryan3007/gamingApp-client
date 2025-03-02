@@ -1,4 +1,3 @@
-import { Shield } from 'lucide-react'
 import { Link } from "react-router-dom"
 
 export default function Footer() {
@@ -8,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-green-600" />
+            <img className='h-20' src="/secure.webp" alt="" />
             <div>
               <div className="font-bold text-[rgb(var(--color-text-primary))]">100% SAFE</div>
               <div className="text-sm">Protected Connection</div>

@@ -169,7 +169,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
 
     <div className="mb-2 text-sm lg:text-base">
       <h1 className="p-2 uppercase">{match?.category}</h1>
-      <div className="md:p-2 p-0 max-w-full rounded inline-block bg-[rgb(var(--color-background-hover))]">
+      <div className="md:p-2 p-2 max-w-full rounded inline-block bg-[rgb(var(--color-background-hover))]">
         <span
           className={`font-semibold ${
             currentMatch?.betType === "Lay" || currentMatch?.betType === "No"

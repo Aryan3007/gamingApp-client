@@ -76,7 +76,35 @@ const App = () => {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
-          dispatch(userNotExist());
+          const retryFetchUser = async (retries) => {
+            if (retries <= 0) {
+              localStorage.removeItem("authToken");
+              dispatch(userNotExist());
+              return;
+            }
+  
+            try {
+              const response = await api.get("api/v1/user/me", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+  
+              if (response.data.user.status === "banned") {
+                toast.error("Your account has been banned.", { icon: "⚠️" });
+                localStorage.removeItem("authToken");
+                dispatch(userNotExist());
+                return;
+              }
+  
+              dispatch(userExist(response.data.user));
+            } catch (error) {
+              console.error("Retrying authentication error:", error);
+              setTimeout(() => retryFetchUser(retries - 1), 1000);
+            }
+          };
+  
+          retryFetchUser(3);
           return;
         }
 

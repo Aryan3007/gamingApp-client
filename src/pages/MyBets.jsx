@@ -17,7 +17,6 @@ import {
   Search,
 } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { server } from "../constants/config";
 
 const MyBetsComponent = () => {
@@ -31,10 +30,8 @@ const MyBetsComponent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [itemsPerPage] = useState(10);
-  const { user } = useSelector((state) => state.userReducer);
 
   const getTransactions = useCallback(async () => {
-    if (!user || !user._id) return;
 
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -45,7 +42,7 @@ const MyBetsComponent = () => {
 
     try {
       const response = await axios.get(
-        `${server}api/v1/bet/transactions?userId=${user._id}`,
+        `${server}api/v1/bet/transactions`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,7 +56,7 @@ const MyBetsComponent = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     getTransactions();

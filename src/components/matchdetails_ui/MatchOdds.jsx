@@ -48,6 +48,7 @@ const TeamRow = ({
   selectedOdd,
   selectionId,
   margin,
+  // cashoutData
 }) => {
   const previousMargin =
     margin?.selectionId === selectionId ? margin?.profit : margin?.loss;
@@ -86,6 +87,18 @@ const TeamRow = ({
         <span className="text-black text-sm w-full sm:w-[200px] mb-0 font-semibold sm:mb-0">
           {teamName}
         </span>
+
+        {/* {cashoutData && cashoutData.selectionId === selectionId && (
+          <div className="flex flex-col items-center bg-green-100 p-1 rounded">
+            <span className="text-xs font-semibold">Optimal Cashout</span>
+            <span className="text-black font-bold">{cashoutData.stake}</span>
+            <span className="text-xs text-gray-700">
+              {cashoutData.type.charAt(0).toUpperCase() + cashoutData.type.slice(1)} @ {cashoutData.odds}
+            </span>
+          </div>
+        )} */}
+
+        
         <span className="w-full flex justify-start text-xs items-center sm:w-[200px] mb-0 font-semibold sm:mb-0">
           {((previousMargin !== null && previousMargin !== undefined) ||
             selectedOdd) && (
@@ -263,6 +276,8 @@ const MatchOdds = ({
   const [sportsData, setSportsData] = useState([]);
   const [selectedBet, setSelectedBet] = useState(null);
   const [selectedOdd, setSelectedOdd] = useState(null);
+  // const [cashoutData, setCashoutData] = useState(null)
+
   const [margin, setMargin] = useState(null);
   const matches = sportsData?.[4]?.[4] || [];
   const matchData = matches.find((match) => match.event?.event?.id === eventId);
@@ -326,6 +341,7 @@ const MatchOdds = ({
             },
           }
         );
+        console.log(response.data);  
         if (response.data.success) {
           const marginsData =
             response.data.margins[matchData?.event?.market?.id];
@@ -365,7 +381,81 @@ const MatchOdds = ({
   }, [marginAgain])
 
 
-  
+  // const calculateCashout = useCallback(() => {
+  //   if (!matchData || !margin) return
+
+  //   // Get all available odds from all runners
+  //   const allOdds = []
+  //   runnersWithOdds.forEach((runner) => {
+  //     // Add back odds with selection ID and type
+  //     runner.back.forEach((odds) => {
+  //       allOdds.push({
+  //         selectionId: runner.selectionId,
+  //         odds: odds.price,
+  //         type: "back",
+  //         name: runner.name,
+  //       })
+  //     })
+
+  //     // Add lay odds with selection ID and type
+  //     runner.lay.forEach((odds) => {
+  //       allOdds.push({
+  //         selectionId: runner.selectionId,
+  //         odds: odds.price,
+  //         type: "lay",
+  //         name: runner.name,
+  //       })
+  //     })
+  //   })
+
+  //   // Calculate potential loss for each odd and stake combination
+  //   let minLoss = Number.POSITIVE_INFINITY
+  //   let bestOption = null
+
+  //   allOdds.forEach((odd) => {
+  //     // Try different stake values (you can adjust the range and step as needed)
+  //     for (let testStake = 100; testStake <= 10000; testStake += 100) {
+  //       const { profit, loss } = calculateProfitAndLoss(testStake, odd.odds, odd.type, "match odds")
+
+  //       const newMargin = calculateNewMargin(margin, odd.selectionId, odd.type, profit, loss)
+
+  //       // Calculate the maximum potential loss across all selections
+  //       const potentialLosses = runnersWithOdds.map((runner) => {
+  //         if (runner.selectionId === odd.selectionId) {
+  //           return newMargin.newLoss
+  //         } else {
+  //           return newMargin.newProfit
+  //         }
+  //       })
+
+  //       const maxLoss = Math.max(...potentialLosses.map(Math.abs))
+
+  //       // If this combination results in a lower maximum loss, save it
+  //       if (maxLoss < minLoss) {
+  //         minLoss = maxLoss
+  //         bestOption = {
+  //           selectionId: odd.selectionId,
+  //           odds: odd.odds,
+  //           type: odd.type,
+  //           stake: testStake,
+  //           name: odd.name,
+  //           potentialLoss: minLoss,
+  //         }
+  //       }
+  //     }
+  //   })
+
+  //   setCashoutData(bestOption)
+
+  //   // Console log the optimal bet details
+  //   console.log("OPTIMAL CASHOUT BET:", {
+  //     team: bestOption?.name,
+  //     betType: bestOption?.type,
+  //     odds: bestOption?.odds,
+  //     stake: bestOption?.stake,
+  //     potentialLoss: bestOption?.potentialLoss,
+  //   })
+  // }, [matchData, margin, runnersWithOdds])
 
   return (
     <div>
@@ -381,6 +471,13 @@ const MatchOdds = ({
               Lay
             </span>
           </div>
+
+          {/* <button
+              className="bg-[rgb(var(--color-primary))] px-4 rounded-md py-1 text-white hover:bg-[rgb(var(--color-primary-hover))]"
+              onClick={calculateCashout}
+            >
+              Cash Out
+            </button> */}
         </div>
       </div>
 
@@ -401,6 +498,8 @@ const MatchOdds = ({
               selectedOdd={selectedOdd}
               selectionId={runner.selectionId}
               margin={margin}
+              // cashoutData={cashoutData}
+
             />
           )
         })}

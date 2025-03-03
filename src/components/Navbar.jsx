@@ -1,22 +1,32 @@
 /* eslint-disable react/prop-types */
-"use client"
+"use client";
 
-import axios from "axios"
-import { Home, Gamepad2, Joystick, Trophy, History, Menu, Wallet, X, User } from 'lucide-react'
-import { memo, useEffect, useState } from "react"
-import isEqual from "react-fast-compare"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { server } from "../constants/config"
-import { userNotExist } from "../redux/reducer/userReducer"
+import axios from "axios";
+import {
+  Home,
+  Gamepad2,
+  Joystick,
+  Trophy,
+  History,
+  Menu,
+  X,
+  User,
+} from "lucide-react";
+import { memo, useEffect, useState } from "react";
+import isEqual from "react-fast-compare";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { server } from "../constants/config";
+import { userNotExist } from "../redux/reducer/userReducer";
 
 const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
-  const { user, loading } = useSelector((state) => state.userReducer)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [wallet, setWallet] = useState(0)
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const { user, loading } = useSelector((state) => state.userReducer);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [exposure, setExposure] = useState(0);
+  const [wallet, setWallet] = useState(0);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
@@ -24,12 +34,12 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     { name: "Slot", href: "/slot", icon: Joystick },
     { name: "Fantasy", href: "/fantasy", icon: Trophy },
     { name: "My Bets", href: "/mybets", icon: History },
-  ]
+  ];
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("authToken")
-      if (!token) return
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
 
       try {
         const response = await axios.get(`${server}api/v1/user/me`, {
@@ -37,40 +47,115 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
-        setWallet(response?.data.user.amount)
+        setWallet(response?.data.user.amount);
       } catch (error) {
-        console.log(error)
-        dispatch(userNotExist())
+        console.log(error);
+        dispatch(userNotExist());
       }
-    }
+    };
+
+    const getTransactions = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+      console.error("No token found");
+      return;
+      }
+
+      try {
+      const response = await axios.get(`${server}api/v1/bet/transactions`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        const filteredBets = response.data.bets.filter((bet) => {
+        const betDate = new Date(bet.createdAt);
+        const currentDate = new Date();
+        return (
+          betDate.toDateString() === currentDate.toDateString() &&
+          bet.category === "fancy" &&
+          bet.status === "pending"
+        );
+        });
+        const totalStake = filteredBets.reduce(
+        (sum, bet) => sum + bet.stake,
+        0
+        );
+        console.log("Total Stake:", totalStake);
+        return totalStake;
+      }
+      } catch (error) {
+      console.error("Error fetching transactions:", error);
+      }
+      return 0;
+    };
+
+    const getMargins = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+      console.error("No token found");
+      return;
+      }
+
+      try {
+      const response = await axios.get(`${server}api/v1/bet/allmargins`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        const totalLoss = response.data.margins.reduce((sum, margin) => {
+        const profit = margin.profit < 0 ? Math.abs(margin.profit) : 0;
+        const loss = margin.loss < 0 ? Math.abs(margin.loss) : 0;
+        return sum + loss + profit;
+        }, 0);
+        return totalLoss;
+      }
+      } catch (error) {
+      console.error("Error fetching margins:", error);
+      }
+      return 0;
+    };
+
+    const updateExposure = async () => {
+      const [totalStake, totalLoss] = await Promise.all([
+        getTransactions(),
+        getMargins(),
+      ]);
+      setExposure(totalStake + totalLoss);
+    };
 
     if (user) {
-      fetchUser()
-      const interval = setInterval(fetchUser, 1000)
-      return () => clearInterval(interval)
+      fetchUser();
+      updateExposure();
+      const interval = setInterval(() => {
+        fetchUser();
+        updateExposure();
+      }, 1000);
+      return () => clearInterval(interval);
     }
-  }, [user, dispatch])
+  }, [user, dispatch]);
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken")
-    dispatch(userNotExist())
-    navigate("/login")
-  }
+    localStorage.removeItem("authToken");
+    dispatch(userNotExist());
+    navigate("/login");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileDropdownOpen && !event.target.closest('.profile-dropdown')) {
-        setProfileDropdownOpen(false)
+      if (profileDropdownOpen && !event.target.closest(".profile-dropdown")) {
+        setProfileDropdownOpen(false);
       }
-    }
-    
-    document.addEventListener('mousedown', handleClickOutside)
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [profileDropdownOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
 
   return (
     <nav className="bg-[rgb(var(--color-primary))] w-full z-[99] shadow-md">
@@ -84,7 +169,9 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
             <div className="flex items-center gap-2">
-              <h1 className="font-semibold">SHAKTIEX</h1>
+              <Link to="/">
+                <h1 className="font-semibold">SHAKTIEX</h1>
+              </Link>
             </div>
           </div>
 
@@ -92,10 +179,14 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           <div className="flex items-center gap-2">
             {!loading && user ? (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-[rgb(var(--color-primary-dark))] rounded-full px-3 py-1">
-                  <Wallet className="h-4 w-4 text-white" />
-                  <span className="text-white text-sm font-medium">
-                    {user?.currency} {wallet.toFixed(2)}
+                <div className="flex items-center w-fit gap-2 rounded-full px-4 py-1.5">
+                  {/* <Wallet className="h-5 w-5 text-white" /> */}
+                  <span className="text-white flex flex-col w-full text-sm">
+                    <span className="flex gap-1 justify-start items-center">
+                      {" "}
+                    </span>{" "}
+                    Balance : {user?.currency} {wallet.toFixed(2)}
+                    <span className="">Exposure : -{exposure}</span>
                   </span>
                 </div>
                 <div className="relative profile-dropdown">
@@ -105,11 +196,13 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                   >
                     Profile
                   </button>
-                  
+
                   {profileDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-[rgb(var(--color-primary-dark))] rounded-lg shadow-lg py-1 z-10">
                       <div className="px-3 py-2 border-b border-[rgb(var(--color-primary-darker))]">
-                        <p className="text-white text-sm font-medium">{user?.name || 'User'}</p>
+                        <p className="text-white text-sm font-medium">
+                          {user?.name || "User"}
+                        </p>
                       </div>
                       <Link to="/profile">
                         <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
@@ -135,12 +228,11 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               </div>
             ) : (
               <>
-              <Link to="/login">
-                <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
-                  Login
-                </button>
-              </Link>
-              
+                <Link to="/login">
+                  <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                    Login
+                  </button>
+                </Link>
               </>
             )}
           </div>
@@ -151,7 +243,9 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           {/* Left: Logo & Company Name */}
           <div className="flex items-center gap-2 w-1/4">
             <img src="/logo.webp" className="h-12 w-12" alt="Logo" />
-            <h1 className="text-white font-semibold text-2xl">Shaktiex</h1>
+            <Link to="/">
+              <h1 className="text-white font-semibold text-2xl">Shaktiex</h1>
+            </Link>
           </div>
 
           {/* Center: Navigation */}
@@ -178,10 +272,14 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           <div className="flex items-center justify-end w-1/4 gap-3">
             {!loading && user ? (
               <>
-                <div className="flex items-center gap-2 bg-[rgb(var(--color-primary-dark))] rounded-full px-4 py-1.5">
-                  <Wallet className="h-5 w-5 text-white" />
-                  <span className="text-yellow-500 font-semibold">
-                  <span className="uppercase"> {user?.currency} </span>{wallet.toFixed(2)}
+                <div className="flex items-center w-fit gap-2 rounded-full px-4 py-1.5">
+                  {/* <Wallet className="h-5 w-5 text-white" /> */}
+                  <span className="text-white flex flex-col w-full text-sm">
+                    <span className="flex gap-1 justify-start items-center">
+                      {" "}
+                    </span>{" "}
+                    Balance : {user?.currency} {wallet.toFixed(2)}
+                    <span className="">Exposure : -{exposure}</span>
                   </span>
                 </div>
                 <div className="relative profile-dropdown">
@@ -192,11 +290,13 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                     <User className="h-4 w-4" />
                     Profile
                   </button>
-                  
+
                   {profileDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-primary-dark))] rounded-lg shadow-lg py-1 z-10">
                       <div className="px-4 py-2 border-b border-[rgb(var(--color-primary-darker))]">
-                        <p className="text-white capitalize font-medium">{user?.name || 'User'}</p>
+                        <p className="text-white capitalize font-medium">
+                          {user?.name || "User"}
+                        </p>
                       </div>
                       <Link to="/profile">
                         <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
@@ -237,8 +337,14 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               key={item.name}
               to={item.href}
               className={`flex justify-center items-center text-gray-100 py-2 px-2 rounded-lg  transition-colors text-sm font-medium ${
-                index === navItems.length - 1 && navItems.length % 2 !== 0 ? "col-span-2" : ""
-              } ${location.pathname === item.href ? "text-yellow-500" : "hover:text-yellow-500"}`}
+                index === navItems.length - 1 && navItems.length % 2 !== 0
+                  ? "col-span-2"
+                  : ""
+              } ${
+                location.pathname === item.href
+                  ? "text-yellow-500"
+                  : "hover:text-yellow-500"
+              }`}
             >
               {item.name}
             </Link>
@@ -246,15 +352,17 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};
 
 const arePropsEqual = (prevProps, nextProps) => {
-  return isEqual(prevProps.toggleSidebar, nextProps.toggleSidebar) && prevProps.showsidebar === nextProps.showsidebar
-}
+  return (
+    isEqual(prevProps.toggleSidebar, nextProps.toggleSidebar) &&
+    prevProps.showsidebar === nextProps.showsidebar
+  );
+};
 
-const Navbar = memo(NavbarComponent, arePropsEqual)
-Navbar.displayName = "Navbar"
+const Navbar = memo(NavbarComponent, arePropsEqual);
+Navbar.displayName = "Navbar";
 
-export default Navbar
-
+export default Navbar;

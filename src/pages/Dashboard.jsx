@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { lazy, useEffect, useRef, useState } from "react";
+import { lazy, useCallback, useEffect, useRef, useState } from "react";
 import Footer from "../components/Footer";
 
 const AllGames = lazy(() => import("./../components/AllGames"));
@@ -19,9 +19,13 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
     setSelectedBet(betData);
   };
 
-  const handleCloseBetSlip = () => {
-    setSelectedBet(null);
-  };
+
+    const betPlaced = useCallback(() => {
+      setSelectedBet(null);
+    }, []);
+
+
+
 
   // Function to handle clicks outside of sidebar
   useEffect(() => {
@@ -46,7 +50,7 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
     switch (activeTab) {
       case "cricket":
         return (
-          <Cricket liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Cricket betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "football":
         return (
@@ -101,7 +105,7 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
 
           {/* Right Sidebar */}
           <div className="md:col-span-3 lg:flex hidden overflow-y-auto">
-            <BetSlip match={selectedBet} onClose={handleCloseBetSlip} />
+            <BetSlip match={selectedBet} betPlaced={betPlaced}  onClose={() => setSelectedBet(null)} />
           </div>
         </div>
       </div>

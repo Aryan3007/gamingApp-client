@@ -234,7 +234,7 @@ const MatchDetails = ({ sportsData }) => {
   return (
     <div className="px-2">
       <div className="max-w-full grid grid-cols-1 md:grid-cols-12 lg:h-[calc(100vh-48px)]">
-        <div className="md:col-span-2 lg:flex hidden bg-[rgb(var(--color-background))] overflow-y-auto">
+        <div className="md:col-span-2 lg:flex hidden overflow-y-auto">
           <AllGames sportsData={sportsData} />
         </div>
 

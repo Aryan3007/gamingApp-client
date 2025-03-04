@@ -35,7 +35,7 @@ OddsBox.propTypes = {
   value: PropTypes.number.isRequired,
   type: PropTypes.oneOf(["back", "lay"]).isRequired,
   onClick: PropTypes.func.isRequired,
-  isSelected: PropTypes.bool.isRequired,
+  isSelected: PropTypes.bool,
 };
 
 const TeamRow = ({
@@ -341,7 +341,6 @@ const MatchOdds = ({
             },
           }
         );
-        console.log(response.data);  
         if (response.data.success) {
           const marginsData =
             response.data.margins[matchData?.event?.market?.id];

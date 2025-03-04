@@ -104,7 +104,7 @@ const App = () => {
             }
           };
   
-          retryFetchUser(3);
+          retryFetchUser(5);
           return;
         }
 
@@ -244,7 +244,7 @@ const App = () => {
             }
           />
           <Route
-            path="/match/:eventId"
+            path="/match/:eventId/:eventname"
             element={
               <MatchDetails sportsData={socketConnected ? sportsData : []} />
             }

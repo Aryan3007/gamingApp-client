@@ -59,35 +59,34 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     const getTransactions = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) {
-      console.error("No token found");
-      return;
+        console.error("No token found");
+        return;
       }
 
       try {
-      const response = await axios.get(`${server}api/v1/bet/transactions`, {
-        headers: {
-        Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.data.success) {
-        const filteredBets = response.data.bets.filter((bet) => {
-        const betDate = new Date(bet.createdAt);
-        const currentDate = new Date();
-        return (
-          betDate.toDateString() === currentDate.toDateString() &&
-          bet.category === "fancy" &&
-          bet.status === "pending"
-        );
+        const response = await axios.get(`${server}api/v1/bet/transactions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        const totalStake = filteredBets.reduce(
-        (sum, bet) => sum + bet.stake,
-        0
-        );
-        console.log("Total Stake:", totalStake);
-        return totalStake;
-      }
+        if (response.data.success) {
+          const filteredBets = response.data.bets.filter((bet) => {
+            const betDate = new Date(bet.createdAt);
+            const currentDate = new Date();
+            return (
+              betDate.toDateString() === currentDate.toDateString() &&
+              bet.category === "fancy" &&
+              bet.status === "pending"
+            );
+          });
+          const totalStake = filteredBets.reduce(
+            (sum, bet) => sum + bet.stake,
+            0
+          );
+          return totalStake;
+        }
       } catch (error) {
-      console.error("Error fetching transactions:", error);
+        console.error("Error fetching transactions:", error);
       }
       return 0;
     };
@@ -95,26 +94,25 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     const getMargins = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) {
-      console.error("No token found");
-      return;
+        return;
       }
 
       try {
-      const response = await axios.get(`${server}api/v1/bet/allmargins`, {
-        headers: {
-        Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.data.success) {
-        const totalLoss = response.data.margins.reduce((sum, margin) => {
-        const profit = margin.profit < 0 ? Math.abs(margin.profit) : 0;
-        const loss = margin.loss < 0 ? Math.abs(margin.loss) : 0;
-        return sum + loss + profit;
-        }, 0);
-        return totalLoss;
-      }
+        const response = await axios.get(`${server}api/v1/bet/allmargins`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          const totalLoss = response.data.margins.reduce((sum, margin) => {
+            const profit = margin.profit < 0 ? Math.abs(margin.profit) : 0;
+            const loss = margin.loss < 0 ? Math.abs(margin.loss) : 0;
+            return sum + loss + profit;
+          }, 0);
+          return totalLoss;
+        }
       } catch (error) {
-      console.error("Error fetching margins:", error);
+        console.error("Error fetching margins:", error);
       }
       return 0;
     };
@@ -160,7 +158,12 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
   return (
     <nav className="bg-[rgb(var(--color-primary))] w-full z-[99] shadow-md">
       <div className="max-w-full mx-auto p-2 sm:px-4">
-        {/* Mobile Header */}
+      <div className="marquee md:hidden flex">
+          <div className="marquee-content">
+            SHAKTI EXCHANGE SHAKTI EXCHANGE SHAKTI EXCHANGE SHAKTI EXCHANGE
+          </div>
+        </div>
+       
         <div className="flex items-center justify-between h-fit lg:hidden">
           <div className="flex items-center gap-2">
             {showsidebar ? (
@@ -168,24 +171,16 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             ) : (
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
-            <div className="flex items-center gap-2">
-              <Link to="/">
-                <h1 className="font-semibold">SHAKTIEX</h1>
-              </Link>
-            </div>
+          <h1 className="hidden md:flex">SHAKTI EXCHNAGE</h1>
           </div>
 
-          {/* Mobile Wallet/Auth */}
           <div className="flex items-center gap-2">
             {!loading && user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <div className="flex items-center w-fit gap-2 rounded-full px-4 py-1.5">
                   {/* <Wallet className="h-5 w-5 text-white" /> */}
-                  <span className="text-white flex flex-col w-full text-sm">
-                    <span className="flex gap-1 justify-start items-center">
-                      {" "}
-                    </span>{" "}
-                    Balance : {user?.currency} {wallet.toFixed(2)}
+                  <span className="text-white flex flex-col w-full text-xs">
+                    Balance : {wallet.toFixed(2)}
                     <span className="">Exposure : -{exposure}</span>
                   </span>
                 </div>
@@ -278,7 +273,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                     <span className="flex gap-1 justify-start items-center">
                       {" "}
                     </span>{" "}
-                    Balance : {user?.currency} {wallet.toFixed(2)}
+                    Balance : {wallet.toFixed(2)}
                     <span className="">Exposure : -{exposure}</span>
                   </span>
                 </div>
@@ -331,12 +326,12 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Mobile Navigation - Two Columns */}
-        <div className="flex items-center justify-center gap-2 pt-2 lg:hidden">
+        <div className="flex items-center justify-start gap-2 pt-2 lg:hidden  overflow-auto w-full">
           {navItems.map((item, index) => (
             <Link
               key={item.name}
               to={item.href}
-              className={`flex justify-center items-center text-gray-100 py-2 px-2 rounded-lg  transition-colors text-sm font-medium ${
+              className={`flex justify-center gap-1 items-center min-w-24 text-gray-100 py-2 px-2 rounded-lg  transition-colors text-base font-medium ${
                 index === navItems.length - 1 && navItems.length % 2 !== 0
                   ? "col-span-2"
                   : ""
@@ -346,6 +341,8 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
                   : "hover:text-yellow-500"
               }`}
             >
+              <item.icon className="h-4 w-4" />
+
               {item.name}
             </Link>
           ))}

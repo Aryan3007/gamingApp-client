@@ -141,7 +141,7 @@ const GameOdds = ({ liveData, onBetSelect,betPlaced }) => {
                       </span>
                     </div>
                     <Link
-                      to={`/match/${game.event?.event?.id}`}
+                      to={`/match/${game.event?.event?.id}/${encodeURIComponent(game.event?.event?.name)}`}
                       className="block  hover:text-[rgb(var(--color-primary))] transition-colors"
                     >
                       <div className="flex justify-between items-center mt-2">

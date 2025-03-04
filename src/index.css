@@ -4,8 +4,7 @@
 
 body{
     background-color: #ffffff;
-    color: white;
-    font-size: 16px !important
+ 
 }
 
 
@@ -196,22 +195,4 @@ body{
     transform: scale(1.2, 1);
   }
 }
-
-
-/* Add font for cricket widget */
-@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&display=swap");
-
-/* Cricket widget specific styles */
-.cricket-score-container {
-  font-family: "Chakra Petch", sans-serif;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  width: 100%;
-  background-color: rgb(var(--color-background));
-  color: rgb(var(--color-text-primary));
-  border: 1px solid rgb(var(--color-border));
-}
-
-/* Import cricket styles */
-@import "./cricket-styles.css";
 

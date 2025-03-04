@@ -33,7 +33,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     { name: "Casino", href: "/casino", icon: Gamepad2 },
     { name: "Slot", href: "/slot", icon: Joystick },
     { name: "Fantasy", href: "/fantasy", icon: Trophy },
-    { name: "My Bets", href: "/mybets", icon: History },
+    { name: "MyBets", href: "/mybets", icon: History },
   ];
 
   useEffect(() => {
@@ -94,28 +94,37 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     const getMargins = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        return;
+      return;
       }
-
+    
       try {
-        const response = await axios.get(`${server}api/v1/bet/allmargins`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.data.success) {
-          const totalLoss = response.data.margins.reduce((sum, margin) => {
-            const profit = margin.profit < 0 ? Math.abs(margin.profit) : 0;
-            const loss = margin.loss < 0 ? Math.abs(margin.loss) : 0;
-            return sum + loss + profit;
-          }, 0);
-          return totalLoss;
-        }
+      const response = await axios.get(`${server}api/v1/bet/allmargins`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        const totalLoss = response.data.margins.reduce((sum, margin) => {
+          let maxLoss = 0;
+          if (margin.profit < 0 && margin.loss > 0) {
+            maxLoss += Math.abs(margin.profit);
+          }
+          if (margin.profit < 0 && margin.loss < 0) {
+            maxLoss += Math.max(Math.abs(margin.profit), Math.abs(margin.loss));
+          } else if (margin.loss < 0) {
+            maxLoss += Math.abs(margin.loss);
+          }
+          console.log(`Check: ${maxLoss}`);
+          return sum + maxLoss;
+        }, 0);
+        return totalLoss;
+      }
       } catch (error) {
-        console.error("Error fetching margins:", error);
+      console.error("Error fetching margins:", error);
       }
       return 0;
     };
+  
 
     const updateExposure = async () => {
       const [totalStake, totalLoss] = await Promise.all([
@@ -159,9 +168,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     <nav className="bg-[rgb(var(--color-primary))] w-full z-[99] shadow-md">
       <div className="max-w-full mx-auto p-2 sm:px-4">
       <div className="marquee md:hidden flex">
-          <div className="marquee-content">
-            SHAKTI EXCHANGE SHAKTI EXCHANGE SHAKTI EXCHANGE SHAKTI EXCHANGE
-          </div>
+          
         </div>
        
         <div className="flex items-center justify-between h-fit lg:hidden">
@@ -171,7 +178,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             ) : (
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
-          <h1 className="hidden md:flex">SHAKTI EXCHNAGE</h1>
+          <h1 className="flex text-white font-semibold">SHAKTIEX</h1>
           </div>
 
           <div className="flex items-center gap-2">
@@ -246,7 +253,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           {/* Center: Navigation */}
           <div className="flex items-center justify-center flex-1">
             <div className="flex gap-2">
-              {navItems.map((item) => (
+              {navItems .filter((item) => item.name !== "MyBets" || user).map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
@@ -326,12 +333,12 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
         </div>
 
         {/* Mobile Navigation - Two Columns */}
-        <div className="flex items-center justify-start gap-2 pt-2 lg:hidden  overflow-auto w-full">
-          {navItems.map((item, index) => (
+        <div className="flex items-center justify-evenly lg:hidden  overflow-auto w-full">
+          {navItems .filter((item) => item.name !== "MyBets" || user).map((item, index) => (
             <Link
               key={item.name}
               to={item.href}
-              className={`flex justify-center gap-1 items-center min-w-24 text-gray-100 py-2 px-2 rounded-lg  transition-colors text-base font-medium ${
+              className={`flex justify-center gap-1 items-center text-gray-100 py-2 px-2 rounded-lg  transition-colors text-base font-medium ${
                 index === navItems.length - 1 && navItems.length % 2 !== 0
                   ? "col-span-2"
                   : ""

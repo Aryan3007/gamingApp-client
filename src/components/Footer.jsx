@@ -22,7 +22,7 @@ export default function Footer() {
         {/* Main Navigation Links */}
         <div className="container mx-auto">
           <nav className="flex flex-wrap gap-4 mb-6">
-            <Link to="/kyc-policy" className="hover:text-[rgb(var(--color-primary))] transition-colors">
+            <Link to="/kyc" className="hover:text-[rgb(var(--color-primary))] transition-colors">
               KYC Policy
             </Link>
             <Link to="/privacy-policy" className="hover:text-[rgb(var(--color-primary))] transition-colors">
@@ -92,7 +92,7 @@ export default function Footer() {
       <div className="md:hidden">
         {/* Top Navigation Links */}
         <div className="grid grid-cols-5 gap-2 text-center mb-4">
-          <Link to="/kyc-policy" className="text-xs hover:text-[rgb(var(--color-primary))] transition-colors">
+          <Link to="/kyc" className="text-xs hover:text-[rgb(var(--color-primary))] transition-colors">
             KYC Policy
           </Link>
           <Link to="/privacy-policy" className="text-xs hover:text-[rgb(var(--color-primary))] transition-colors">

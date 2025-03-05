@@ -79,7 +79,7 @@ const Login = () => {
           <div className="lg:hidden flex flex-col items-start mb-8">
             {/* <img src="/logo.webp" alt="Logo" className="w-16 h-16 mb-4" /> */}
             <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
-              Signin to{" "}
+              Sign in to{" "}
               <span className="text-[rgb(var(--color-primary))]">TRIDENT</span>
             </h2>
           </div>

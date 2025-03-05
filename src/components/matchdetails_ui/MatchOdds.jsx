@@ -22,7 +22,7 @@ const OddsBox = ({ odds, value, type, onClick, isSelected }) => {
       onClick={onClick}
       className={`${
         isSelected ? selectedColor : bgColor
-      } ${hoverColor} sm:w-12 min-w-[55px] md:w-16 rounded flex flex-col items-center justify-center transition-colors p-1`}
+      } ${hoverColor} sm:w-12 min-w-[50px] md:w-16 rounded flex flex-col items-center justify-center transition-colors p-1`}
     >
       <span className="text-black font-semibold text-sm sm:text-base">{odds}</span>
       <span className="text-black text-[10px] lg:text-xs">{value / 1000}K</span>

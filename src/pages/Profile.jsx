@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { server } from "../constants/config"
 import Loader from "./../components/Loader"
+import { toast } from "react-toastify"
 
 const Profile = () => {
   const { user } = useSelector((state) => state.userReducer)
@@ -87,7 +88,7 @@ const Profile = () => {
       })
 
       if (response.data.success) {
-        alert("Withdrawal request submitted successfully!")
+        toast.success("Withdrawal request submitted successfully!")
         setShowModal(false)
         setFormData({
           amount: "",
@@ -99,7 +100,7 @@ const Profile = () => {
         })
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to submit request")
+      toast.error(err.response?.data?.message || "Failed to submit request")
     }
   }
 

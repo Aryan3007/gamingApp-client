@@ -54,31 +54,31 @@ const Dashboard = ({ showsidebar, toggleSidebar, sportsData }) => {
         );
       case "football":
         return (
-          <Football liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Football betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "basketball":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "tennis":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "boxing":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "horse":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
       case "politics":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
-      case "kabaddi":
+      case "kabbadi":
         return (
-          <Basketball liveData={sportsData} onBetSelect={handleBetSelection} />
+          <Basketball betPlaced={betPlaced} liveData={sportsData} onBetSelect={handleBetSelection} />
         );
 
       default:

@@ -1,5 +1,3 @@
-"use client"
-
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import axios from "axios"
@@ -8,7 +6,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { server } from "../constants/config"
 import Loader from "./../components/Loader"
-import { toast } from "react-toastify"
+import toast from "react-hot-toast"
 
 const Profile = () => {
   const { user } = useSelector((state) => state.userReducer)

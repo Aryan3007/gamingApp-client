@@ -258,7 +258,7 @@ const App = () => {
             }
           />
           <Route
-            path="/match/:eventId/:eventname"
+            path="/match/:sportId/:eventId/:eventname"
             element={
               <MatchDetails sportsData={socketConnected ? sportsData : []} />
             }

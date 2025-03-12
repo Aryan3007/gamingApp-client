@@ -86,7 +86,7 @@ const MatchDetails = ({ sportsData }) => {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         setData(response.data);
-        console.log(response.data);
+       
       } catch (err) {
         console.error("Fetch error:", err);
         setError(

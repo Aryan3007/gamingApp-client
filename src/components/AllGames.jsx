@@ -200,7 +200,6 @@ const AllGames = ({ sportsData }) => {
     }
   }, [sportsData, processSportsData])
   
-  console.log(processedSports);
   return (
     <div className=" min-h-screen h-fit lg:border mt-2 lg:rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] p-4 w-full">
       <div className="mb-2">

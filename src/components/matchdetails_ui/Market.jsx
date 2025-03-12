@@ -1,13 +1,16 @@
 /* eslint-disable react/prop-types */
 "use client"
 
-import { lazy, memo, useEffect, useRef, useState } from "react"
+import axios from "axios"
+import { lazy, memo, useCallback, useEffect, useRef, useState } from "react"
 import isEqual from "react-fast-compare"
+import { server } from "../../constants/config"
 
 const BetSlip = lazy(() => import("../BetSlip"))
 
-const MarketComponent = ({ data, onBetSelect, title="Market", betPlaced, setStake }) => {
+const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Market", betPlaced, setStake }) => {
   const [selectedBet, setSelectedBet] = useState(null)
+  const [margin, setMargin] = useState(null)
 
   const prevDataRef = useRef()
 
@@ -104,6 +107,40 @@ const MarketComponent = ({ data, onBetSelect, title="Market", betPlaced, setStak
       .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
     return [...activeMarkets, ...suspendedMarkets.slice(0, 5)]
   }
+
+  const fancyMarket = data.find(
+    (market) =>
+      (market.market?.name === "fancy" || market.market?.name === "fancy") &&
+      Array.isArray(market.odds?.runners) &&
+      market.odds.runners.length > 0,
+  )
+
+  const getMargins = useCallback(
+    async (token) => {
+      try {
+        const response = await axios.get(`${server}api/v1/bet/margins?eventId=${eventId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        console.log("resposne from fancy", response.data.margins);
+        if (response.data.success) {
+          const marginsData = response.data.margins[fancyMarket?.market?.id]
+          setMargin(marginsData)
+        }
+      } catch (error) {
+        console.error("Error fetching margins:", error.response?.data || error.message)
+      }
+    },
+    [eventId, fancyMarket?.market?.id],
+  )
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      getMargins(token);
+    }
+  }, [getMargins, marginAgain]); 
 
   if (!Array.isArray(data)) {
     return <div className="text-[rgb(var(--color-text-primary))]">No {title.toLowerCase()} data available</div>

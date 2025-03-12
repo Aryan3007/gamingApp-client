@@ -303,7 +303,7 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
 
   useEffect(() => {
     socket.on("sportsData", (data) => {
-      console.log("Received sports data:", data)
+
       setSportsData(data)
     })
 

@@ -22,34 +22,33 @@ const MyBetsComponent = () => {
   const [loading, setLoading] = useState(false)
   const [itemsPerPage] = useState(10)
 
-  const getTransactions = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
-    if (!token) {
-      console.error("No token found")
-      return
-    }
-    setLoading(true)
+  useEffect(() => {
+    const getTransactions = async () => {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        console.error("No token found")
+        return
+      }
+      setLoading(true)
 
-    try {
-      const response = await axios.get(`${server}api/v1/bet/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      if (response.data.success) {
-     
-        setAllBets(response.data.bets || [])
+      try {
+        const response = await axios.get(`${server}api/v1/bet/transactions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (response.data.success) {
+          setAllBets(response.data.bets || [])
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error)
         setLoading(false)
       }
-    } catch (error) {
-      console.error("Error fetching transactions:", error)
-      setLoading(false)
     }
-  }, [])
 
-  useEffect(() => {
     getTransactions()
-  }, [getTransactions])
+  }, [])
 
   // Filter and search logic
   useEffect(() => {

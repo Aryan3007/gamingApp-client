@@ -7,6 +7,7 @@ import { server } from "../../constants/config"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
+import { calculateProfitAndLoss } from "../../utils/helper"
 
 const Allrequests = () => {
   const { user } = useSelector((state) => state.userReducer)
@@ -73,6 +74,26 @@ const Allrequests = () => {
     })
     setFilteredBets(sorted)
   }
+
+    // Calculate profit/loss for a bet
+    const getProfitLoss = (bet) => {
+      if (bet.status === "pending") {
+        return "---"
+      }
+  
+      const result = calculateProfitAndLoss(bet.stake, bet.odds, bet.type, bet.category)
+  
+      if (result.error) {
+        return "Error"
+      }
+  
+      if (bet.status === "won") {
+        return result.profit.toFixed(2)
+      } else {
+        return result.loss.toFixed(2)
+      }
+    }
+  
 
   const handleSearch = (value) => {
     setSearchTerm(value)
@@ -279,7 +300,10 @@ const Allrequests = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-[rgb(var(--color-border))] bg-[rgb(var(--color-background))]">
-            {currentItems.map((bet) => (
+            {currentItems.map((bet) => {
+               const profitLoss = getProfitLoss(bet)
+                const isProfit = bet.status === "won"
+             return (
               <tr key={bet._id} className="hover:bg-[rgb(var(--color-background-hover))] transition-colors">
                 <td className="px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">{bet.match}</td>
                 <td className="px-4 py-3 text-sm text-[rgb(var(--color-text-primary))]">
@@ -290,7 +314,11 @@ const Allrequests = () => {
                 <td className="px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">{bet.odds}</td>
                 <td className="px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">{bet.stake}</td>
                 <td className="px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">{bet.category}</td>
-                <td className="px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">{bet.payout.toFixed(2)}</td>
+                <td
+                      className={`px-4 py-3 text-sm ${isProfit ? "text-green-600 font-medium" : bet.status === "lost" ? "text-red-600 font-medium" : "text-[rgb(var(--color-text-primary))]"}`}
+                    >
+                      {profitLoss}
+                    </td>
                 <td className="px-4 py-3 text-sm text-[rgb(var(--color-text-primary))]">
                   {format(new Date(bet.createdAt), "yyyy-MM-dd HH:mm:ss")}
                 </td>
@@ -318,7 +346,7 @@ const Allrequests = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>

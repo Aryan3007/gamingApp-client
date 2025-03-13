@@ -192,7 +192,7 @@ const CricketScoreDirect = ({ eventId }) => {
           className="text-sm font-bold"
           style={{ color: `rgb(var(--color-primary-dark))` }}
         >
-          Live Cricket Score
+          Live Score
         </h3>
       </div>
       <iframe

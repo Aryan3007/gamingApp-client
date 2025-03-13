@@ -8,7 +8,7 @@ import { server } from "../../constants/config"
 
 const BetSlip = lazy(() => import("../BetSlip"))
 
-const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Market", betPlaced, setStake }) => {
+const MarketComponent = ({ data, marginAgain, eventId, onBetSelect, title = "Market", betPlaced, setStake }) => {
   const [selectedBet, setSelectedBet] = useState(null)
   const [margin, setMargin] = useState(null)
 
@@ -51,10 +51,9 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
       size: size,
     }
     setSelectedBet(betData)
-    
+
     onBetSelect(betData)
   }
-
 
   const renderOddsBox = (odds, market, type) => {
     if (!odds) {
@@ -78,19 +77,15 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
               ? "bg-[rgb(var(--back-odd))] hover:bg-[rgb(var(--back-odd-hover))]"
               : "bg-[#00b3ff36]"
             : isActive
-            ? "bg-[rgb(var(--lay-odd))] hover:bg-[rgb(var(--lay-odd-hover))]"
-            : "bg-[#ff7a7e42]"
+              ? "bg-[rgb(var(--lay-odd))] hover:bg-[rgb(var(--lay-odd-hover))]"
+              : "bg-[#ff7a7e42]"
         } rounded flex flex-col items-center justify-center transition-colors`}
-        onClick={() =>
-          isActive && handleOddsClick(market, odds, type, odds.price, odds.size)
-        }
+        onClick={() => isActive && handleOddsClick(market, odds, type, odds.price, odds.size)}
         disabled={!isActive}
       >
         {isActive ? (
           <>
-            <span className="text-black text-sm font-semibold">
-              {odds.price.toFixed(2)}
-            </span>
+            <span className="text-black text-sm font-semibold">{odds.price.toFixed(2)}</span>
             <span className="text-black text-xs">{Math.floor(odds.size)}</span>
           </>
         ) : (
@@ -108,13 +103,6 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
     return [...activeMarkets, ...suspendedMarkets.slice(0, 5)]
   }
 
-  const fancyMarket = data.find(
-    (market) =>
-      (market.market?.name === "fancy" || market.market?.name === "fancy") &&
-      Array.isArray(market.odds?.runners) &&
-      market.odds.runners.length > 0,
-  )
-
   const getMargins = useCallback(
     async (token) => {
       try {
@@ -123,24 +111,45 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log("resposne from fancy", response.data.margins);
+        console.log("resposne from fancy", response.data.margins)
         if (response.data.success) {
-          const marginsData = response.data.margins[fancyMarket?.market?.id]
-          setMargin(marginsData)
+          setMargin(response.data.margins)
         }
       } catch (error) {
         console.error("Error fetching margins:", error.response?.data || error.message)
       }
     },
-    [eventId, fancyMarket?.market?.id],
+    [eventId],
+  )
+
+  const getFancyMarketMargin = useCallback(
+    (marketId) => {
+      if (!margin || typeof margin !== "object") return null
+
+      // Check if this market exists in the margin data
+      if (!margin[marketId]) return null
+
+      // Check if it's a fancy market (selection ID ends with 'N' or 'Y')
+      const marketData = margin[marketId]
+      if (marketData.selectionId && (marketData.selectionId.endsWith("N") || marketData.selectionId.endsWith("Y"))) {
+        if (marketData.profit < 0) {
+          return marketData.profit
+        } else if (marketData.loss < 0) {
+          return marketData.loss
+        }
+      }
+
+      return null
+    },
+    [margin],
   )
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken")
     if (token) {
-      getMargins(token);
+      getMargins(token)
     }
-  }, [getMargins, marginAgain]); 
+  }, [getMargins, marginAgain])
 
   if (!Array.isArray(data)) {
     return <div className="text-[rgb(var(--color-text-primary))]">No {title.toLowerCase()} data available</div>
@@ -149,7 +158,9 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
   return (
     <div className="space-y-0 bg-[rgb(var(--color-background))] border border-[rgb(var(--color-border))] rounded-lg overflow-hidden mt-2">
       <div className="flex flex-row sm:flex-nowrap justify-between items-center p-3 bg-[rgb(var(--color-background))] border-b border-[rgb(var(--color-border))]">
-        <h3 className="text-[rgb(var(--color-text-primary))] font-medium w-full sm:w-auto mb-2 sm:mb-0">{title}</h3>
+        <div>
+          <h3 className="text-[rgb(var(--color-text-primary))] font-medium w-full sm:w-auto mb-2 sm:mb-0">{title}</h3>
+        </div>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
           <span className="text-xs sm:text-sm bg-[rgb(var(--lay-odd))] w-full text-center max-w-[70px] lg:min-w-[100px] sm:w-20 text-[rgb(var(--color-text-primary))] py-1 rounded font-semibold">
             No
@@ -163,9 +174,18 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
         return (
           <div key={`${market.market?.id || index}`} className="border-b border-[rgb(var(--color-border))]">
             <div className="flex items-center justify-between p-3">
-              <span className="text-[rgb(var(--color-text-primary))] text-sm">
-                {market.market?.name || "Unknown Market"}
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="text-[rgb(var(--color-text-primary))] text-sm">
+                  {market.market?.name || "Unknown Market"}
+                </span>
+                {market.market?.id && (
+                  <span className="text-xs text-red-500 font-medium">
+                    {getFancyMarketMargin(market.market.id) !== null
+                      ? `${getFancyMarketMargin(market.market.id)}`
+                      : ""}
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2 w-full sm:w-auto justify-end">
                 <div className="flex gap-2">
                   {renderOddsBox(market.odds?.lay?.[0], market, "Lay")}
@@ -179,7 +199,7 @@ const MarketComponent = ({ data,   marginAgain,  eventId, onBetSelect, title="Ma
                   <BetSlip
                     match={selectedBet}
                     onClose={() => {
-                      setSelectedBet(null);
+                      setSelectedBet(null)
                     }}
                     setStake={setStake}
                     betPlaced={betPlaced}

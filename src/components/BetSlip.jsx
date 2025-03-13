@@ -140,6 +140,8 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
       } else {
         toast.error(data.message);
         setIsPlacingBet(false);
+        betPlaced();
+        onClose();
       }
     } catch (error) {
       console.error("Bet placement error:", error);

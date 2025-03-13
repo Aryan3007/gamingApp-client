@@ -3,12 +3,9 @@
 import axios from "axios"
 import { format, isThisMonth, isThisWeek, isToday, isYesterday, parseISO } from "date-fns"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Search } from "lucide-react"
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { server } from "../constants/config"
 import { calculateProfitAndLoss } from "../utils/helper"
-
-// Profit and loss calculator function
-
 
 const MyBetsComponent = () => {
   const [allBets, setAllBets] = useState([])

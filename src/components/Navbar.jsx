@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
-import axios from "axios"
+"use client"
 import { Home, Gamepad2, Joystick, Trophy, History, Menu, X, User } from "lucide-react"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import isEqual from "react-fast-compare"
 import { useDispatch, useSelector } from "react-redux"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { server } from "../constants/config"
 import { userNotExist } from "../redux/reducer/userReducer"
+import Exposure from "./Exposure"
 
 // Extracted NavItem component to prevent re-renders of all items
 const NavItem = memo(({ item, isActive }) => {
@@ -158,7 +158,6 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
   const [exposure, setExposure] = useState(0)
   const [wallet, setWallet] = useState(0)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const [lastFetchTime, setLastFetchTime] = useState(0)
 
   // Memoize nav items to prevent recreation on each render
   const navItems = useMemo(
@@ -186,116 +185,14 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     navigate("/login")
   }, [dispatch, navigate])
 
-  // Optimized data fetching functions
-  const fetchUserData = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
-    if (!token) return
-
-    try {
-      const response = await axios.get(`${server}api/v1/user/me`, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      setWallet(response?.data.user.amount)
-    } catch (error) {
-      console.log(error)
-      dispatch(userNotExist())
-    }
-  }, [dispatch])
-
-  const getTransactions = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
-    if (!token) return 0
-
-    try {
-      const response = await axios.get(`${server}api/v1/bet/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.data.success) {
-        const filteredBets = response.data.bets.filter((bet) => {
-          const betDate = new Date(bet.createdAt)
-          const currentDate = new Date()
-          return (
-            betDate.toDateString() === currentDate.toDateString() &&
-            bet.category === "fancy" &&
-            bet.status === "pending"
-          )
-        })
-
-        return filteredBets.reduce((sum, bet) => sum + bet.stake, 0)
-      }
-    } catch (error) {
-      console.error("Error fetching transactions:", error)
-    }
-    return 0
+  // Callbacks for updating wallet and exposure from the ExposureCalculator
+  const handleWalletUpdate = useCallback((amount) => {
+    setWallet(amount)
   }, [])
 
-  const getMargins = useCallback(async () => {
-    const token = localStorage.getItem("authToken")
-    if (!token) return 0
-
-    try {
-      const response = await axios.get(`${server}api/v1/bet/allmargins`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.data.success) {
-        return response.data.margins.reduce((sum, margin) => {
-          let maxLoss = 0
-          if (margin.profit < 0 && margin.loss > 0) {
-            maxLoss += Math.abs(margin.profit)
-          }
-          if (margin.profit < 0 && margin.loss < 0) {
-            maxLoss += Math.max(Math.abs(margin.profit), Math.abs(margin.loss))
-          } else if (margin.loss < 0) {
-            maxLoss += Math.abs(margin.loss)
-          }
-
-          return sum + maxLoss
-        }, 0)
-      }
-    } catch (error) {
-      console.error("Error fetching margins:", error)
-    }
-    return 0
+  const handleExposureUpdate = useCallback((amount) => {
+    setExposure(amount)
   }, [])
-
-  // Optimized update function with throttling
-  const updateData = useCallback(async () => {
-    const now = Date.now()
-    // Throttle updates to once per second
-    if (now - lastFetchTime < 1000) return
-
-    setLastFetchTime(now)
-
-    // Fetch user data and exposure in parallel
-    await fetchUserData()
-
-    const [totalStake, totalLoss] = await Promise.all([getTransactions(), getMargins()])
-
-    setExposure(totalStake + totalLoss)
-  }, [fetchUserData, getTransactions, getMargins, lastFetchTime])
-
-  // Effect for initial data load and interval setup
-  useEffect(() => {
-    if (!user) return
-
-    // Initial data load
-    updateData()
-
-    // Set up interval for updates
-    const interval = setInterval(updateData, 1000)
-
-    return () => clearInterval(interval)
-  }, [user, updateData])
 
   // Handle clicks outside profile dropdown
   useEffect(() => {
@@ -313,6 +210,11 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
 
   return (
     <nav className="bg-[rgb(var(--color-primary))] fixed w-full z-[99] shadow-md">
+      {/* Use the ExposureCalculator component */}
+      {user && (
+        <Exposure user={user} onWalletUpdate={handleWalletUpdate} onExposureUpdate={handleExposureUpdate} />
+      )}
+
       <div className="max-w-full mx-auto p-2 sm:px-4">
         <div className="marquee md:hidden flex"></div>
 

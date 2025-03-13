@@ -106,14 +106,14 @@ const MarketComponent = ({ data, marginAgain, eventId, onBetSelect, title = "Mar
   const getMargins = useCallback(
     async (token) => {
       try {
-        const response = await axios.get(`${server}api/v1/bet/margins?eventId=${eventId}`, {
+        const response = await axios.get(`${server}api/v1/bet/fancy-exposure?eventId=${eventId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log("resposne from fancy", response.data.margins)
+        console.log("response from fancy", response.data)
         if (response.data.success) {
-          setMargin(response.data.margins)
+          setMargin(response.data.marketExposure)
         }
       } catch (error) {
         console.error("Error fetching margins:", error.response?.data || error.message)
@@ -126,24 +126,11 @@ const MarketComponent = ({ data, marginAgain, eventId, onBetSelect, title = "Mar
     (marketId) => {
       if (!margin || typeof margin !== "object") return null
 
-      // Check if this market exists in the margin data
-      if (!margin[marketId]) return null
-
-      // Check if it's a fancy market (selection ID ends with 'N' or 'Y')
-      const marketData = margin[marketId]
-      if (marketData.selectionId && (marketData.selectionId.endsWith("N") || marketData.selectionId.endsWith("Y"))) {
-        if (marketData.profit < 0) {
-          return marketData.profit
-        } else if (marketData.loss < 0) {
-          return marketData.loss
-        }
-      }
-
-      return null
+      // Directly return the exposure value if it exists for this market
+      return margin[marketId] || null
     },
     [margin],
   )
-
   useEffect(() => {
     const token = localStorage.getItem("authToken")
     if (token) {

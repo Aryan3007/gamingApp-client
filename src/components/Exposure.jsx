@@ -8,11 +8,12 @@ import { server } from "../constants/config"
 
 const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
   const [lastFetchTime, setLastFetchTime] = useState(0)
+  const [isFetching, setIsFetching] = useState(false)
 
   // Fetch user data to update wallet amount
   const fetchUserData = useCallback(async () => {
     const token = localStorage.getItem("authToken")
-    if (!token) return
+    if (!token) return 0
 
     try {
       const response = await axios.get(`${server}api/v1/user/me`, {
@@ -22,11 +23,10 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
         },
       })
 
-      return response?.data.user.amount
+      return response?.data.user.amount || 0
     } catch (error) {
-      console.log(error)
+      console.error("Error fetching user data:", error)
       return 0
-      // We don't dispatch userNotExist here as that's handled by the parent component
     }
   }, [])
 
@@ -42,9 +42,6 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
         },
       })
 
-      console.log("Total exposure response:", response.data)
-
-      // Return the exposure value from the API response
       if (response.data.success) {
         return response.data.exposure || 0
       }
@@ -58,19 +55,26 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
   const updateData = useCallback(async () => {
     const now = Date.now()
     // Throttle updates to once per second
-    if (now - lastFetchTime < 5000) return
+    if (now - lastFetchTime < 5000 || isFetching) return
 
     setLastFetchTime(now)
+    setIsFetching(true)
 
-    // Fetch user data and total exposure in parallel
-    const [userAmount, totalExposure] = await Promise.all([fetchUserData(), getTotalExposure()])
+    try {
+      // Fetch user data and total exposure in parallel
+      const [userAmount, totalExposure] = await Promise.all([fetchUserData(), getTotalExposure()])
 
-    // Update the wallet amount with user.amount - totalExposure
-    onWalletUpdate(userAmount - totalExposure)
+      // Update the wallet amount with user.amount - totalExposure
+      onWalletUpdate(userAmount - totalExposure)
 
-    // Update the exposure value
-    onExposureUpdate(totalExposure)
-  }, [fetchUserData, getTotalExposure, lastFetchTime, onWalletUpdate, onExposureUpdate])
+      // Update the exposure value
+      onExposureUpdate(totalExposure)
+    } catch (error) {
+      console.error("Error updating data:", error)
+    } finally {
+      setIsFetching(false)
+    }
+  }, [fetchUserData, getTotalExposure, lastFetchTime, isFetching, onWalletUpdate, onExposureUpdate])
 
   // Effect for initial data load and interval setup
   useEffect(() => {
@@ -92,4 +96,4 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
 const ExposureCalculator = memo(Exposure)
 ExposureCalculator.displayName = "ExposureCalculator"
 
-export default Exposure
+export default ExposureCalculator

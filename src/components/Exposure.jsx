@@ -22,12 +22,13 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
         },
       })
 
-      onWalletUpdate(response?.data.user.amount)
+      return response?.data.user.amount
     } catch (error) {
       console.log(error)
+      return 0
       // We don't dispatch userNotExist here as that's handled by the parent component
     }
-  }, [onWalletUpdate])
+  }, [])
 
   // Get total exposure directly from the API
   const getTotalExposure = useCallback(async () => {
@@ -57,16 +58,19 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
   const updateData = useCallback(async () => {
     const now = Date.now()
     // Throttle updates to once per second
-    if (now - lastFetchTime < 1000) return
+    if (now - lastFetchTime < 5000) return
 
     setLastFetchTime(now)
 
     // Fetch user data and total exposure in parallel
-    const [_, totalExposure] = await Promise.all([fetchUserData(), getTotalExposure()])
+    const [userAmount, totalExposure] = await Promise.all([fetchUserData(), getTotalExposure()])
+
+    // Update the wallet amount with user.amount - totalExposure
+    onWalletUpdate(userAmount - totalExposure)
 
     // Update the exposure value
     onExposureUpdate(totalExposure)
-  }, [fetchUserData, getTotalExposure, lastFetchTime, onExposureUpdate])
+  }, [fetchUserData, getTotalExposure, lastFetchTime, onWalletUpdate, onExposureUpdate])
 
   // Effect for initial data load and interval setup
   useEffect(() => {
@@ -76,7 +80,7 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
     updateData()
 
     // Set up interval for updates
-    const interval = setInterval(updateData, 1000)
+    const interval = setInterval(updateData, 5000)
 
     return () => clearInterval(interval)
   }, [user, updateData])
@@ -89,4 +93,3 @@ const ExposureCalculator = memo(Exposure)
 ExposureCalculator.displayName = "ExposureCalculator"
 
 export default Exposure
-

@@ -25,11 +25,17 @@ const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
 const SelfExclusion = lazy(() => import("./pages/legal/SelfExclusion"));
 const AmlPolicy = lazy(() => import("./pages/legal/AmlPolicy"));
 const About = lazy(() => import("./pages/About"));
-const ResponsibleGambling = lazy(() => import("./pages/legal/ResponsibleGambling"));
+const ResponsibleGambling = lazy(() =>
+  import("./pages/legal/ResponsibleGambling")
+);
 const TermsConditions = lazy(() => import("./pages/legal/TermsConditions"));
 const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
 const BettingRules = lazy(() => import("./pages/legal/BettingRules"));
 const FairnessRng = lazy(() => import("./pages/legal/FairnessRng"));
+import SuperAdminLayout from "./pages/superadmin/SuperAdminLayout";
+import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+import UserDashboard from "./pages/user/UserDashboard";
+import UserLayout from "./pages/user/UserLayout";
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
@@ -94,28 +100,26 @@ const App = () => {
               dispatch(userNotExist());
               return;
             }
-  
+
             try {
               const response = await api.get("api/v1/user/me", {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               });
-  
+
               if (response.data.user.status === "banned") {
                 toast.error("Your account has been banned.", { icon: "⚠️" });
                 localStorage.removeItem("authToken");
                 dispatch(userNotExist());
                 return;
               }
-  
-             
             } catch (error) {
               console.error("Retrying authentication error:", error);
               setTimeout(() => retryFetchUser(retries - 1), 1000);
             }
           };
-  
+
           retryFetchUser(5);
           return;
         }
@@ -320,6 +324,44 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/superadmin/*"
+            element={
+              <ProtectedRoute
+                isAuthenticated={!!user}
+                adminOnly={true}
+                admin={user?.role === "super"}
+              >
+              <SuperAdminLayout>
+                <Routes>
+                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
+                  <Route path="/reports" element={<SuperAdminDashboard />} />
+                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
+                </Routes>
+              </SuperAdminLayout>
+            </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/user/*"
+            element={
+              <ProtectedRoute
+                isAuthenticated={!!user}
+                adminOnly={true}
+                admin={user?.role === "super"}
+              >
+              <UserLayout>
+                <Routes>
+                  <Route path="/dashboard" element={<UserDashboard />} />
+                  <Route path="/reports" element={<SuperAdminDashboard />} />
+                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
+                </Routes>
+              </UserLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* 404 Not Found */}
           <Route path="*" element={<NotFound />} />
           <Route path="/kyc" element={<KycPage />} />
@@ -327,7 +369,10 @@ const App = () => {
           <Route path="/self-exclusion" element={<SelfExclusion />} />
           <Route path="/aml" element={<AmlPolicy />} />
           <Route path="/about" element={<About />} />
-          <Route path="/responsible-gambling" element={<ResponsibleGambling />} />
+          <Route
+            path="/responsible-gambling"
+            element={<ResponsibleGambling />}
+          />
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/betting-rules" element={<BettingRules />} />
           <Route path="/dispute" element={<DisputeResolution />} />

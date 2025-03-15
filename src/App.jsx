@@ -18,7 +18,6 @@ import {
   userExist,
   userNotExist,
 } from "./redux/reducer/userReducer";
-import Withdrawl from "./pages/admin/Withdrawl";
 const AccountsPayouts = lazy(() => import("./pages/legal/AccountsPayouts"));
 const KycPage = lazy(() => import("./pages/legal/KycPage"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -36,6 +35,10 @@ import SuperAdminLayout from "./pages/superadmin/SuperAdminLayout";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import UserDashboard from "./pages/user/UserDashboard";
 import UserLayout from "./pages/user/UserLayout";
+import AllAdmins from "./pages/superadmin/AllAdmin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLayout from "./pages/admin/AdminLayout";
+import Users from "./pages/admin/Users";
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
@@ -48,10 +51,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./pages/MatchDetails"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
-const Layout = lazy(() => import("./pages/admin/Layout"));
-const WebsiteManagement = lazy(() => import("./pages/admin/WebsiteManagement"));
-const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
-const Allrequests = lazy(() => import("./pages/admin/Allrequests"));
+
 
 // Create API instance
 const api = axios.create({
@@ -328,17 +328,17 @@ const App = () => {
                 adminOnly={true}
                 admin={user?.role === "admin"}
               >
-                <Layout>
+                <AdminLayout>
                   <Routes>
-                    <Route path="/user/:userId" element={<Withdrawl />} />
-                    <Route path="/requests" element={<Allrequests />} />
-                    <Route
-                      path="/usermanagement"
-                      element={<UserManagement />}
+                  <Route
+                      path="/dashboard"
+                      element={<AdminDashboard />}
+                    /><Route
+                      path="/users"
+                      element={<Users />}
                     />
-                    <Route path="/management" element={<WebsiteManagement />} />
                   </Routes>
-                </Layout>
+                </AdminLayout>
               </ProtectedRoute>
             }
           />
@@ -360,8 +360,8 @@ const App = () => {
                     />
                     <Route path="/reports" element={<SuperAdminDashboard />} />
                     <Route
-                      path="/dashboard"
-                      element={<SuperAdminDashboard />}
+                      path="/alladmins"
+                      element={<AllAdmins />}
                     />
                   </Routes>
                 </SuperAdminLayout>

@@ -6,11 +6,14 @@ const ProtectedRoute = ({
   isAuthenticated,
   admin,
   adminOnly,
+  superAdminOnly,
   redirect = "/",
 }) => {
   if (!isAuthenticated) return <Navigate to={redirect} />;
 
   if (adminOnly && !admin) return <Navigate to={redirect} />;
+
+  if (superAdminOnly && !admin) return <Navigate to={redirect} />;
 
   return children ? children : <Outlet />;
 };

@@ -286,7 +286,7 @@ const App = () => {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute isAuthenticated={!!user}>
+              <ProtectedRoute isAuthenticated={user}>
                 <Profile />
               </ProtectedRoute>
             }
@@ -295,17 +295,36 @@ const App = () => {
           <Route
             path="/mybets"
             element={
-              <ProtectedRoute isAuthenticated={!!user}>
+              <ProtectedRoute isAuthenticated={user}>
                 <MyBets />
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/user/*"
+            element={
+              <ProtectedRoute isAuthenticated={user}>
+                <UserLayout>
+                  <Routes>
+                    <Route path="/dashboard" element={<UserDashboard />} />
+                    <Route path="/reports" element={<SuperAdminDashboard />} />
+                    <Route
+                      path="/dashboard"
+                      element={<SuperAdminDashboard />}
+                    />
+                  </Routes>
+                </UserLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin Protected Route */}
           <Route
             path="/admin/*"
             element={
               <ProtectedRoute
-                isAuthenticated={!!user}
+                isAuthenticated={user}
                 adminOnly={true}
                 admin={user?.role === "admin"}
               >
@@ -324,46 +343,33 @@ const App = () => {
             }
           />
 
+          {/* Suoer Admin Protected Route */}
           <Route
             path="/superadmin/*"
             element={
               <ProtectedRoute
-                isAuthenticated={!!user}
-                adminOnly={true}
-                admin={user?.role === "super"}
+                isAuthenticated={user}
+                superAdminOnly={true}
+                admin={user?.role === "super_admin"}
               >
-              <SuperAdminLayout>
-                <Routes>
-                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
-                  <Route path="/reports" element={<SuperAdminDashboard />} />
-                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
-                </Routes>
-              </SuperAdminLayout>
-            </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/user/*"
-            element={
-              <ProtectedRoute
-                isAuthenticated={!!user}
-                adminOnly={true}
-                admin={user?.role === "super"}
-              >
-              <UserLayout>
-                <Routes>
-                  <Route path="/dashboard" element={<UserDashboard />} />
-                  <Route path="/reports" element={<SuperAdminDashboard />} />
-                  <Route path="/dashboard" element={<SuperAdminDashboard />} />
-                </Routes>
-              </UserLayout>
+                <SuperAdminLayout>
+                  <Routes>
+                    <Route
+                      path="/dashboard"
+                      element={<SuperAdminDashboard />}
+                    />
+                    <Route path="/reports" element={<SuperAdminDashboard />} />
+                    <Route
+                      path="/dashboard"
+                      element={<SuperAdminDashboard />}
+                    />
+                  </Routes>
+                </SuperAdminLayout>
               </ProtectedRoute>
             }
           />
 
-          {/* 404 Not Found */}
-          <Route path="*" element={<NotFound />} />
+          {/* Terms and Conditions */}
           <Route path="/kyc" element={<KycPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/self-exclusion" element={<SelfExclusion />} />
@@ -379,6 +385,9 @@ const App = () => {
           <Route path="/fairness" element={<FairnessRng />} />
           <Route path="/accounts" element={<AccountsPayouts />} />
           <Route path="/about" element={<About />} />
+
+          {/* 404 Not Found */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <Toaster position="bottom-center" />

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
@@ -310,21 +308,22 @@ export default function AllAdmins() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">All Admins</h2>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-        >
-          Add New Admin
-        </button>
-      </div>
+     
 
       <div className="rounded-lg border border-[rgb(var(--color-border))] bg-white shadow-sm">
-        <div className="flex flex-col space-y-1.5 p-6 pb-2">
+        <div className="flex flex-col space-y-1.5 p-2 pb-2">
+          <div className="flex justify-between items-center">
+
           <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
             Admin Management
           </h3>
+          <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          >
+          Add New Admin
+        </button>
+          </div>
           <p className="text-sm text-[rgb(var(--color-text-muted))]">Manage all admin accounts from here</p>
         </div>
 
@@ -462,7 +461,7 @@ export default function AllAdmins() {
                               {capitalize(item.admin.status)}
                             </span>
                           </td>
-                          <td className="p-4 align-middle text-right">
+                          <td className="p-4 flex justify-end items-center align-middle text-right">
                             <button
                               className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                               onClick={() => toggleExpandAdmin(item.admin._id)}

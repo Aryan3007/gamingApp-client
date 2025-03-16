@@ -111,7 +111,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
     try {
       setIsPlacingBet(true);
       const { data } = await axios.post(
-        `${server}api/v1/bet/place?userId=${user._id}`,
+        `${server}api/v1/bet/place`,
         {
           eventId: currentMatch.eventId,
           selection: currentMatch.selectedTeam,

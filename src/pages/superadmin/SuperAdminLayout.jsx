@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 "use client"
 
-import { DollarSignIcon, FileTextIcon, LayoutDashboardIcon, SettingsIcon, ShieldAlertIcon, UserCogIcon, UsersIcon } from "lucide-react"
+import { DollarSignIcon, FileTextIcon, Gamepad, LayoutDashboardIcon, SettingsIcon, ShieldAlertIcon, UserCogIcon } from "lucide-react"
 import { LayoutWrapper } from "../../components/layout-wrapper"
 
 const superAdminNavigation = [
@@ -28,9 +29,9 @@ const superAdminNavigation = [
         icon: UserCogIcon,
       },
       {
-        title: "All Users",
-        to: "/superadmin/allusers",
-        icon: UsersIcon,
+        title: "All Bets",
+        to: "/superadmin/allbets",
+        icon: Gamepad,
       },
       {
         title: "Permissions",

@@ -39,6 +39,8 @@ import AllAdmins from "./pages/superadmin/AllAdmin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Users from "./pages/admin/Users";
+import Allbets from "./pages/superadmin/AllBets";
+import Withdrawal from "./pages/admin/Withdrawl";
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
@@ -333,9 +335,15 @@ const App = () => {
                   <Route
                       path="/dashboard"
                       element={<AdminDashboard />}
-                    /><Route
+                    />
+                    
+                    <Route
                       path="/users"
                       element={<Users />}
+                    />  
+                    <Route
+                      path="/withdrawl"
+                      element={<Withdrawal />}
                     />
                   </Routes>
                 </AdminLayout>
@@ -358,7 +366,7 @@ const App = () => {
                       path="/dashboard"
                       element={<SuperAdminDashboard />}
                     />
-                    <Route path="/reports" element={<SuperAdminDashboard />} />
+                    <Route path="/allbets" element={<Allbets />} />
                     <Route
                       path="/alladmins"
                       element={<AllAdmins />}

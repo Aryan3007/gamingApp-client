@@ -73,7 +73,7 @@ const ProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) => {
     <div className="relative profile-dropdown">
       <button
         onClick={toggleDropdown}
-        className="flex items-center gap-2 text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+        className="flex items-center gap-2 text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-lg transition-colors"
       >
         <User className="h-4 w-4" />
         Profile
@@ -91,14 +91,14 @@ const ProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) => {
           </Link>
           {user?.role === "admin" && (
             <Link to="/admin/dashboard">
-              <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 Admin Panel
               </button>
             </Link>
           )}
           {user?.role === "super_admin" && (
             <Link to="/superadmin/dashboard">
-              <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 Super Admin
               </button>
             </Link>
@@ -133,27 +133,27 @@ const MobileProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) 
             <p className="text-white text-sm font-medium">{user?.name || "User"}</p>
           </div>
           <Link to="/profile">
-            <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+            <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
               My Profile
             </button>
           </Link>
           {user?.role === "admin" && (
             <Link to="/admin/dashboard">
-              <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 Admin Panel
               </button>
             </Link>
           )}
           {user?.role === "super_admin" && (
             <Link to="/superadmin/dashboard">
-              <button className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 Super Admin
               </button>
             </Link>
           )}
           <button
             onClick={onLogout}
-            className="w-full text-left px-3 py-2 text-white text-sm hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+           className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
           >
             Logout
           </button>
@@ -256,7 +256,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               </div>
             ) : (
               <Link to="/login">
-                <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-lg transition-colors">
                   Login
                 </button>
               </Link>
@@ -297,7 +297,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
               </>
             ) : (
               <Link to="/login">
-                <button className="text-white bg-[rgb(var(--color-primary-dark))] px-4 py-1.5 rounded-full hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                <button className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-3 py-1 rounded-lg transition-colors">
                   Login
                 </button>
               </Link>

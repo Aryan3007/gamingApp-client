@@ -41,6 +41,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Users from "./pages/admin/Users";
 import Allbets from "./pages/superadmin/AllBets";
 import Withdrawal from "./pages/admin/Withdrawl";
+import Reports from "./pages/superadmin/Reports";
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
@@ -367,6 +368,7 @@ const App = () => {
                       element={<SuperAdminDashboard />}
                     />
                     <Route path="/allbets" element={<Allbets />} />
+                    <Route path="/reports" element={<Reports />} />
                     <Route
                       path="/alladmins"
                       element={<AllAdmins />}

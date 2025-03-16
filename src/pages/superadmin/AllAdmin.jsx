@@ -283,7 +283,6 @@ export default function AllAdmins() {
 
     return filteredAdmins
   }
-
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -359,139 +358,145 @@ export default function AllAdmins() {
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value))
                 setCurrentPage(1) // Reset to first page when changing items per page
-              }}
-              className="rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="p-6 pt-0">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                }}
+                className="rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full caption-bottom text-sm">
+
+            <div className="p-6 pt-0">
+              {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))]"></div>
+              </div>
+              ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full caption-bottom text-sm">
                 <thead className="border-b border-[rgb(var(--color-border))]">
-                  <tr>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      <button
-                        className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                        onClick={() => requestSort("name")}
-                      >
-                        Name
-                        {sortConfig.key === "name" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
-                      </button>
-                    </th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      <button
-                        className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                        onClick={() => requestSort("email")}
-                      >
-                        Email
-                        {sortConfig.key === "email" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
-                      </button>
-                    </th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      <button
-                        className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                        onClick={() => requestSort("currency")}
-                      >
-                        Currency
-                        {sortConfig.key === "currency" && (
-                          <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
-                        )}
-                      </button>
-                    </th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      <button
-                        className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                        onClick={() => requestSort("amount")}
-                      >
-                        Amount
-                        {sortConfig.key === "amount" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
-                      </button>
-                    </th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      <button
-                        className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                        onClick={() => requestSort("status")}
-                      >
-                        Status
-                        {sortConfig.key === "status" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
-                      </button>
-                    </th>
-                    <th className="h-12 px-4 text-right align-middle font-medium text-[rgb(var(--color-text-muted))]">
-                      Actions
-                    </th>
-                  </tr>
+              
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    <button
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("name")}
+                    >
+                    Name
+                    {sortConfig.key === "name" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
+                    </button>
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    <button
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("email")}
+                    >
+                    Email
+                    {sortConfig.key === "email" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
+                    </button>
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    <button
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("currency")}
+                    >
+                    Currency
+                    {sortConfig.key === "currency" && (
+                      <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                    </button>
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    <button
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("amount")}
+                    >
+                    Amount
+                    {sortConfig.key === "amount" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
+                    </button>
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    <button
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("status")}
+                    >
+                    Status
+                    {sortConfig.key === "status" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
+                    </button>
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    Total Balance
+                  </th>
+                  <th className="h-12 px-4 text-right align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    Actions
+                  </th>
+                
                 </thead>
                 <tbody>
                   {currentAdmins.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="p-4 text-center text-[rgb(var(--color-text-muted))]">
-                        No admins found
+                  <tr>
+                    <td colSpan="7" className="p-4 text-center text-[rgb(var(--color-text-muted))]">
+                    No admins found
+                    </td>
+                  </tr>
+                  ) : (
+                  currentAdmins.map((item) => (
+                    <>
+                    <tr
+                      key={item.admin._id}
+                      className="border-b border-[rgb(var(--color-border))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))]"
+                    >
+                      <td className="p-4 align-middle font-medium">{capitalize(item.admin.name)}</td>
+                      <td className="p-4 align-middle">{item.admin.email}</td>
+                      <td className="p-4 align-middle">{item.admin.currency.toUpperCase()}</td>
+                      <td className="p-4 align-middle">{item.admin.amount.toLocaleString()}</td>
+                      <td className="p-4 align-middle">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        item.admin.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {capitalize(item.admin.status)}
+                      </span>
+                      </td>
+                      <td className="p-4 align-middle">
+                      {item.users.reduce((acc, user) => acc + user.amount, item.admin.amount).toLocaleString()}
+                      </td>
+                      <td className="p-4 flex justify-end items-center align-middle text-right">
+                      <button
+                        className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                        onClick={() => toggleExpandAdmin(item.admin._id)}
+                      >
+                        {expandedAdmins[item.admin._id] ? "Collapse" : "Expand"}
+                      </button>
+                      <button
+                        className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                        onClick={() => openAddMoneyDialog(item.admin, true)}
+                      >
+                        Add Money
+                      </button>
+                      <button
+                        className={`inline-flex h-8 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                        item.admin.status === "active"
+                          ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                          : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
+                        }`}
+                        onClick={() => openBanConfirmDialog(item.admin, true)}
+                      >
+                        {item.admin.status === "active" ? "Ban Admin" : "Unban Admin"}
+                      </button>
                       </td>
                     </tr>
-                  ) : (
-                    currentAdmins.map((item) => (
-                      <>
-                        <tr
-                          key={item.admin._id}
-                          className="border-b border-[rgb(var(--color-border))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))]"
-                        >
-                          <td className="p-4 align-middle font-medium">{capitalize(item.admin.name)}</td>
-                          <td className="p-4 align-middle">{item.admin.email}</td>
-                          <td className="p-4 align-middle">{item.admin.currency.toUpperCase()}</td>
-                          <td className="p-4 align-middle">{item.admin.amount.toLocaleString()}</td>
-                          <td className="p-4 align-middle">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                item.admin.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {capitalize(item.admin.status)}
-                            </span>
-                          </td>
-                          <td className="p-4 flex justify-end items-center align-middle text-right">
-                            <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                              onClick={() => toggleExpandAdmin(item.admin._id)}
-                            >
-                              {expandedAdmins[item.admin._id] ? "Collapse" : "Expand"}
-                            </button>
-                            <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                              onClick={() => openAddMoneyDialog(item.admin, true)}
-                            >
-                              Add Money
-                            </button>
-                            <button
-                              className={`inline-flex h-8 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
-                                item.admin.status === "active"
-                                  ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                                  : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
-                              }`}
-                              onClick={() => openBanConfirmDialog(item.admin, true)}
-                            >
-                              {item.admin.status === "active" ? "Ban Admin" : "Unban Admin"}
-                            </button>
-                          </td>
-                        </tr>
 
-                        {/* Expanded Users Section */}
+                   
                         {expandedAdmins[item.admin._id] && (
                           <tr>
                             <td colSpan="6" className="p-0">
-                              <div className="bg-gray-50 p-4">
+                              <div className="bg-gray-50 w-full p-4">
                                 <h4 className="font-medium mb-2 text-[rgb(var(--color-text-primary))]">
                                   Users under {capitalize(item.admin.name)}
                                 </h4>
@@ -521,9 +526,7 @@ export default function AllAdmins() {
                                           <th className="p-2 text-left font-medium text-[rgb(var(--color-text-muted))]">
                                             Created
                                           </th>
-                                          <th className="p-2 text-right font-medium text-[rgb(var(--color-text-muted))]">
-                                            Actions
-                                          </th>
+                                       
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -545,24 +548,7 @@ export default function AllAdmins() {
                                               </span>
                                             </td>
                                             <td className="p-2">{formatDate(user.createdAt)}</td>
-                                            <td className="p-2 text-right">
-                                              <button
-                                                className="mr-2 inline-flex h-7 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-2 py-1 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-1"
-                                                onClick={() => openAddMoneyDialog(user)}
-                                              >
-                                                Add Money
-                                              </button>
-                                              <button
-                                                className={`inline-flex h-7 items-center justify-center rounded-md border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 ${
-                                                  user.status === "active"
-                                                    ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                                                    : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
-                                                }`}
-                                                onClick={() => openBanConfirmDialog(user)}
-                                              >
-                                                {user.status === "active" ? "Ban" : "Unban"}
-                                              </button>
-                                            </td>
+                                          
                                           </tr>
                                         ))}
                                       </tbody>

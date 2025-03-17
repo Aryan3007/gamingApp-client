@@ -6,7 +6,7 @@ import { Sidebar } from "./sidebar"
 import { MenuIcon } from "lucide-react"
 
 
-export function LayoutWrapper({ children, navigation, userRole, portalTitle }) {
+export function LayoutWrapper({ children, navigation, userRole }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   return (
@@ -27,7 +27,6 @@ export function LayoutWrapper({ children, navigation, userRole, portalTitle }) {
             <MenuIcon className="h-5 w-5" />
             <span className="sr-only">Open sidebar</span>
           </button>
-          <h1 className="text-lg font-semibold text-[rgb(var(--color-primary))]">{portalTitle}</h1>
         </header>
         <main className="container mx-auto p-4">{children}</main>
       </div>

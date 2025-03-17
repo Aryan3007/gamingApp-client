@@ -5,7 +5,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import { server } from "../../constants/config"
 
-export default function AdminDashboard() {
+export default function RequestedWithdrawl() {
   const [withdrawalHistory, setWithdrawalHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -14,20 +14,20 @@ export default function AdminDashboard() {
   const [actionType, setActionType] = useState("") // "approve" or "reject"
   const [isProcessing, setIsProcessing] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [showRequestModal, setShowRequestModal] = useState(false)
-  const [formData, setFormData] = useState({
-    amount: "",
-    accNo: "",
-    ifsc: "",
-    contact: "",
-    bankName: "",
-    receiverName: "",
-  })
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [dateRange, setDateRange] = useState({ from: "", to: "" })
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdAt",
+    direction: "desc",
+  })
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
 
   // Fetch withdrawal history
   const fetchWithdrawalHistory = useCallback(async () => {
@@ -60,42 +60,50 @@ export default function AdminDashboard() {
     fetchWithdrawalHistory()
   }, [fetchWithdrawalHistory, refreshTrigger])
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value,
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, statusFilter, dateRange, sortConfig])
+
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
-  // Handle withdrawal request form submission
-  const handleFormSubmit = async (e) => {
-    e.preventDefault()
-    const token = localStorage.getItem("authToken")
+  // Format amount
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
 
-    try {
-      const response = await axios.post(`${server}api/v1/payment/withdrawal-request`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-
-      if (response.data.success) {
-        toast.success("Withdrawal request submitted successfully!")
-        setShowRequestModal(false)
-        setFormData({
-          amount: "",
-          accNo: "",
-          ifsc: "",
-          contact: "",
-          bankName: "",
-          receiverName: "",
-        })
-        // Refresh the withdrawal history
-        setRefreshTrigger((prev) => prev + 1)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to submit request")
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800"
+      case "approved":
+        return "bg-green-100 text-green-800"
+      case "rejected":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
+  }
+
+  // Capitalize first letter
+  const capitalize = (str) => {
+    if (!str) return ""
+    return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
   // Handle withdrawal status update
@@ -152,49 +160,27 @@ export default function AdminDashboard() {
     setActionType("")
   }
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
-
-  // Format amount
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
-
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800"
-      case "approved":
-        return "bg-green-100 text-green-800"
-      case "rejected":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  // Sorting function
+  const requestSort = (key) => {
+    let direction = "asc"
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc"
     }
+    setSortConfig({ key, direction })
   }
 
-  // Capitalize first letter
-  const capitalize = (str) => {
-    if (!str) return ""
-    return str.charAt(0).toUpperCase() + str.slice(1)
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setDateRange({ from: "", to: "" })
+    setSortConfig({ key: "createdAt", direction: "desc" })
+    setCurrentPage(1)
   }
 
-  // Apply filters
-  const filteredData = useMemo(() => {
+  // Apply all filters and sorting
+  const filteredAndSortedData = useMemo(() => {
+    // First filter the data
     let filtered = [...withdrawalHistory]
 
     // Apply search term filter
@@ -215,72 +201,101 @@ export default function AdminDashboard() {
       filtered = filtered.filter((item) => (item?.status || "").toLowerCase() === statusFilter)
     }
 
-    return filtered
-  }, [withdrawalHistory, searchTerm, statusFilter])
+    // Apply date range filter
+    if (dateRange.from) {
+      const fromDate = new Date(dateRange.from)
+      fromDate.setHours(0, 0, 0, 0)
+      filtered = filtered.filter((item) => new Date(item?.createdAt) >= fromDate)
+    }
 
-  // Check if the withdrawal is from a user (admin can only approve/reject user withdrawals)
-  const isUserWithdrawal = (withdrawal) => {
-    // This is a placeholder logic - you'll need to adjust based on your actual data structure
-    // For example, if withdrawals have a 'role' field or if user IDs have a specific format
-    return withdrawal?.userRole === "user" || !withdrawal?.userRole
+    if (dateRange.to) {
+      const toDate = new Date(dateRange.to)
+      toDate.setHours(23, 59, 59, 999)
+      filtered = filtered.filter((item) => new Date(item?.createdAt) <= toDate)
+    }
+
+    // Then sort the filtered data
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key]
+        let bValue = b[sortConfig.key]
+
+        // Handle special cases
+        if (sortConfig.key === "createdAt") {
+          aValue = new Date(aValue)
+          bValue = new Date(bValue)
+        } else if (sortConfig.key === "amount") {
+          aValue = Number.parseFloat(aValue)
+          bValue = Number.parseFloat(bValue)
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === "asc" ? -1 : 1
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "asc" ? 1 : -1
+        }
+        return 0
+      })
+    }
+
+    return filtered
+  }, [withdrawalHistory, searchTerm, statusFilter, dateRange, sortConfig])
+
+  // Pagination calculations
+  const totalItems = filteredAndSortedData.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredAndSortedData.slice(indexOfFirstItem, indexOfLastItem)
+
+  // Generate page numbers for pagination
+  const pageNumbers = []
+  const maxPageNumbersToShow = 5
+
+  if (totalPages <= maxPageNumbersToShow) {
+    // Show all page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i)
+    }
+  } else {
+    // Show limited page numbers with ellipsis
+    if (currentPage <= 3) {
+      // Near the start
+      for (let i = 1; i <= 4; i++) {
+        pageNumbers.push(i)
+      }
+      pageNumbers.push("...")
+      pageNumbers.push(totalPages)
+    } else if (currentPage >= totalPages - 2) {
+      // Near the end
+      pageNumbers.push(1)
+      pageNumbers.push("...")
+      for (let i = totalPages - 3; i <= totalPages; i++) {
+        pageNumbers.push(i)
+      }
+    } else {
+      // Middle
+      pageNumbers.push(1)
+      pageNumbers.push("...")
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+        pageNumbers.push(i)
+      }
+      pageNumbers.push("...")
+      pageNumbers.push(totalPages)
+    }
   }
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border border-[rgb(var(--color-border))] bg-white p-6 shadow-sm">
-          <div className="flex flex-col space-y-1.5 pb-2">
-            <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Total Users
-            </h3>
-            <p className="text-sm text-[rgb(var(--color-text-muted))]">Users under your management</p>
-          </div>
-          <div className="pt-0">
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">+28 from last month</p>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-[rgb(var(--color-border))] bg-white p-6 shadow-sm">
-          <div className="flex flex-col space-y-1.5 pb-2">
-            <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Active Tickets
-            </h3>
-            <p className="text-sm text-[rgb(var(--color-text-muted))]">Support tickets requiring attention</p>
-          </div>
-          <div className="pt-0">
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">-3 from last week</p>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-[rgb(var(--color-border))] bg-white p-6 shadow-sm">
-          <div className="flex flex-col space-y-1.5 pb-2">
-            <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Pending Withdrawals
-            </h3>
-            <p className="text-sm text-[rgb(var(--color-text-muted))]">Withdrawal requests awaiting approval</p>
-          </div>
-          <div className="pt-0">
-            <div className="text-2xl font-bold">
-              {withdrawalHistory.filter((item) => item.status === "pending").length}
-            </div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              {withdrawalHistory.filter((item) => item.status === "pending").length > 0
-                ? "Requires your attention"
-                : "No pending requests"}
-            </p>
-          </div>
-        </div>
-      </div>
+     
 
       {/* Withdrawal History Section */}
       <div className="overflow-x-auto bg-white rounded-lg shadow border border-[rgb(var(--color-border))]">
         <div className="p-4 border-b">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Withdrawal Management
+              Withdrawal Requests
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -317,18 +332,11 @@ export default function AdminDashboard() {
                   />
                 </svg>
                 Filters
-                {statusFilter !== "all" && (
+                {(statusFilter !== "all" || dateRange.from || dateRange.to) && (
                   <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[rgb(var(--color-primary))] rounded-full">
-                    1
+                    {(statusFilter !== "all" ? 1 : 0) + (dateRange.from || dateRange.to ? 1 : 0)}
                   </span>
                 )}
-              </button>
-
-              <button
-                onClick={() => setShowRequestModal(true)}
-                className="px-4 py-2 bg-[rgb(var(--color-primary))] rounded-lg text-white hover:bg-[rgb(var(--color-primary-dark))] transition-colors"
-              >
-                Request Withdrawal
               </button>
             </div>
           </div>
@@ -350,14 +358,31 @@ export default function AdminDashboard() {
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
+
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                  <input
+                    type="date"
+                    value={dateRange.from}
+                    onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                  <input
+                    type="date"
+                    value={dateRange.to}
+                    onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+                  />
+                </div>
               </div>
 
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => {
-                    setStatusFilter("all")
-                    setSearchTerm("")
-                  }}
+                  onClick={resetFilters}
                   className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
                 >
                   Reset Filters
@@ -367,7 +392,7 @@ export default function AdminDashboard() {
           )}
 
           {/* Active filters display */}
-          {(statusFilter !== "all" || searchTerm) && (
+          {(statusFilter !== "all" || dateRange.from || dateRange.to || searchTerm) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {searchTerm && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
@@ -398,8 +423,61 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               )}
+
+              {(dateRange.from || dateRange.to) && (
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  Date: {dateRange.from ? new Date(dateRange.from).toLocaleDateString() : "Any"} to{" "}
+                  {dateRange.to ? new Date(dateRange.to).toLocaleDateString() : "Any"}
+                  <button
+                    onClick={() => setDateRange({ from: "", to: "" })}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           )}
+        </div>
+
+        {/* Results count and items per page */}
+        <div className="px-6 py-3 bg-gray-50 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div className="text-sm text-gray-500">
+            {isLoading ? (
+              "Loading withdrawal history..."
+            ) : (
+              <>
+                Showing <span className="font-medium">{totalItems === 0 ? 0 : indexOfFirstItem + 1}</span> to{" "}
+                <span className="font-medium">{Math.min(indexOfLastItem, totalItems)}</span> of{" "}
+                <span className="font-medium">{totalItems}</span> withdrawals
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Show</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1) // Reset to first page when changing items per page
+              }}
+              className="border rounded p-1 text-sm"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span className="text-sm text-gray-500">per page</span>
+          </div>
         </div>
 
         {isLoading ? (
@@ -423,14 +501,11 @@ export default function AdminDashboard() {
           <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md m-4">
             <p>No withdrawal history found. Withdrawal requests will appear here once users submit them.</p>
           </div>
-        ) : filteredData.length === 0 ? (
+        ) : filteredAndSortedData.length === 0 ? (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-md m-4">
             <p>No results found matching your filters. Try adjusting your search criteria.</p>
             <button
-              onClick={() => {
-                setStatusFilter("all")
-                setSearchTerm("")
-              }}
+              onClick={resetFilters}
               className="mt-2 text-sm font-medium text-yellow-700 underline hover:text-yellow-800"
             >
               Reset all filters
@@ -442,9 +517,15 @@ export default function AdminDashboard() {
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => requestSort("createdAt")}
                 >
-                  Date
+                  <div className="flex items-center">
+                    Date
+                    {sortConfig.key === "createdAt" && (
+                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
@@ -460,15 +541,27 @@ export default function AdminDashboard() {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => requestSort("amount")}
                 >
-                  Amount
+                  <div className="flex items-center">
+                    Amount
+                    {sortConfig.key === "amount" && (
+                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => requestSort("status")}
                 >
-                  Status
+                  <div className="flex items-center">
+                    Status
+                    {sortConfig.key === "status" && (
+                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
@@ -479,7 +572,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredData.map((item) => (
+              {currentItems.map((item) => (
                 <tr key={item._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -504,7 +597,7 @@ export default function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {item.status === "pending" && isUserWithdrawal(item) && (
+                    {item.status === "pending" && (
                       <div className="flex space-x-2">
                         <button
                           onClick={() => openConfirmModal(item, "approve")}
@@ -525,6 +618,73 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && totalItems > 0 && (
+          <div className="px-6 py-4 bg-white border-t flex flex-col sm:flex-row justify-between items-center">
+            <div className="text-sm text-gray-700 mb-4 sm:mb-0">
+              Page {currentPage} of {totalPages}
+            </div>
+
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              {pageNumbers.map((number, index) =>
+                number === "..." ? (
+                  <span key={`ellipsis-${index}`} className="px-3 py-1">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={number}
+                    onClick={() => setCurrentPage(number)}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === number
+                        ? "bg-[rgb(var(--color-primary))] text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                ),
+              )}
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -632,142 +792,6 @@ export default function AdminDashboard() {
                 )}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Request Withdrawal Modal */}
-      {showRequestModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="text-lg font-medium">Request Withdrawal to SuperAdmin</h3>
-              <button
-                onClick={() => setShowRequestModal(false)}
-                className="text-gray-400 hover:text-gray-500 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleFormSubmit}>
-              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                    Amount*
-                  </label>
-                  <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                    min="1"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="bankName" className="block text-sm font-medium text-gray-700">
-                    Bank Name*
-                  </label>
-                  <input
-                    type="text"
-                    id="bankName"
-                    name="bankName"
-                    value={formData.bankName}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="accNo" className="block text-sm font-medium text-gray-700">
-                    Account Number*
-                  </label>
-                  <input
-                    type="text"
-                    id="accNo"
-                    name="accNo"
-                    value={formData.accNo}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="ifsc" className="block text-sm font-medium text-gray-700">
-                    IFSC Code*
-                  </label>
-                  <input
-                    type="text"
-                    id="ifsc"
-                    name="ifsc"
-                    value={formData.ifsc}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
-                    Account Holder Name*
-                  </label>
-                  <input
-                    type="text"
-                    id="receiverName"
-                    name="receiverName"
-                    value={formData.receiverName}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="contact" className="block text-sm font-medium text-gray-700">
-                    Contact Number*
-                  </label>
-                  <input
-                    type="tel"
-                    id="contact"
-                    name="contact"
-                    value={formData.contact}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="p-4 border-t flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowRequestModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[rgb(var(--color-primary))] rounded-md text-white hover:bg-opacity-90 transition-colors"
-                >
-                  Submit Request
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

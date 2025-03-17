@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { BellIcon, FileTextIcon, LayoutDashboardIcon, MessageSquareIcon, SettingsIcon, UsersIcon } from "lucide-react"
+import { FileTextIcon, LayoutDashboardIcon, UserCheck, UsersIcon } from "lucide-react"
 import { LayoutWrapper } from "../../components/layout-wrapper"
 
 
@@ -8,47 +8,45 @@ const adminNavigation = [
     title: "Overview",
     items: [
       {
-        title: "Dashboard",
+        title: "Profile",
+        to: "/admin/profile",
+        icon: UserCheck,
+      },
+      {
+        title: "Requested Withdrawls",
         to: "/admin/dashboard",
         icon: LayoutDashboardIcon,
       },
-      {
-        title: "Reports",
-        to: "/admin/reports",
-        icon: FileTextIcon,
+        {
+        title: "Requested Deposit",
+        to: "/admin/requested-deposit",
+        icon: LayoutDashboardIcon,
       },
+     
+     
     ],
   },
   {
     title: "Management",
     items: [
       {
-        title: "Users",
+        title: " All Users",
         to: "/admin/users",
         icon: UsersIcon,
       },
       {
-        title: "Withdrawls",
+        title: "My Withdrawls",
         to: "/admin/withdrawl",
         icon: FileTextIcon,
       },
       {
-        title: "Deposite",
-        to: "/admin/deposite",
+        title: "My Deposit",
+        to: "/admin/deposit-history",
         icon: FileTextIcon,
       },
     ],
   },
-  {
-    title: "System",
-    items: [
-      {
-        title: "Settings",
-        to: "/admin/settings",
-        icon: SettingsIcon,
-      },
-    ],
-  },
+ 
 ]
 
 export default function AdminLayout({ children }) {

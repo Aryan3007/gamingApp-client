@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import axios from "axios"
 import { server } from "../../constants/config"
 
-export default function Reports() {
+export default function MyDeposit() {
   const [depositHistory, setDepositHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -30,7 +30,7 @@ export default function Reports() {
           throw new Error("Authentication token not found")
         }
 
-        const response = await axios.get(`${server}api/v1/payment/deposit-history`, {
+        const response = await axios.get(`${server}api/v1/payment/user-deposit-history`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -201,7 +201,7 @@ export default function Reports() {
         <div className="p-4 border-b">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Deposit History
+              Your Deposit History 
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">

@@ -1,66 +1,45 @@
 /* eslint-disable react/prop-types */
 "use client"
 
-import { BellIcon, CreditCardIcon, FileTextIcon, HelpCircleIcon, LayoutDashboardIcon, MessageSquareIcon, SettingsIcon } from "lucide-react"
+import { BellIcon, FileTextIcon } from "lucide-react"
 import { LayoutWrapper } from "../../components/layout-wrapper"
+import { GiRamProfile } from "react-icons/gi"
 
 
 const userNavigation = [
   {
     title: "Overview",
     items: [
-      {
-        title: "Dashboard",
-        to: "/user/dashboard",
-        icon: LayoutDashboardIcon,
+     {
+        title: "Profile",
+        to: "/user/profile",
+        icon: GiRamProfile,
       },
-      {
-        title: "Activity",
-        to: "/user/activity",
-        icon: FileTextIcon,
-      },
+     
     ],
   },
   {
     title: "Account",
     items: [
       {
-        title: "Messages",
-        to: "/user/messages",
-        icon: MessageSquareIcon,
+        title: "My Withdrawls",
+        to: "/user/withdrawl",
+        icon: FileTextIcon,
       },
       {
-        title: "Notifications",
-        to: "/user/notifications",
+        title: "My Deposits",
+        to: "/user/deposit",
         icon: BellIcon,
       },
-      {
-        title: "Billing",
-        to: "/user/billing",
-        icon: CreditCardIcon,
-      },
+      
     ],
   },
-  {
-    title: "Support",
-    items: [
-      {
-        title: "Help Center",
-        to: "/user/help",
-        icon: HelpCircleIcon,
-      },
-      {
-        title: "Settings",
-        to: "/user/settings",
-        icon: SettingsIcon,
-      },
-    ],
-  },
+
 ]
 
 export default function UserLayout({ children }) {
   return (
-    <LayoutWrapper navigation={userNavigation} userRole="user" portalTitle="User Portal">
+    <LayoutWrapper navigation={userNavigation} userRole="user">
       {children}
     </LayoutWrapper>
   )

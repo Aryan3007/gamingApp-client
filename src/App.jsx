@@ -31,17 +31,21 @@ const TermsConditions = lazy(() => import("./pages/legal/TermsConditions"));
 const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
 const BettingRules = lazy(() => import("./pages/legal/BettingRules"));
 const FairnessRng = lazy(() => import("./pages/legal/FairnessRng"));
-import SuperAdminLayout from "./pages/superadmin/SuperAdminLayout";
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
-import UserDashboard from "./pages/user/UserDashboard";
-import UserLayout from "./pages/user/UserLayout";
-import AllAdmins from "./pages/superadmin/AllAdmin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminLayout from "./pages/admin/AdminLayout";
-import Users from "./pages/admin/Users";
-import Allbets from "./pages/superadmin/AllBets";
-import Withdrawal from "./pages/admin/Withdrawl";
-import Reports from "./pages/superadmin/Reports";
+const SuperAdminLayout = lazy(() => import("./pages/superadmin/SuperAdminLayout"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const UserLayout = lazy(() => import("./pages/user/UserLayout"));
+const AllAdmins = lazy(() => import("./pages/superadmin/AllAdmin"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const Users = lazy(() => import("./pages/admin/Users"));
+const Allbets = lazy(() => import("./pages/superadmin/AllBets"));
+const Withdrawal = lazy(() => import("./pages/admin/Withdrawl"));
+const Reports = lazy(() => import("./pages/superadmin/Reports"));
+const WebsiteManagement = lazy(() => import("./pages/superadmin/WebsiteManagement"));
+const RequestedWithdrawl = lazy(() => import("./pages/admin/RequestedWithdrawl"));
+const DepositHistory = lazy(() => import("./pages/admin/DepositHistory"));
+const RequestedDeposit = lazy(() => import("./pages/admin/RequestedDeposit"));
+const MyWithdrawls = lazy(() => import("./pages/user/MyWithdrawls.jsx"));
+const MyDeposit = lazy(() => import("./pages/user/MyDeposit.jsx"));
 
 // Lazy loading components for better performance
 const Loader = lazy(() => import("./components/Loader"));
@@ -286,14 +290,14 @@ const App = () => {
           />
 
           {/* Protected Route: Only logged-in users */}
-          <Route
+          {/* <Route
             path="/profile"
             element={
               <ProtectedRoute isAuthenticated={user}>
                 <Profile />
               </ProtectedRoute>
             }
-          />
+          /> */}
 
           <Route
             path="/mybets"
@@ -310,12 +314,15 @@ const App = () => {
               <ProtectedRoute isAuthenticated={user}>
                 <UserLayout>
                   <Routes>
-                    <Route path="/dashboard" element={<UserDashboard />} />
-                    <Route path="/reports" element={<SuperAdminDashboard />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route
-                      path="/dashboard"
-                      element={<SuperAdminDashboard />}
+                      path="/withdrawl"
+                      element={<MyWithdrawls />}
+                    /> <Route
+                      path="/deposit"
+                      element={<MyDeposit />}
                     />
+                   
                   </Routes>
                 </UserLayout>
               </ProtectedRoute>
@@ -334,8 +341,18 @@ const App = () => {
                 <AdminLayout>
                   <Routes>
                   <Route
+                      path="/profile"
+                      element={<Profile />}
+                    />  
+                   
+                  <Route
                       path="/dashboard"
-                      element={<AdminDashboard />}
+                      element={<RequestedWithdrawl />}
+                    />
+
+                     <Route
+                      path="/requested-deposit"
+                      element={<DepositHistory />}
                     />
                     
                     <Route
@@ -345,6 +362,9 @@ const App = () => {
                     <Route
                       path="/withdrawl"
                       element={<Withdrawal />}
+                    /> <Route
+                      path="/deposit-history"
+                      element={<RequestedDeposit />}
                     />
                   </Routes>
                 </AdminLayout>
@@ -369,6 +389,7 @@ const App = () => {
                     />
                     <Route path="/allbets" element={<Allbets />} />
                     <Route path="/reports" element={<Reports />} />
+                    <Route path="/website-management" element={<WebsiteManagement />} />
                     <Route
                       path="/alladmins"
                       element={<AllAdmins />}

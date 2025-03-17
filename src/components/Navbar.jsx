@@ -84,13 +84,15 @@ const ProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) => {
           <div className="px-4 py-2 border-b border-[rgb(var(--color-primary-darker))]">
             <p className="text-white capitalize font-medium">{user?.name || "User"}</p>
           </div>
-          <Link to="/profile">
-            <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
-              My Profile
-            </button>
-          </Link>
+          {user.role === "user" && (
+            <Link to="/user/dashboard">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+               Dashboard
+              </button>
+            </Link>
+          )}
           {user?.role === "admin" && (
-            <Link to="/admin/dashboard">
+            <Link to="/admin/profile">
               <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 Admin Panel
               </button>
@@ -132,11 +134,13 @@ const MobileProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) 
           <div className="px-3 py-2 border-b border-[rgb(var(--color-primary-darker))]">
             <p className="text-white text-sm font-medium">{user?.name || "User"}</p>
           </div>
-          <Link to="/profile">
-            <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
-              My Profile
-            </button>
-          </Link>
+          {user.role !== "super_admin" && (
+            <Link to="/user/dashboard">
+              <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
+                My Profile
+              </button>
+            </Link>
+          )}
           {user?.role === "admin" && (
             <Link to="/admin/dashboard">
               <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">

@@ -3,13 +3,12 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { server } from "../../constants/config";
 
-export default function Withdrawal() {
+export default function UserWithdrawal() {
   const [withdrawalData, setWithdrawalData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("approved");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +44,7 @@ export default function Withdrawal() {
 
       setIsLoading(true);
       const response = await axios.get(
-        `${server}api/v1/payment/user-withdrawal-history`,
+        `${server}api/v1/payment/withdrawal-history`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -146,8 +145,7 @@ export default function Withdrawal() {
           bankName: "",
           receiverName: "",
         });
-        // Refresh the withdrawal history
-        setRefreshTrigger((prev) => prev + 1);
+   
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit request");

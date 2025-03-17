@@ -1,20 +1,26 @@
 /* eslint-disable react/prop-types */
-"use client"
+"use client";
 
-import { DollarSignIcon, FileTextIcon, Gamepad, LayoutDashboardIcon, SettingsIcon, ShieldAlertIcon, UserCogIcon } from "lucide-react"
-import { LayoutWrapper } from "../../components/layout-wrapper"
+import {
+  FileTextIcon,
+  Gamepad,
+  LayoutDashboardIcon,
+  SettingsIcon,
+  UserCogIcon,
+} from "lucide-react";
+import { LayoutWrapper } from "../../components/layout-wrapper";
 
 const superAdminNavigation = [
   {
     title: "Overview",
     items: [
       {
-        title: "Dashboard",
+        title: "Withdrawl Requests",
         to: "/superadmin/dashboard",
         icon: LayoutDashboardIcon,
       },
       {
-        title: "Reports",
+        title: "Deposit History",
         to: "/superadmin/reports",
         icon: FileTextIcon,
       },
@@ -33,11 +39,6 @@ const superAdminNavigation = [
         to: "/superadmin/allbets",
         icon: Gamepad,
       },
-      {
-        title: "Permissions",
-        to: "/superadmin/permissions",
-        icon: ShieldAlertIcon,
-      },
     ],
   },
   {
@@ -45,23 +46,21 @@ const superAdminNavigation = [
     items: [
       {
         title: "Settings",
-        to: "/superadmin/settings",
+        to: "/superadmin/website-management",
         icon: SettingsIcon,
-      },
-      {
-        title: "Billing",
-        to: "/superadmin/billing",
-        icon: DollarSignIcon,
       },
     ],
   },
-]
+];
 
 export default function SuperAdminLayout({ children }) {
   return (
-    <LayoutWrapper navigation={superAdminNavigation} userRole="superAdmin" portalTitle="Super Admin Portal">
+    <LayoutWrapper
+      navigation={superAdminNavigation}
+      userRole="superAdmin"
+      portalTitle="Super Admin Portal"
+    >
       {children}
     </LayoutWrapper>
-  )
+  );
 }
-

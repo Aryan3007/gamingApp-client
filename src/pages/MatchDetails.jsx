@@ -258,18 +258,23 @@ const MatchDetails = ({ sportsData }) => {
             </div>
           </div>
 
-          <CricketScore eventId={eventId} />
-          <OpenBetsMob eventId={eventId} marginAgain={marginAgain} />
+          {sportId === "4" && (
+            <>
+              <CricketScore eventId={eventId} />
+            
+            </>
+          )}
+            <OpenBetsMob eventId={eventId} marginAgain={marginAgain} />
 
-          <MatchOdds
-            stake={stake}
-            marginAgain={marginAgain}
-            eventId={eventId}
-            setStake={handleStakeChange}
-            onBetSelect={handleBetSelection}
-            showBetSlip={true}
-            betPlaced={betPlaced}
-          />
+<MatchOdds
+  stake={stake}
+  marginAgain={marginAgain}
+  eventId={eventId}
+  setStake={handleStakeChange}
+  onBetSelect={handleBetSelection}
+  showBetSlip={true}
+  betPlaced={betPlaced}
+/>
 
           {/* Navigation Tabs */}
           <div className="flex gap-1 my-2 lg:gap-2 bg-[rgb(var(--color-background))] border-[rgb(var(--color-border))] overflow-x-auto rounded-lg border p-2">

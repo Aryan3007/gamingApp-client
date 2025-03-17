@@ -334,7 +334,7 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
 
   return (
     <div>
-      <div className="border border-[rgb(var(--color-border))] mb-2 rounded-lg overflow-hidden w-full shadow-sm">
+      <div className="border border-[rgb(var(--color-border))] my-2 rounded-lg overflow-hidden w-full shadow-sm">
         <div className="flex flex-wrap sm:flex-nowrap bg-[rgb(var(--color-background))] border-b border-[rgb(var(--color-border))] py-2 justify-between items-center px-4 mb-0">
           <h2 className="text-[rgb(var(--color-text-primary))] text-lg font-semibold">Match Odds</h2>
           <div className="flex flex-wrap gap-4 items-center">

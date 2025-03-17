@@ -85,7 +85,7 @@ const ProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) => {
             <p className="text-white capitalize font-medium">{user?.name || "User"}</p>
           </div>
           {user.role === "user" && (
-            <Link to="/user/dashboard">
+            <Link to="/user/profile">
               <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                Dashboard
               </button>
@@ -135,7 +135,7 @@ const MobileProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) 
             <p className="text-white text-sm font-medium">{user?.name || "User"}</p>
           </div>
           {user.role !== "super_admin" && (
-            <Link to="/user/dashboard">
+            <Link to="/user/profile">
               <button className="w-full text-left px-4 py-2 text-white hover:bg-[rgb(var(--color-primary-darker))] transition-colors">
                 My Profile
               </button>

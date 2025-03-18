@@ -94,76 +94,74 @@ const App = () => {
   }, []);
 
   // User authentication setup
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        dispatch(setLoading(true));
-        const token = localStorage.getItem("authToken");
+// User authentication setup
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      dispatch(setLoading(true));
+      const token = localStorage.getItem("authToken");
 
-        if (!token) {
-          const retryFetchUser = async (retries) => {
-            if (retries <= 0) {
-              localStorage.removeItem("authToken");
-              dispatch(userNotExist());
-              return;
+      if (!token) {
+        const retryFetchUser = async (retries) => {
+          if (retries <= 0) {
+            localStorage.removeItem("authToken");
+            dispatch(userNotExist());
+            return;
+          }
+
+          try {
+            const response = await api.get("api/v1/user/me", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (response.data.user.status === "banned") {
+              toast.error("Your account has been banned.", { icon: "⚠️" });
             }
 
-            try {
-              const response = await api.get("api/v1/user/me", {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
+            dispatch(userExist(response.data.user)); // Store user info
+          } catch (error) {
+            console.error("Retrying authentication error:", error);
+            setTimeout(() => retryFetchUser(retries - 1), 1000);
+          }
+        };
 
-              if (response.data.user.status === "banned") {
-                toast.error("Your account has been banned.", { icon: "⚠️" });
-                localStorage.removeItem("authToken");
-                dispatch(userNotExist());
-                return;
-              }
-            } catch (error) {
-              console.error("Retrying authentication error:", error);
-              setTimeout(() => retryFetchUser(retries - 1), 1000);
-            }
-          };
-
-          retryFetchUser(5);
-          return;
-        }
-
-        const response = await api.get("api/v1/user/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.data.user.status === "banned") {
-          toast.error("Your account has been banned.", { icon: "⚠️" });
-          localStorage.removeItem("authToken");
-          dispatch(userNotExist());
-          return;
-        }
-
-        dispatch(userExist(response.data.user));
-      } catch (error) {
-        console.error("Authentication error:", error);
-        localStorage.removeItem("authToken");
-        dispatch(userNotExist());
-
-        if (error.response?.status === 401) {
-          toast.error("Session expired. Please login again.");
-        } else if (error.response) {
-          toast.error(error.response.data.message || "Authentication failed");
-        } else {
-          toast.error("Connection error. Please try again later.");
-        }
-      } finally {
-        dispatch(setLoading(false));
+        retryFetchUser(5);
+        return;
       }
-    };
 
-    fetchUser();
-  }, [dispatch]);
+      const response = await api.get("api/v1/user/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.user.status === "banned") {
+        toast.error("Your account has been banned.", { icon: "⚠️" });
+      }
+
+      dispatch(userExist(response.data.user)); // Store user info
+    } catch (error) {
+      console.error("Authentication error:", error);
+      localStorage.removeItem("authToken");
+      dispatch(userNotExist());
+
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (error.response) {
+        toast.error(error.response.data.message || "Authentication failed");
+      } else {
+        toast.error("Connection error. Please try again later.");
+      }
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  fetchUser();
+}, [dispatch]);
+
 
   // Socket connection management
   useEffect(() => {
@@ -336,7 +334,7 @@ const App = () => {
               <ProtectedRoute
                 isAuthenticated={user}
                 adminOnly={true}
-                admin={user?.role === "admin"}
+                admin={user?.role === "master"}
               >
                 <AdminLayout>
                   <Routes>

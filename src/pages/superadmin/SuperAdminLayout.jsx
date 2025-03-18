@@ -30,7 +30,7 @@ const superAdminNavigation = [
     title: "Management",
     items: [
       {
-        title: "All Admins",
+        title: "All Masters",
         to: "/superadmin/alladmins",
         icon: UserCogIcon,
       },

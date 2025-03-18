@@ -51,7 +51,7 @@ const adminNavigation = [
 
 export default function AdminLayout({ children }) {
   return (
-    <LayoutWrapper navigation={adminNavigation} userRole="admin" portalTitle="Admin Portal">
+    <LayoutWrapper navigation={adminNavigation} userRole="master" portalTitle="Master Portal">
       {children}
     </LayoutWrapper>
   )

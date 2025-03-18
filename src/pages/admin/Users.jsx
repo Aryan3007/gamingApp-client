@@ -19,6 +19,7 @@ export default function Users() {
 
   // State for add money dialog
   const [isAddMoneyOpen, setIsAddMoneyOpen] = useState(false)
+  const [isReducmoney, setIsReducmoney] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [amount, setAmount] = useState("")
 
@@ -153,6 +154,21 @@ export default function Users() {
     setAmount("")
   }
 
+    // Open add money dialog
+    const openReduceMoneyDialog = (user) => {
+      setSelectedUser(user)
+      setAmount("")
+      setIsReducmoney(true)
+    }
+  
+    // Close add money dialog
+    const closereduceMoneyDialog = () => {
+      setIsReducmoney(false)
+      setSelectedUser(null)
+      setAmount("")
+    }
+  
+
   // Handle adding money
   const handleAddMoney = async () => {
     if (!amount || isNaN(amount) || Number.parseFloat(amount) <= 0) {
@@ -173,6 +189,33 @@ export default function Users() {
 
       toast.success(response.data?.message || "Amount added successfully")
       closeAddMoneyDialog()
+      fetchUsers() // Refresh the data
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update amount. Please try again later.")
+      console.error("Error updating amount:", error)
+    }
+  } 
+  
+  // Handle adding money
+  const handleReduceMoney = async () => {
+    if (!amount || isNaN(amount) || Number.parseFloat(amount) <= 0) {
+      toast.error("Please enter a valid amount greater than 0")
+      return
+    }
+
+    const token = localStorage.getItem("authToken")
+
+    try {
+      const response = await axios.put(
+        `${server}api/v1/user/reduceamount/${selectedUser._id}`,
+        { amount: Number.parseFloat(amount) },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+
+      toast.success(response.data?.message || "Amount Reduced successfully")
+      closereduceMoneyDialog()
       fetchUsers() // Refresh the data
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update amount. Please try again later.")
@@ -437,7 +480,7 @@ export default function Users() {
                     <td className="p-4 align-middle font-medium">{capitalize(user.name)}</td>
                     <td className="p-4 align-middle">{user.email}</td>
                     <td className="p-4 align-middle">{user.currency.toUpperCase()}</td>
-                    <td className="p-4 align-middle">{user.status === "banned" ? "0" : user.amount.toLocaleString()}</td>
+                    <td className="p-4 align-middle">{ user.amount.toLocaleString()}</td>
                     <td className="p-4 align-middle">
                       <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -451,6 +494,13 @@ export default function Users() {
                     </td>
                     <td className="p-4 align-middle">{formatDate(user.createdAt)}</td>
                     <td className="p-4 flex justify-end items-center align-middle text-right">
+                      <button
+                      className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                      onClick={() => openReduceMoneyDialog(user)}
+                      >
+                      Reduce Money
+                      </button>
+                      
                       <button
                       className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                       onClick={() => openAddMoneyDialog(user)}
@@ -802,6 +852,80 @@ export default function Users() {
                 className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
               >
                 Add Money
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+        {/* reduce Money Dialog */}
+        {isReducmoney && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">
+                Reduce Money from User Wallet
+              </h3>
+              <button
+                     onClick={closereduceMoneyDialog}
+                className="rounded-full p-1 text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-primary-lighter))] hover:text-[rgb(var(--color-primary-dark))]"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="mb-2 text-sm text-[rgb(var(--color-text-muted))]">
+                Deducting money to:{" "}
+                <span className="font-medium text-[rgb(var(--color-text-primary))]">{selectedUser?.name}</span>
+              </p>
+              <p className="mb-4 text-sm text-[rgb(var(--color-text-muted))]">
+                Current balance:{" "}
+                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                  {selectedUser?.amount.toLocaleString()} {selectedUser?.currency.toUpperCase()}
+                </span>
+              </p>
+
+              <div className="space-y-2">
+                <label htmlFor="add-amount" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  Amount to Deduct
+                </label>
+                <span className="text-xs text-red-500"> (money will be deducted from users account)</span>
+
+                <input
+                  type="number"
+                  id="add-amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
+                  placeholder={`Enter amount in ${selectedUser?.currency.toUpperCase()}`}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={closereduceMoneyDialog}
+                className="inline-flex items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-white px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleReduceMoney}
+                className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
+              >
+                Deduct Money
               </button>
             </div>
           </div>

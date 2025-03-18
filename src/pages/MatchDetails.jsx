@@ -14,6 +14,7 @@ import MatchOdds from "../components/matchdetails_ui/MatchOdds";
 import Market from "../components/matchdetails_ui/Market"; 
 import { server } from "../constants/config";
 import OpenBetsMob from "../components/OpenBetsMob";
+import Score from "../components/Score";
 
 // Separate tabComponents definition to avoid recursive reference
 const tabComponents = {
@@ -258,11 +259,10 @@ const MatchDetails = ({ sportsData }) => {
             </div>
           </div>
 
-          {sportId === "4" && (
-            <>
-              <CricketScore eventId={eventId} />
-            
-            </>
+          {sportId === "4" ? (
+            <CricketScore eventId={eventId} />
+          ) : (
+            <Score eventId={eventId} />
           )}
             <OpenBetsMob eventId={eventId} marginAgain={marginAgain} />
 

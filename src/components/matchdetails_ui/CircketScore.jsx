@@ -3,6 +3,7 @@
 
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
+import { server } from "../../constants/config";
 
 const CricketScoreDirect = ({ eventId }) => {
   const [htmlContent, setHtmlContent] = useState("");
@@ -16,15 +17,17 @@ const CricketScoreDirect = ({ eventId }) => {
     const fetchScores = async () => {
       try {
         const response = await axios.get(
-          `https://testscapi.fpl11.com/api/admin/cricketscore?eventid=${eventId}`
+          `${server}api/v1/scores/cricket?eventId=${eventId}`
         );
-        if (response.data.trim() === "") {
+
+       
+        if (response.data.score.trim() === "") {
           setHtmlContent("<p>Match not started yet</p>");
         } else {
           setHtmlContent(response.data);
         }
         setError(null);
-        localStorage.setItem(`cricketScoreHtml_${eventId}`, response.data);
+        localStorage.setItem(`cricketScoreHtml_${eventId}`, response.data.score);
       } catch (err) {
         console.error("Error fetching scores:", err);
         setError("Failed to fetch cricket scores");

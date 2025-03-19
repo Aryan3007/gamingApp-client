@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -25,6 +26,7 @@ export default function AllAdmins() {
 
   // State for ban/unban confirmation
   const [isBanConfirmOpen, setIsBanConfirmOpen] = useState(false);
+  const [isDelConfirmOpen, setIsDelConfirmOpen] = useState(false);
   const [userToModify, setUserToModify] = useState(null);
   const [actionType, setActionType] = useState(""); // "ban" or "unban"
 
@@ -159,7 +161,7 @@ export default function AllAdmins() {
 
   // Open add money dialog
   const openAddMoneyDialog = (user, isAdmin = false) => {
-    setSelectedUser({ ...user, isAdmin });
+  
     setAmount("");
     setIsAddMoneyOpen(true);
   };
@@ -245,6 +247,8 @@ export default function AllAdmins() {
     }
   };
 
+
+
   // Open ban/unban confirmation dialog
   const openBanConfirmDialog = (user, isAdmin = false) => {
     setUserToModify({ ...user, isAdmin });
@@ -257,7 +261,52 @@ export default function AllAdmins() {
     setIsBanConfirmOpen(false);
     setUserToModify(null);
   };
-
+  const handleDeleteUser = async () => {
+    if (!userToModify?._id) {
+      toast.error("Invalid user selected for deletion.");
+      return;
+    }
+  
+    const token = localStorage.getItem("authToken");
+  
+    try {
+      const response = await axios.post(
+        `${server}api/v1/user/deleteuser/${userToModify._id}`, // ✅ Use `userToModify` instead of `selectedUser`
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      toast.success(response.data?.message || "User deleted successfully");
+      fetchAllAdmins();
+      closeDelConfirmDialog();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to delete User. Please try again later."
+      );
+      console.error("Error deleting user:", error);
+    }
+  };
+  
+  // ✅ Ensure `userToModify` is properly set when opening the confirmation modal
+  const openDelConfirmDialog = (user, isAdmin = false) => {
+    if (!user) {
+      toast.error("User data is missing.");
+      return;
+    }
+    
+    setUserToModify({ ...user, isAdmin });
+    setIsDelConfirmOpen(true);
+  };
+  
+  // ✅ Make sure to reset `userToModify` when closing the modal
+  const closeDelConfirmDialog = () => {
+    setIsDelConfirmOpen(false);
+    setUserToModify(null);
+  };
+  
   // Handle user status change (ban/unban)
   const handleUserStatusChange = async () => {
     const token = localStorage.getItem("authToken");
@@ -520,6 +569,9 @@ export default function AllAdmins() {
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     Total Balance
                   </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    Exposure
+                  </th>
                   <th className="h-12 px-4 text-right align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     Actions
                   </th>
@@ -576,9 +628,17 @@ export default function AllAdmins() {
                               )
                               .toLocaleString()}
                           </td>
-                          <td className="p-4 flex justify-end items-center align-middle text-right">
+                          <td className="p-4 align-middle">
+                            {item.users
+                              .reduce(
+                                (acc, user) => acc + user.exposure,
+                                item.admin.exposure
+                              )
+                              .toLocaleString()}
+                          </td>
+                          <td className="p-4 grid grid-cols-3 gap-2">
                             <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                              className=" inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                               onClick={() => toggleExpandAdmin(item.admin._id)}
                             >
                               {expandedAdmins[item.admin._id]
@@ -586,7 +646,7 @@ export default function AllAdmins() {
                                 : "Expand"}
                             </button>
                             <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                              className=" inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                               onClick={() =>
                                 openReduceMoneyDialog(item.admin, true)
                               }
@@ -594,7 +654,7 @@ export default function AllAdmins() {
                               Reduce Money
                             </button>
                             <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                              className=" inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                               onClick={() =>
                                 openAddMoneyDialog(item.admin, true)
                               }
@@ -615,12 +675,20 @@ export default function AllAdmins() {
                                 ? "Ban Admin"
                                 : "Unban Admin"}
                             </button>
+                            <button
+                              className="bg-red-500 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] text-white px-3 py-2 text-xs font-medium transition-colors  focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                              onClick={() =>
+                                openDelConfirmDialog(item.admin, true)
+                              }
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
 
                         {expandedAdmins[item.admin._id] && (
                           <tr>
-                            <td colSpan="6" className="p-0">
+                            <td colSpan="8" className="p-0">
                               <div className="bg-gray-50 w-full p-4">
                                 <h4 className="font-medium mb-2 text-[rgb(var(--color-text-primary))]">
                                   Users under {capitalize(item.admin.name)}
@@ -652,6 +720,9 @@ export default function AllAdmins() {
                                           </th>
                                           <th className="p-2 text-left font-medium text-[rgb(var(--color-text-muted))]">
                                             Created
+                                          </th>{" "}
+                                          <th className="p-2 text-left font-medium text-[rgb(var(--color-text-muted))]">
+                                            Exposure
                                           </th>
                                         </tr>
                                       </thead>
@@ -692,6 +763,9 @@ export default function AllAdmins() {
                                             </td>
                                             <td className="p-2">
                                               {formatDate(user.createdAt)}
+                                            </td>
+                                            <td className="p-4 align-middle">
+                                              {user.exposure.toLocaleString()}
                                             </td>
                                           </tr>
                                         ))}
@@ -1268,6 +1342,66 @@ export default function AllAdmins() {
           </div>
         </div>
       )}
+
+      {/* Ban/Unban Confirmation Dialog */}
+     
+{isDelConfirmOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">
+          Delete Confirmation
+        </h3>
+        <button
+          onClick={closeDelConfirmDialog} // ✅ Fixed function call
+          className="rounded-full p-1 text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-primary-lighter))] hover:text-[rgb(var(--color-primary-dark))]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div className="mb-6">
+        <p className="mb-4 text-[rgb(var(--color-text-primary))]">
+          Are you sure you want to delete <span className="font-medium">{userToModify?.name}</span>?
+        </p>
+
+        <p className="text-sm text-red-600">
+          This action will permanently delete the user from the application.
+        </p>
+      </div>
+
+      <div className="flex justify-end space-x-3">
+        <button
+          type="button"
+          onClick={closeDelConfirmDialog}
+          className="inline-flex items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-white px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleDeleteUser}
+          className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 hover:bg-red-700 focus:ring-red-500"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

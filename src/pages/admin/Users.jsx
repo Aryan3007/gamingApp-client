@@ -36,7 +36,7 @@ export default function Users() {
     name: "",
     email: "",
     password: "",
-    currency: "USD",
+    currency: user?.currency,
     role: "user", // Fixed as user
     gender: "male",
     amount: "",
@@ -555,6 +555,9 @@ export default function Users() {
                         )}
                       </button>
                     </th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
+                    Exposure
+                  </th>
                     <th className="h-12 px-4 text-right align-middle font-medium text-[rgb(var(--color-text-muted))]">
                       Actions
                     </th>
@@ -599,6 +602,9 @@ export default function Users() {
                         </td>
                         <td className="p-4 align-middle">
                           {formatDate(user.createdAt)}
+                        </td>
+                        <td className="p-4 align-middle">
+                          {user.exposure.toLocaleString()}
                         </td>
                         <td className="p-4 flex justify-end items-center align-middle text-right">
                           <button
@@ -863,7 +869,7 @@ export default function Users() {
                     type="text"
                     id="currency"
                     name="currency"
-                    value={user.currency.toUpperCase()}
+                    value={newUserData.currency.toUpperCase()}
                     className="w-full rounded-md border border-[rgb(var(--color-border))] bg-gray-100 px-3 py-2 text-sm"
                     disabled
                   />

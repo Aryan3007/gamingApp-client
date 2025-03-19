@@ -18,6 +18,7 @@ import {
   userExist,
   userNotExist,
 } from "./redux/reducer/userReducer";
+import ChangePassword from "./components/ChangePassword.jsx";
 const AccountsPayouts = lazy(() => import("./pages/legal/AccountsPayouts"));
 const KycPage = lazy(() => import("./pages/legal/KycPage"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -31,8 +32,12 @@ const TermsConditions = lazy(() => import("./pages/legal/TermsConditions"));
 const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
 const BettingRules = lazy(() => import("./pages/legal/BettingRules"));
 const FairnessRng = lazy(() => import("./pages/legal/FairnessRng"));
-const SuperAdminLayout = lazy(() => import("./pages/superadmin/SuperAdminLayout"));
-const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const SuperAdminLayout = lazy(() =>
+  import("./pages/superadmin/SuperAdminLayout")
+);
+const SuperAdminDashboard = lazy(() =>
+  import("./pages/superadmin/SuperAdminDashboard")
+);
 const UserLayout = lazy(() => import("./pages/user/UserLayout"));
 const AllAdmins = lazy(() => import("./pages/superadmin/AllAdmin"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -40,8 +45,12 @@ const Users = lazy(() => import("./pages/admin/Users"));
 const Allbets = lazy(() => import("./pages/superadmin/AllBets"));
 const Withdrawal = lazy(() => import("./pages/admin/Withdrawl"));
 const Reports = lazy(() => import("./pages/superadmin/Reports"));
-const WebsiteManagement = lazy(() => import("./pages/superadmin/WebsiteManagement"));
-const RequestedWithdrawl = lazy(() => import("./pages/admin/RequestedWithdrawl"));
+const WebsiteManagement = lazy(() =>
+  import("./pages/superadmin/WebsiteManagement")
+);
+const RequestedWithdrawl = lazy(() =>
+  import("./pages/admin/RequestedWithdrawl")
+);
 const DepositHistory = lazy(() => import("./pages/admin/DepositHistory"));
 const RequestedDeposit = lazy(() => import("./pages/admin/RequestedDeposit"));
 const MyWithdrawls = lazy(() => import("./pages/user/MyWithdrawls.jsx"));
@@ -58,7 +67,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const MatchDetails = lazy(() => import("./pages/MatchDetails"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AllGames = lazy(() => import("./components/AllGames"));
-
 
 // Create API instance
 const api = axios.create({
@@ -94,74 +102,73 @@ const App = () => {
   }, []);
 
   // User authentication setup
-// User authentication setup
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      dispatch(setLoading(true));
-      const token = localStorage.getItem("authToken");
+  // User authentication setup
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        dispatch(setLoading(true));
+        const token = localStorage.getItem("authToken");
 
-      if (!token) {
-        const retryFetchUser = async (retries) => {
-          if (retries <= 0) {
-            localStorage.removeItem("authToken");
-            dispatch(userNotExist());
-            return;
-          }
-
-          try {
-            const response = await api.get("api/v1/user/me", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (response.data.user.status === "banned") {
-              toast.error("Your account has been banned.", { icon: "⚠️" });
+        if (!token) {
+          const retryFetchUser = async (retries) => {
+            if (retries <= 0) {
+              localStorage.removeItem("authToken");
+              dispatch(userNotExist());
+              return;
             }
 
-            dispatch(userExist(response.data.user)); // Store user info
-          } catch (error) {
-            console.error("Retrying authentication error:", error);
-            setTimeout(() => retryFetchUser(retries - 1), 1000);
-          }
-        };
+            try {
+              const response = await api.get("api/v1/user/me", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
 
-        retryFetchUser(5);
-        return;
+              if (response.data.user.status === "banned") {
+                toast.error("Your account has been banned.", { icon: "⚠️" });
+              }
+
+              dispatch(userExist(response.data.user)); // Store user info
+            } catch (error) {
+              console.error("Retrying authentication error:", error);
+              setTimeout(() => retryFetchUser(retries - 1), 1000);
+            }
+          };
+
+          retryFetchUser(5);
+          return;
+        }
+
+        const response = await api.get("api/v1/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.data.user.status === "banned") {
+          toast.error("Your account has been banned.", { icon: "⚠️" });
+        }
+
+        dispatch(userExist(response.data.user)); // Store user info
+      } catch (error) {
+        console.error("Authentication error:", error);
+        localStorage.removeItem("authToken");
+        dispatch(userNotExist());
+
+        if (error.response?.status === 401) {
+          toast.error("Session expired. Please login again.");
+        } else if (error.response) {
+          toast.error(error.response.data.message || "Authentication failed");
+        } else {
+          toast.error("Connection error. Please try again later.");
+        }
+      } finally {
+        dispatch(setLoading(false));
       }
+    };
 
-      const response = await api.get("api/v1/user/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.data.user.status === "banned") {
-        toast.error("Your account has been banned.", { icon: "⚠️" });
-      }
-
-      dispatch(userExist(response.data.user)); // Store user info
-    } catch (error) {
-      console.error("Authentication error:", error);
-      localStorage.removeItem("authToken");
-      dispatch(userNotExist());
-
-      if (error.response?.status === 401) {
-        toast.error("Session expired. Please login again.");
-      } else if (error.response) {
-        toast.error(error.response.data.message || "Authentication failed");
-      } else {
-        toast.error("Connection error. Please try again later.");
-      }
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  fetchUser();
-}, [dispatch]);
-
+    fetchUser();
+  }, [dispatch]);
 
   // Socket connection management
   useEffect(() => {
@@ -313,14 +320,12 @@ useEffect(() => {
                 <UserLayout>
                   <Routes>
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/withdrawl" element={<MyWithdrawls />} />{" "}
+                    <Route path="/deposit" element={<MyDeposit />} />
                     <Route
-                      path="/withdrawl"
-                      element={<MyWithdrawls />}
-                    /> <Route
-                      path="/deposit"
-                      element={<MyDeposit />}
+                      path="/change-password"
+                      element={<ChangePassword />}
                     />
-                   
                   </Routes>
                 </UserLayout>
               </ProtectedRoute>
@@ -338,29 +343,19 @@ useEffect(() => {
               >
                 <AdminLayout>
                   <Routes>
-                  <Route
-                      path="/profile"
-                      element={<Profile />}
-                    />  
-                   
-                  <Route
-                      path="/dashboard"
-                      element={<RequestedWithdrawl />}
-                    />
-
-                     <Route
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/dashboard" element={<RequestedWithdrawl />} />
+                    <Route
                       path="/requested-deposit"
                       element={<DepositHistory />}
                     />
-                    
                     <Route
-                      path="/users"
-                      element={<Users />}
-                    />  
+                      path="/change-password"
+                      element={<ChangePassword />}
+                    />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/withdrawl" element={<Withdrawal />} />{" "}
                     <Route
-                      path="/withdrawl"
-                      element={<Withdrawal />}
-                    /> <Route
                       path="/deposit-history"
                       element={<RequestedDeposit />}
                     />
@@ -386,12 +381,16 @@ useEffect(() => {
                       element={<SuperAdminDashboard />}
                     />
                     <Route path="/allbets" element={<Allbets />} />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/website-management" element={<WebsiteManagement />} />
                     <Route
-                      path="/alladmins"
-                      element={<AllAdmins />}
+                      path="/change-password"
+                      element={<ChangePassword />}
                     />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route
+                      path="/website-management"
+                      element={<WebsiteManagement />}
+                    />
+                    <Route path="/alladmins" element={<AllAdmins />} />
                   </Routes>
                 </SuperAdminLayout>
               </ProtectedRoute>

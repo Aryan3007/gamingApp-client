@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { FileTextIcon, LayoutDashboardIcon, UserCheck, UsersIcon } from "lucide-react"
+import { FileTextIcon, LayoutDashboardIcon, Lock, UserCheck, UsersIcon } from "lucide-react"
 import { LayoutWrapper } from "../../components/layout-wrapper"
 
 
@@ -44,8 +44,14 @@ const adminNavigation = [
         to: "/admin/deposit-history",
         icon: FileTextIcon,
       },
+      {
+        title: "Change Password",
+        to: "/admin/change-password",
+        icon: Lock,
+      },
     ],
-  },
+  },  
+  
  
 ]
 

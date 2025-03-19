@@ -529,15 +529,20 @@ export default function SuperAdminDashboard() {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                
                 >
-                  Bank Details
-                </th>
-                <th
+                  <div className="flex items-center">
+                   Master ID
+                  </div>
+                </th>  <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                
                 >
-                  Receiver
+                  <div className="flex items-center">
+                   Name
+                  </div>
                 </th>
                 <th
                   scope="col"
@@ -575,15 +580,9 @@ export default function SuperAdminDashboard() {
               {currentItems.map((item) => (
                 <tr key={item._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{item.bankName}</div>
-                    <div className="text-sm text-gray-500">Acc: {item.accNo}</div>
-                    <div className="text-sm text-gray-500">IFSC: {item.ifsc}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{item.receiverName}</div>
-                    <div className="text-sm text-gray-500">{item.contact}</div>
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.userId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-500">{item.userName}</td>
+               
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {formatAmount(item.amount)}
                   </td>

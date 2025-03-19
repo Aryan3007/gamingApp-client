@@ -1,201 +1,170 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { server } from "../../constants/config";
+import { useState, useEffect } from "react"
+import axios from "axios"
+import toast from "react-hot-toast"
+import { server } from "../../constants/config"
 
 export default function AllAdmins() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [adminData, setAdminData] = useState([]);
-  const [expandedAdmins, setExpandedAdmins] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [sortConfig, setSortConfig] = useState({
-    key: "name",
-    direction: "ascending",
-  });
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [adminData, setAdminData] = useState([])
+  const [expandedAdmins, setExpandedAdmins] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "ascending" })
+  const [statusFilter, setStatusFilter] = useState("all")
 
   // State for add money dialog
-  const [isAddMoneyOpen, setIsAddMoneyOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [amount, setAmount] = useState("");
-  const [isReducmoney, setIsReducmoney] = useState(false)
+  const [isAddMoneyOpen, setIsAddMoneyOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [amount, setAmount] = useState("")
 
   // State for ban/unban confirmation
-  const [isBanConfirmOpen, setIsBanConfirmOpen] = useState(false);
-  const [userToModify, setUserToModify] = useState(null);
-  const [actionType, setActionType] = useState(""); // "ban" or "unban"
+  const [isBanConfirmOpen, setIsBanConfirmOpen] = useState(false)
+  const [userToModify, setUserToModify] = useState(null)
+  const [actionType, setActionType] = useState("") // "ban" or "unban"
 
   const [newAdminData, setNewAdminData] = useState({
     name: "",
     email: "",
     password: "",
-    currency: "USD",
-    role: "admin", // Fixed as admin
+    currency: "INR",
+    role: "master", // Fixed as admin
     gender: "male",
     amount: "",
-  });
+  })
 
   // Fetch all admins
   const fetchAllAdmins = async () => {
-    setIsLoading(true);
-    const token = localStorage.getItem("authToken");
+    setIsLoading(true)
+    const token = localStorage.getItem("authToken")
 
     try {
       const response = await axios.get(`${server}api/v1/user/allusers`, {
         headers: { Authorization: `Bearer ${token}` },
-      });
+      })
 
       if (response.data.success) {
-        setAdminData(response.data.users);
+        setAdminData(response.data.users)
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to fetch users. Please try again later."
-      );
+      toast.error(error.response?.data?.message || "Failed to fetch users. Please try again later.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchAllAdmins();
-  }, []);
+    fetchAllAdmins()
+  }, [])
 
   // Handle form input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setNewAdminData({
       ...newAdminData,
       [name]: value,
-    });
-  };
+    })
+  }
 
   // Validate form data
   const validateNewUser = () => {
     if (!newAdminData.name.trim()) {
-      toast.error("Name is required");
-      return false;
+      toast.error("Name is required")
+      return false
     }
     if (!newAdminData.email.trim()) {
-      toast.error("Email is required");
-      return false;
+      toast.error("Email is required")
+      return false
     }
     if (!newAdminData.password.trim()) {
-      toast.error("Password is required");
-      return false;
+      toast.error("Password is required")
+      return false
     }
     if (!newAdminData.gender) {
-      toast.error("Gender selection is required");
-      return false;
+      toast.error("Gender selection is required")
+      return false
     }
     if (!newAdminData.amount || newAdminData.amount <= 0) {
-      toast.error("Amount must be greater than 0");
-      return false;
+      toast.error("Amount must be greater than 0")
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   // Submit new admin
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("authToken");
+    e.preventDefault()
+    const token = localStorage.getItem("authToken")
 
-    if (!validateNewUser()) return;
+    if (!validateNewUser()) return
 
     try {
-      const response = await axios.post(
-        `${server}api/v1/user/new`,
-        newAdminData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${server}api/v1/user/new`, newAdminData, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
 
       if (response.data.success) {
-        toast.success("Admin added successfully");
-        setIsModalOpen(false);
-        fetchAllAdmins(); // Refresh the list
+        toast.success("Admin added successfully")
+        setIsModalOpen(false)
+        fetchAllAdmins() // Refresh the list
 
         // Reset form
         setNewAdminData({
           name: "",
           email: "",
           password: "",
-          currency: "USD",
-          role: "admin",
+          currency: "INR",
+          role: "master",
           gender: "male",
           amount: "",
-        });
+        })
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to add admin. Please try again later."
-      );
+      toast.error(error.response?.data?.message || "Failed to add admin. Please try again later.")
     }
-  };
+  }
 
   // Toggle expanded state for an admin
   const toggleExpandAdmin = (adminId) => {
     setExpandedAdmins((prev) => ({
       ...prev,
       [adminId]: !prev[adminId],
-    }));
-  };
+    }))
+  }
 
   // Handle sorting
   const requestSort = (key) => {
-    let direction = "ascending";
+    let direction = "ascending"
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
+      direction = "descending"
     }
-    setSortConfig({ key, direction });
-  };
+    setSortConfig({ key, direction })
+  }
 
   // Open add money dialog
   const openAddMoneyDialog = (user, isAdmin = false) => {
-    setSelectedUser({ ...user, isAdmin });
-    setAmount("");
-    setIsAddMoneyOpen(true);
-  };
+    setSelectedUser({ ...user, isAdmin })
+    setAmount("")
+    setIsAddMoneyOpen(true)
+  }
 
   // Close add money dialog
   const closeAddMoneyDialog = () => {
-    setIsAddMoneyOpen(false);
-    setSelectedUser(null);
-    setAmount("");
-  };
-
-
-      // Open add money dialog
-      const openReduceMoneyDialog = (user) => {
-        setSelectedUser(user)
-        setAmount("")
-        setIsReducmoney(true)
-      }
-    
-      // Close add money dialog
-      const closereduceMoneyDialog = () => {
-        setIsReducmoney(false)
-        setSelectedUser(null)
-        setAmount("")
-      }
-  
-      
+    setIsAddMoneyOpen(false)
+    setSelectedUser(null)
+    setAmount("")
+  }
 
   // Handle adding money
   const handleAddMoney = async () => {
     if (!amount || isNaN(amount) || Number.parseFloat(amount) <= 0) {
-      toast.error("Please enter a valid amount greater than 0");
-      return;
+      toast.error("Please enter a valid amount greater than 0")
+      return
     }
 
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken")
 
     try {
       const response = await axios.put(
@@ -203,67 +172,35 @@ export default function AllAdmins() {
         { amount: Number.parseFloat(amount) },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        },
+      )
 
-      toast.success(response.data?.message || "Amount added successfully");
-      closeAddMoneyDialog();
-      fetchAllAdmins(); // Refresh the data
+      toast.success(response.data?.message || "Amount added successfully")
+      closeAddMoneyDialog()
+      fetchAllAdmins() // Refresh the data
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update amount. Please try again later."
-      );
-      console.error("Error updating amount:", error);
+      toast.error(error.response?.data?.message || "Failed to update amount. Please try again later.")
+      console.error("Error updating amount:", error)
     }
-  };
-
-
-    // Handle adding money
-    const handleReduceMoney = async () => {
-      if (!amount || isNaN(amount) || Number.parseFloat(amount) <= 0) {
-        toast.error("Please enter a valid amount greater than 0")
-        return
-      }
-  
-      const token = localStorage.getItem("authToken")
-  
-      try {
-        const response = await axios.put(
-          `${server}api/v1/user/reduceamount/${selectedUser._id}`,
-          { amount: Number.parseFloat(amount) },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        )
-  
-        toast.success(response.data?.message || "Amount Reduced successfully")
-        fetchAllAdmins();
-        closereduceMoneyDialog()
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to update amount. Please try again later.")
-        console.error("Error updating amount:", error)
-      }
-    }
-
+  }
 
   // Open ban/unban confirmation dialog
   const openBanConfirmDialog = (user, isAdmin = false) => {
-    setUserToModify({ ...user, isAdmin });
-    setActionType(user.status === "active" ? "ban" : "unban");
-    setIsBanConfirmOpen(true);
-  };
+    setUserToModify({ ...user, isAdmin })
+    setActionType(user.status === "active" ? "ban" : "unban")
+    setIsBanConfirmOpen(true)
+  }
 
   // Close ban/unban confirmation dialog
   const closeBanConfirmDialog = () => {
-    setIsBanConfirmOpen(false);
-    setUserToModify(null);
-  };
+    setIsBanConfirmOpen(false)
+    setUserToModify(null)
+  }
 
   // Handle user status change (ban/unban)
   const handleUserStatusChange = async () => {
-    const token = localStorage.getItem("authToken");
-    const newStatus = userToModify.status === "active" ? "banned" : "active";
+    const token = localStorage.getItem("authToken")
+    const newStatus = userToModify.status === "active" ? "banned" : "active"
 
     try {
       const { data } = await axios.post(
@@ -271,13 +208,10 @@ export default function AllAdmins() {
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        },
+      )
 
-      toast.success(
-        data.message ||
-          `User ${newStatus === "active" ? "unbanned" : "banned"} successfully`
-      );
+      toast.success(data.message || `User ${newStatus === "active" ? "unbanned" : "banned"} successfully`)
 
       // Update the local state to reflect the change
       setAdminData((prevData) => {
@@ -287,47 +221,39 @@ export default function AllAdmins() {
             return {
               ...item,
               admin: { ...item.admin, status: newStatus },
-            };
+            }
           }
 
           // If the modified user is a regular user under an admin
           if (!userToModify.isAdmin) {
             return {
               ...item,
-              users: item.users.map((user) =>
-                user._id === userToModify._id
-                  ? { ...user, status: newStatus }
-                  : user
-              ),
-            };
+              users: item.users.map((user) => (user._id === userToModify._id ? { ...user, status: newStatus } : user)),
+            }
           }
 
-          return item;
-        });
-      });
+          return item
+        })
+      })
 
-      closeBanConfirmDialog();
-      fetchAllAdmins();
+      closeBanConfirmDialog()
+      fetchAllAdmins()
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          `Failed to ${
-            newStatus === "active" ? "unban" : "ban"
-          } the user. Please try again later.`
-      );
-      console.error("Error updating user status:", error);
+          `Failed to ${newStatus === "active" ? "unban" : "ban"} the user. Please try again later.`,
+      )
+      console.error("Error updating user status:", error)
     }
-  };
+  }
 
   // Filter and sort admins
   const getFilteredAndSortedAdmins = () => {
-    let filteredAdmins = [...adminData];
+    let filteredAdmins = [...adminData]
 
     // Apply status filter
     if (statusFilter !== "all") {
-      filteredAdmins = filteredAdmins.filter(
-        (item) => item.admin.status.toLowerCase() === statusFilter.toLowerCase()
-      );
+      filteredAdmins = filteredAdmins.filter((item) => item.admin.status.toLowerCase() === statusFilter.toLowerCase())
     }
 
     // Apply search filter
@@ -335,71 +261,69 @@ export default function AllAdmins() {
       filteredAdmins = filteredAdmins.filter(
         (item) =>
           item.admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.admin.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+          item.admin.email.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
     }
 
     // Apply sorting
     if (sortConfig.key) {
       filteredAdmins.sort((a, b) => {
-        const aValue = a.admin[sortConfig.key];
-        const bValue = b.admin[sortConfig.key];
+        const aValue = a.admin[sortConfig.key]
+        const bValue = b.admin[sortConfig.key]
 
         if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
+          return sortConfig.direction === "ascending" ? -1 : 1
         }
         if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
+          return sortConfig.direction === "ascending" ? 1 : -1
         }
-        return 0;
-      });
+        return 0
+      })
     }
 
-    return filteredAdmins;
-  };
+    return filteredAdmins
+  }
   // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const filteredAndSortedAdmins = getFilteredAndSortedAdmins();
-  const currentAdmins = filteredAndSortedAdmins.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(filteredAndSortedAdmins.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const filteredAndSortedAdmins = getFilteredAndSortedAdmins()
+  const currentAdmins = filteredAndSortedAdmins.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredAndSortedAdmins.length / itemsPerPage)
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    });
-  };
+    })
+  }
 
   // Capitalize first letter
   const capitalize = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
 
   return (
     <div className="space-y-4">
+     
+
       <div className="rounded-lg border border-[rgb(var(--color-border))] bg-white shadow-sm">
         <div className="flex flex-col space-y-1.5 p-2 pb-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Admin Management
-            </h3>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-            >
-              Add New Admin
-            </button>
+
+          <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
+            Master Management
+          </h3>
+          <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          >
+          Add New Master
+        </button>
           </div>
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
-            Manage all admin accounts from here
-          </p>
+          <p className="text-sm text-[rgb(var(--color-text-muted))]">Manage all admin accounts from here</p>
         </div>
 
         {/* Search and Filter Controls */}
@@ -432,91 +356,74 @@ export default function AllAdmins() {
             <select
               value={itemsPerPage}
               onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page when changing items per page
-              }}
-              className="rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="p-6 pt-0">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1) // Reset to first page when changing items per page
+                }}
+                className="rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full caption-bottom text-sm">
+
+            <div className="p-6 pt-0">
+              {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))]"></div>
+              </div>
+              ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full caption-bottom text-sm">
                 <thead className="border-b border-[rgb(var(--color-border))]">
+              
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     <button
-                      className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                      onClick={() => requestSort("name")}
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("name")}
                     >
-                      Name
-                      {sortConfig.key === "name" && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                        </span>
-                      )}
+                    Name
+                    {sortConfig.key === "name" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
                     </button>
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     <button
-                      className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                      onClick={() => requestSort("email")}
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("email")}
                     >
-                      Email
-                      {sortConfig.key === "email" && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                        </span>
-                      )}
+                    Email
+                    {sortConfig.key === "email" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
                     </button>
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     <button
-                      className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                      onClick={() => requestSort("currency")}
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("currency")}
                     >
-                      Currency
-                      {sortConfig.key === "currency" && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                        </span>
-                      )}
+                    Currency
+                    {sortConfig.key === "currency" && (
+                      <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
                     </button>
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     <button
-                      className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                      onClick={() => requestSort("amount")}
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("amount")}
                     >
-                      Amount
-                      {sortConfig.key === "amount" && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                        </span>
-                      )}
+                    Amount
+                    {sortConfig.key === "amount" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
                     </button>
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     <button
-                      className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
-                      onClick={() => requestSort("status")}
+                    className="flex items-center gap-1 hover:text-[rgb(var(--color-primary))]"
+                    onClick={() => requestSort("status")}
                     >
-                      Status
-                      {sortConfig.key === "status" && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                        </span>
-                      )}
+                    Status
+                    {sortConfig.key === "status" && <span>{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>}
                     </button>
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-[rgb(var(--color-text-muted))]">
@@ -525,99 +432,67 @@ export default function AllAdmins() {
                   <th className="h-12 px-4 text-right align-middle font-medium text-[rgb(var(--color-text-muted))]">
                     Actions
                   </th>
+                
                 </thead>
                 <tbody>
                   {currentAdmins.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="7"
-                        className="p-4 text-center text-[rgb(var(--color-text-muted))]"
+                  <tr>
+                    <td colSpan="7" className="p-4 text-center text-[rgb(var(--color-text-muted))]">
+                    No Master found
+                    </td>
+                  </tr>
+                  ) : (
+                  currentAdmins.map((item) => (
+                    <>
+                    <tr
+                      key={item.admin._id}
+                      className="border-b border-[rgb(var(--color-border))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))]"
+                    >
+                      <td className="p-4 align-middle font-medium">{capitalize(item.admin.name)}</td>
+                      <td className="p-4 align-middle">{item.admin.email}</td>
+                      <td className="p-4 align-middle">{item.admin.currency.toUpperCase()}</td>
+                      <td className="p-4 align-middle">{item.admin.amount.toLocaleString()}</td>
+                      <td className="p-4 align-middle">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        item.admin.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                        }`}
                       >
-                        No admins found
+                        {capitalize(item.admin.status)}
+                      </span>
+                      </td>
+                      <td className="p-4 align-middle">
+                      {item.users.reduce((acc, user) => acc + user.amount, item.admin.amount).toLocaleString()}
+                      </td>
+                      <td className="p-4 flex justify-end items-center align-middle text-right">
+                      <button
+                        className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                        onClick={() => toggleExpandAdmin(item.admin._id)}
+                      >
+                        {expandedAdmins[item.admin._id] ? "Collapse" : "Expand"}
+                      </button>
+                      <button
+                        className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                        onClick={() => openAddMoneyDialog(item.admin, true)}
+                      >
+                        Add Money
+                      </button>
+                      <button
+                        className={`inline-flex h-8 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                        item.admin.status === "active"
+                          ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                          : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
+                        }`}
+                        onClick={() => openBanConfirmDialog(item.admin, true)}
+                      >
+                        {item.admin.status === "active" ? "Ban Admin" : "Unban Admin"}
+                      </button>
                       </td>
                     </tr>
-                  ) : (
-                    currentAdmins.map((item) => (
-                      <>
-                        <tr
-                          key={item.admin._id}
-                          className="border-b border-[rgb(var(--color-border))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))]"
-                        >
-                          <td className="p-4 align-middle font-medium flex flex-col">
-                            {" "}
-                            <span>{capitalize(item.admin.name)}</span>{" "}
-                            <span className="text-xs font-light">
-                              {item.admin._id}
-                            </span>
-                          </td>
-                          <td className="p-4 align-middle">
-                            {item.admin.email}
-                          </td>
-                          <td className="p-4 align-middle">
-                            {item.admin.currency.toUpperCase()}
-                          </td>
-                          <td className="p-4 align-middle">
-                            {item.admin.amount.toLocaleString()}
-                          </td>
-                          <td className="p-4 align-middle">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                item.admin.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {capitalize(item.admin.status)}
-                            </span>
-                          </td>
-                          <td className="p-4 align-middle">
-                            {item.users
-                              .reduce(
-                                (acc, user) => acc + user.amount,
-                                item.admin.amount
-                              )
-                              .toLocaleString()}
-                          </td>
-                          <td className="p-4 flex justify-end items-center align-middle text-right">
-                            <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                              onClick={() => toggleExpandAdmin(item.admin._id)}
-                            >
-                              {expandedAdmins[item.admin._id]
-                                ? "Collapse"
-                                : "Expand"}
-                            </button>
-                            <button
-                      className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                      onClick={() => openReduceMoneyDialog(item.admin, true)}
-                      >
-                      Reduce Money
-                      </button>
-                            <button
-                              className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                              onClick={() =>
-                                openAddMoneyDialog(item.admin, true)
-                              }
-                            >
-                              Add Money
-                            </button>
-                            <button
-                              className={`inline-flex h-8 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
-                                item.admin.status === "active"
-                                  ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                                  : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
-                              }`}
-                              onClick={() =>
-                                openBanConfirmDialog(item.admin, true)
-                              }
-                            >
-                              {item.admin.status === "active"
-                                ? "Ban Admin"
-                                : "Unban Admin"}
-                            </button>
-                          </td>
-                        </tr>
 
+                   
                         {expandedAdmins[item.admin._id] && (
                           <tr>
                             <td colSpan="6" className="p-0">
@@ -627,9 +502,7 @@ export default function AllAdmins() {
                                 </h4>
 
                                 {item.users.length === 0 ? (
-                                  <p className="text-sm text-[rgb(var(--color-text-muted))]">
-                                    No users found
-                                  </p>
+                                  <p className="text-sm text-[rgb(var(--color-text-muted))]">No users found</p>
                                 ) : (
                                   <div className="overflow-x-auto">
                                     <table className="w-full text-sm border-collapse">
@@ -653,32 +526,16 @@ export default function AllAdmins() {
                                           <th className="p-2 text-left font-medium text-[rgb(var(--color-text-muted))]">
                                             Created
                                           </th>
+                                       
                                         </tr>
                                       </thead>
                                       <tbody>
                                         {item.users.map((user) => (
-                                          <tr
-                                            key={user._id}
-                                            className="border-b border-gray-200 last:border-0"
-                                          >
-                                            <td className="p-4 align-middle font-medium flex flex-col">
-                                              {" "}
-                                              <span>
-                                                {capitalize(user.name)}
-                                              </span>{" "}
-                                              <span className="text-xs font-light">
-                                                {user._id}
-                                              </span>
-                                            </td>
-                                            <td className="p-2">
-                                              {user.email}
-                                            </td>
-                                            <td className="p-2">
-                                              {user.currency.toUpperCase()}
-                                            </td>
-                                            <td className="p-2">
-                                              {user.amount.toLocaleString()}
-                                            </td>
+                                          <tr key={user._id} className="border-b border-gray-200 last:border-0">
+                                            <td className="p-2">{capitalize(user.name)}</td>
+                                            <td className="p-2">{user.email}</td>
+                                            <td className="p-2">{user.currency.toUpperCase()}</td>
+                                            <td className="p-2">{user.amount.toLocaleString()}</td>
                                             <td className="p-2">
                                               <span
                                                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -690,9 +547,8 @@ export default function AllAdmins() {
                                                 {capitalize(user.status)}
                                               </span>
                                             </td>
-                                            <td className="p-2">
-                                              {formatDate(user.createdAt)}
-                                            </td>
+                                            <td className="p-2">{formatDate(user.createdAt)}</td>
+                                          
                                           </tr>
                                         ))}
                                       </tbody>
@@ -716,18 +572,14 @@ export default function AllAdmins() {
             <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] px-4 py-3 sm:px-6">
               <div className="flex flex-1 justify-between sm:hidden">
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center rounded-md border border-[rgb(var(--color-border))] bg-white px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-primary-lighter))] disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                   className="relative ml-3 inline-flex items-center rounded-md border border-[rgb(var(--color-border))] bg-white px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-primary-lighter))] disabled:opacity-50"
                 >
@@ -737,31 +589,15 @@ export default function AllAdmins() {
               <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-[rgb(var(--color-text-muted))]">
-                    Showing{" "}
-                    <span className="font-medium">{indexOfFirstItem + 1}</span>{" "}
-                    to{" "}
-                    <span className="font-medium">
-                      {Math.min(
-                        indexOfLastItem,
-                        filteredAndSortedAdmins.length
-                      )}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-medium">
-                      {filteredAndSortedAdmins.length}
-                    </span>{" "}
-                    results
+                    Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
+                    <span className="font-medium">{Math.min(indexOfLastItem, filteredAndSortedAdmins.length)}</span> of{" "}
+                    <span className="font-medium">{filteredAndSortedAdmins.length}</span> results
                   </p>
                 </div>
                 <div>
-                  <nav
-                    className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                    aria-label="Pagination"
-                  >
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                     <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
                       className="relative inline-flex items-center rounded-l-md border border-[rgb(var(--color-border))] bg-white px-2 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-primary-lighter))] disabled:opacity-50"
                     >
@@ -784,15 +620,15 @@ export default function AllAdmins() {
                     {/* Page numbers */}
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       // Show pages around current page
-                      let pageNum;
+                      let pageNum
                       if (totalPages <= 5) {
-                        pageNum = i + 1;
+                        pageNum = i + 1
                       } else if (currentPage <= 3) {
-                        pageNum = i + 1;
+                        pageNum = i + 1
                       } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
+                        pageNum = totalPages - 4 + i
                       } else {
-                        pageNum = currentPage - 2 + i;
+                        pageNum = currentPage - 2 + i
                       }
 
                       return (
@@ -807,13 +643,11 @@ export default function AllAdmins() {
                         >
                           {pageNum}
                         </button>
-                      );
+                      )
                     })}
 
                     <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
                       className="relative inline-flex items-center rounded-r-md border border-[rgb(var(--color-border))] bg-white px-2 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-primary-lighter))] disabled:opacity-50"
                     >
@@ -845,9 +679,7 @@ export default function AllAdmins() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">
-                Add New Admin
-              </h3>
+              <h3 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Add New Admin</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="rounded-full p-1 text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-primary-lighter))] hover:text-[rgb(var(--color-primary-dark))]"
@@ -859,12 +691,7 @@ export default function AllAdmins() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -872,10 +699,7 @@ export default function AllAdmins() {
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="name" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Name
                   </label>
                   <input
@@ -890,10 +714,7 @@ export default function AllAdmins() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="email" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Email
                   </label>
                   <input
@@ -908,10 +729,7 @@ export default function AllAdmins() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="password" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Password
                   </label>
                   <input
@@ -926,10 +744,7 @@ export default function AllAdmins() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="currency"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="currency" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Currency
                   </label>
                   <select
@@ -940,16 +755,15 @@ export default function AllAdmins() {
                     className="w-full rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
                   >
                     <option value="INR">INR</option>
+                                        <option value="RUB">RUB</option>
+
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="role" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Role
                   </label>
                   <input
@@ -963,10 +777,7 @@ export default function AllAdmins() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="gender" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Gender
                   </label>
                   <select
@@ -983,10 +794,7 @@ export default function AllAdmins() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="amount"
-                    className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                  >
+                  <label htmlFor="amount" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                     Amount
                   </label>
                   <input
@@ -1040,12 +848,7 @@ export default function AllAdmins() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -1053,23 +856,17 @@ export default function AllAdmins() {
             <div className="mb-4">
               <p className="mb-2 text-sm text-[rgb(var(--color-text-muted))]">
                 Adding money to:{" "}
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {selectedUser?.name}
-                </span>
+                <span className="font-medium text-[rgb(var(--color-text-primary))]">{selectedUser?.name}</span>
               </p>
               <p className="mb-4 text-sm text-[rgb(var(--color-text-muted))]">
                 Current balance:{" "}
                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {selectedUser?.amount.toLocaleString()}{" "}
-                  {selectedUser?.currency.toUpperCase()}
+                  {selectedUser?.amount.toLocaleString()} {selectedUser?.currency.toUpperCase()}
                 </span>
               </p>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="add-amount"
-                  className="block text-sm font-medium text-[rgb(var(--color-text-primary))]"
-                >
+                <label htmlFor="add-amount" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
                   Amount to Add
                 </label>
                 <input
@@ -1104,80 +901,6 @@ export default function AllAdmins() {
         </div>
       )}
 
-              {/* reduce Money Dialog */}
-              {isReducmoney && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">
-                Reduce Money from User Wallet
-              </h3>
-              <button
-                     onClick={closereduceMoneyDialog}
-                className="rounded-full p-1 text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-primary-lighter))] hover:text-[rgb(var(--color-primary-dark))]"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <p className="mb-2 text-sm text-[rgb(var(--color-text-muted))]">
-                Deducting money to:{" "}
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">{selectedUser?.name}</span>
-              </p>
-              <p className="mb-4 text-sm text-[rgb(var(--color-text-muted))]">
-                Current balance:{" "}
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {selectedUser?.amount.toLocaleString()} {selectedUser?.currency.toUpperCase()}
-                </span>
-              </p>
-
-              <div className="space-y-2">
-                <label htmlFor="add-amount" className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  Amount to Deduct
-                </label>
-                <span className="text-xs text-red-500"> (money will be deducted from users account)</span>
-
-                <input
-                  type="number"
-                  id="add-amount"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-md border border-[rgb(var(--color-border))] px-3 py-2 text-sm focus:border-[rgb(var(--color-primary))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary))]"
-                  placeholder={`Enter amount in ${selectedUser?.currency.toUpperCase()}`}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={closereduceMoneyDialog}
-                className="inline-flex items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-white px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleReduceMoney}
-                className="inline-flex items-center justify-center rounded-md bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--color-primary-dark))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2"
-              >
-                Deduct Money
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Ban/Unban Confirmation Dialog */}
       {isBanConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -1197,35 +920,25 @@ export default function AllAdmins() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             <div className="mb-6">
               <p className="mb-4 text-[rgb(var(--color-text-primary))]">
-                Are you sure you want to{" "}
-                {actionType === "ban" ? "ban" : "unban"}{" "}
-                {userToModify?.isAdmin ? "admin" : "user"}:{" "}
-                <span className="font-medium">{userToModify?.name}</span>?
+                Are you sure you want to {actionType === "ban" ? "ban" : "unban"}{" "}
+                {userToModify?.isAdmin ? "admin" : "user"}: <span className="font-medium">{userToModify?.name}</span>?
               </p>
 
               {actionType === "ban" ? (
                 <p className="text-sm text-red-600">
-                  This will prevent the{" "}
-                  {userToModify?.isAdmin ? "admin" : "user"} from accessing the
-                  system until they are unbanned.
+                  This will prevent the {userToModify?.isAdmin ? "admin" : "user"} from accessing the system until they
+                  are unbanned.
                 </p>
               ) : (
                 <p className="text-sm text-green-600">
-                  This will restore the{" "}
-                  {userToModify?.isAdmin ? "admin" : "user"}&apos;s access to
-                  the system.
+                  This will restore the {userToModify?.isAdmin ? "admin" : "user"}&apos;s access to the system.
                 </p>
               )}
             </div>
@@ -1254,5 +967,5 @@ export default function AllAdmins() {
         </div>
       )}
     </div>
-  );
+  )
 }

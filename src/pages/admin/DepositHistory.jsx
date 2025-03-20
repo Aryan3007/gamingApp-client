@@ -2,17 +2,23 @@
 
 import { useState, useEffect, useMemo } from "react"
 import axios from "axios"
+import toast from "react-hot-toast"
 import { server } from "../../constants/config"
 
 export default function DepositHistory() {
   const [depositHistory, setDepositHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [selectedDeposit, setSelectedDeposit] = useState(null)
+  const [actionType, setActionType] = useState(null) // "approved" or "rejected"
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [currencyFilter, setCurrencyFilter] = useState("all")
   const [dateRange, setDateRange] = useState({ from: "", to: "" })
+  const [statusFilter, setStatusFilter] = useState("all")
   const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" })
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
@@ -21,39 +27,84 @@ export default function DepositHistory() {
   const [itemsPerPage, setItemsPerPage] = useState(10)
 
   // Fetch deposit history
-  useEffect(() => {
-    const fetchDepositHistory = async () => {
-      setIsLoading(true)
-      try {
-        const token = localStorage.getItem("authToken")
-        if (!token) {
-          throw new Error("Authentication token not found")
-        }
-
-        const response = await axios.get(`${server}api/v1/payment/deposit-history`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-
-        if (response.data.success) {
-          setDepositHistory(response.data.history)
-        } else {
-          throw new Error(response.data.message || "Failed to fetch deposit history")
-        }
-      } catch (err) {
-        console.error("Error fetching reports:", err)
-        setError(err.response?.data?.message || err.message || "An error occurred while fetching deposit history")
-      } finally {
-        setIsLoading(false)
+  const fetchDepositHistory = async () => {
+    setIsLoading(true)
+    try {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        throw new Error("Authentication token not found")
       }
-    }
 
+      const response = await axios.get(`${server}api/v1/payment/deposit-history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (response.data.success) {
+        setDepositHistory(response.data.history)
+      } else {
+        throw new Error(response.data.message || "Failed to fetch deposit history")
+      }
+    } catch (err) {
+      console.error("Error fetching deposit history:", err)
+      setError(err.response?.data?.message || err.message || "An error occurred while fetching deposit history")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
     fetchDepositHistory()
   }, [])
 
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, currencyFilter, dateRange, sortConfig])
+  }, [searchTerm, currencyFilter, statusFilter, dateRange, sortConfig])
+
+  // Handle deposit status update
+  const updateDepositStatus = async () => {
+    if (!selectedDeposit || !actionType) return
+
+    setIsProcessing(true)
+    try {
+      const token = localStorage.getItem("authToken")
+      const response = await axios.post(
+        `${server}api/v1/payment/deposit-status`,
+        {
+          depositId: selectedDeposit._id,
+          status: actionType,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+
+      if (response.data.success) {
+        toast.success(`Deposit ${actionType === "approved" ? "approved" : "rejected"} successfully`)
+        // Update local state to reflect the change
+        setDepositHistory((prevHistory) =>
+          prevHistory.map((item) => (item._id === selectedDeposit._id ? { ...item, status: actionType } : item)),
+        )
+      } else {
+        toast.error(response.data.message || "Failed to update deposit status")
+      }
+    } catch (err) {
+      console.error("Error updating deposit status:", err)
+      toast.error(err.response?.data?.message || "Failed to update deposit status")
+    } finally {
+      setIsProcessing(false)
+      setShowConfirmModal(false)
+      setSelectedDeposit(null)
+      setActionType(null)
+    }
+  }
+
+  // Open confirmation modal
+  const openConfirmModal = (deposit, action) => {
+    setSelectedDeposit(deposit)
+    setActionType(action)
+    setShowConfirmModal(true)
+  }
 
   // Sorting function
   const requestSort = (key) => {
@@ -68,6 +119,7 @@ export default function DepositHistory() {
   const resetFilters = () => {
     setSearchTerm("")
     setCurrencyFilter("all")
+    setStatusFilter("all")
     setDateRange({ from: "", to: "" })
     setSortConfig({ key: "createdAt", direction: "desc" })
     setCurrentPage(1)
@@ -86,8 +138,22 @@ export default function DepositHistory() {
   }
 
   // Format amount with currency
-  const formatAmount = (amount) => {
-    return `${amount.toLocaleString()}`
+  const formatAmount = (amount, currency) => {
+    return `${amount.toLocaleString()} ${currency.toUpperCase()}`
+  }
+
+  // Get status badge color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800"
+      case "approved":
+        return "bg-green-100 text-green-800"
+      case "rejected":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
   }
 
   // Apply all filters and sorting
@@ -99,13 +165,23 @@ export default function DepositHistory() {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase()
       filtered = filtered.filter(
-        (item) => item.userName.toLowerCase().includes(searchLower) || item.userId.toLowerCase().includes(searchLower),
+        (item) =>
+          (item.userName && item.userName.toLowerCase().includes(searchLower)) ||
+          (item.userId && item.userId.toLowerCase().includes(searchLower)) ||
+          (item.referenceNumber && item.referenceNumber.toLowerCase().includes(searchLower)),
       )
     }
 
     // Apply currency filter
     if (currencyFilter !== "all") {
-      filtered = filtered.filter((item) => item.currency.toLowerCase() === currencyFilter.toLowerCase())
+      filtered = filtered.filter(
+        (item) => item.currency && item.currency.toLowerCase() === currencyFilter.toLowerCase(),
+      )
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((item) => item.status && item.status.toLowerCase() === statusFilter.toLowerCase())
     }
 
     // Apply date range filter
@@ -147,7 +223,7 @@ export default function DepositHistory() {
     }
 
     return filtered
-  }, [depositHistory, searchTerm, currencyFilter, dateRange, sortConfig])
+  }, [depositHistory, searchTerm, currencyFilter, statusFilter, dateRange, sortConfig])
 
   // Pagination calculations
   const totalItems = filteredAndSortedData.length
@@ -195,13 +271,13 @@ export default function DepositHistory() {
 
   return (
     <div className="space-y-4">
-     
+    
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <div className="p-4 border-b">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Deposit History <span className="text-orange-500 text-sm">  (your added users)</span>
+              All Deposit Requests
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -209,7 +285,7 @@ export default function DepositHistory() {
               <div className="relative flex-grow">
                 <input
                   type="text"
-                  placeholder="Search by name or user ID..."
+                  placeholder="Search by name, ID or reference..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
@@ -238,9 +314,11 @@ export default function DepositHistory() {
                   />
                 </svg>
                 Filters
-                {(currencyFilter !== "all" || dateRange.from || dateRange.to) && (
+                {(currencyFilter !== "all" || statusFilter !== "all" || dateRange.from || dateRange.to) && (
                   <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[rgb(var(--color-primary))] rounded-full">
-                    {(currencyFilter !== "all" ? 1 : 0) + (dateRange.from || dateRange.to ? 1 : 0)}
+                    {(currencyFilter !== "all" ? 1 : 0) +
+                      (statusFilter !== "all" ? 1 : 0) +
+                      (dateRange.from || dateRange.to ? 1 : 0)}
                   </span>
                 )}
               </button>
@@ -258,7 +336,7 @@ export default function DepositHistory() {
                 </button>
                 <div
                   id="sort-dropdown"
-                  className="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border "
+                  className="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border"
                 >
                   <div className="py-1">
                     <button
@@ -290,12 +368,12 @@ export default function DepositHistory() {
                     </button>
                     <button
                       onClick={() => {
-                        requestSort("currency")
+                        requestSort("status")
                         document.getElementById("sort-dropdown").classList.add("hidden")
                       }}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "currency" ? "font-bold" : ""}`}
+                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "status" ? "font-bold" : ""}`}
                     >
-                      Currency {sortConfig.key === "currency" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Status {sortConfig.key === "status" && (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </button>
                   </div>
                 </div>
@@ -306,8 +384,8 @@ export default function DepositHistory() {
           {/* Filter panel */}
           {isFilterOpen && (
             <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
                   <select
                     value={currencyFilter}
@@ -320,7 +398,21 @@ export default function DepositHistory() {
                   </select>
                 </div>
 
-                <div className="flex-1">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
                   <input
                     type="date"
@@ -330,7 +422,7 @@ export default function DepositHistory() {
                   />
                 </div>
 
-                <div className="flex-1">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
                   <input
                     type="date"
@@ -353,7 +445,7 @@ export default function DepositHistory() {
           )}
 
           {/* Active filters display */}
-          {(currencyFilter !== "all" || dateRange.from || dateRange.to || searchTerm) && (
+          {(currencyFilter !== "all" || statusFilter !== "all" || dateRange.from || dateRange.to || searchTerm) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {searchTerm && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
@@ -374,6 +466,21 @@ export default function DepositHistory() {
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
                   Currency: {currencyFilter.toUpperCase()}
                   <button onClick={() => setCurrencyFilter("all")} className="ml-2 text-blue-600 hover:text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {statusFilter !== "all" && (
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                  <button onClick={() => setStatusFilter("all")} className="ml-2 text-blue-600 hover:text-blue-800">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path
                         fillRule="evenodd"
@@ -485,18 +592,6 @@ export default function DepositHistory() {
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("currency")}
-                >
-                  <div className="flex items-center">
-                    Currency
-                    {sortConfig.key === "currency" && (
-                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
-                    )}
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => requestSort("amount")}
                 >
                   <div className="flex items-center">
@@ -510,7 +605,25 @@ export default function DepositHistory() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  User ID
+                  Reference
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => requestSort("status")}
+                >
+                  <div className="flex items-center">
+                    Status
+                    {sortConfig.key === "status" && (
+                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -521,19 +634,44 @@ export default function DepositHistory() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{item.userName}</div>
+                      <div className="text-xs text-gray-500">{item.userId}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.currency.toUpperCase()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatAmount(item.amount, item.currency)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="font-mono">{item.userId}</span>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.referenceNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                          item.status,
+                        )}`}
+                      >
+                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {item.status === "pending" && (
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() => openConfirmModal(item, "approved")}
+                            className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-2 py-1 rounded"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => openConfirmModal(item, "rejected")}
+                            className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-2 py-1 rounded"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
                     No results found matching your filters. Try adjusting your search criteria.
                   </td>
                 </tr>
@@ -610,7 +748,69 @@ export default function DepositHistory() {
         )}
       </div>
 
-     
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+            <h3 className="text-lg font-medium mb-4">
+              {actionType === "approved" ? "Approve Deposit" : "Reject Deposit"}
+            </h3>
+            <p className="mb-6">
+              Are you sure you want to {actionType === "approved" ? "approve" : "reject"} this deposit of{" "}
+              <span className="font-bold">
+                {selectedDeposit && formatAmount(selectedDeposit.amount, selectedDeposit.currency)}
+              </span>{" "}
+              from <span className="font-bold">{selectedDeposit && selectedDeposit.userName}</span>?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={isProcessing}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateDepositStatus}
+                className={`px-4 py-2 rounded-md text-white transition-colors flex items-center ${
+                  actionType === "approved" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                }`}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : actionType === "approved" ? (
+                  "Confirm Approval"
+                ) : (
+                  "Confirm Rejection"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

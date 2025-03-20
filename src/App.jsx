@@ -19,6 +19,7 @@ import {
   userNotExist,
 } from "./redux/reducer/userReducer";
 import ChangePassword from "./components/ChangePassword.jsx";
+import Payment from "./pages/admin/Payment.jsx";
 const AccountsPayouts = lazy(() => import("./pages/legal/AccountsPayouts"));
 const KycPage = lazy(() => import("./pages/legal/KycPage"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -354,6 +355,7 @@ const App = () => {
                       element={<ChangePassword />}
                     />
                     <Route path="/users" element={<Users />} />
+                    <Route path="/payment-details" element={<Payment />} />
                     <Route path="/withdrawl" element={<Withdrawal />} />{" "}
                     <Route
                       path="/deposit-history"

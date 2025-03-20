@@ -511,6 +511,17 @@ export default function MyDeposit() {
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   User ID
+                </th> 
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  status
+                </th> <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  reference Number
                 </th>
               </tr>
             </thead>
@@ -528,6 +539,12 @@ export default function MyDeposit() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span className="font-mono">{item.userId}</span>
+                    </td>  
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="font-mono font-bold">{item.status}</span>
+                    </td> 
+                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className="font-mono">{item.referenceNumber}</span>
                     </td>
                   </tr>
                 ))

@@ -126,7 +126,7 @@ const MobileProfileDropdown = memo(({ isOpen, toggleDropdown, user, onLogout }) 
     <div className="relative profile-dropdown">
       <button
         onClick={toggleDropdown}
-        className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] px-8 py-1 rounded-md hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
+        className="text-white text-sm font-medium bg-[rgb(var(--color-primary-dark))] w-28 rounded-md hover:bg-[rgb(var(--color-primary-darker))] transition-colors"
       >
         Profile
       </button>

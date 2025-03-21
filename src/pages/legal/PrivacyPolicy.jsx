@@ -5,7 +5,7 @@ export default function PrivacyPolicy() {
       <h1 className="text-xl font-bold text-center mb-6">PRIVACY POLICY</h1>
       
       <p className="mb-4">
-        At Trident Gaming, we are committed to protecting your privacy and ensuring your personal information is handled securely. This Privacy Policy explains how we collect, use, and safeguard your information when you use our services.
+        At SHAKTIEX Gaming, we are committed to protecting your privacy and ensuring your personal information is handled securely. This Privacy Policy explains how we collect, use, and safeguard your information when you use our services.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">Information We Collect</h2>
@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
       <h2 className="text-lg font-semibold mb-2">Contact Us</h2>
       
       <p className="mb-4">
-        If you have any questions about this Privacy Policy or wish to exercise your rights, please contact our Data Protection Officer at privacy@tridentgaming.com or through the contact form on our website.
+        If you have any questions about this Privacy Policy or wish to exercise your rights, please contact our Data Protection Officer at privacy@SHAKTIEXgaming.com or through the contact form on our website.
       </p>
       
       <p className="text-sm text-gray-500 mt-6">

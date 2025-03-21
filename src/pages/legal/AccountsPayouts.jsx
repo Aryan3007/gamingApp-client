@@ -6,7 +6,7 @@ export default function AccountsPayouts() {
       <h1 className="text-xl font-bold text-center mb-6">ACCOUNTS, PAYOUTS AND BONUSES</h1>
       
       <p className="mb-6">
-        This page provides important information about account management, payout procedures, and bonus terms at Trident Gaming. Please read this information carefully to ensure a smooth and enjoyable gaming experience.
+        This page provides important information about account management, payout procedures, and bonus terms at SHAKTIEX Gaming. Please read this information carefully to ensure a smooth and enjoyable gaming experience.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">1. Account Management</h2>
@@ -295,14 +295,14 @@ export default function AccountsPayouts() {
       </p>
       
       <ul className="list-disc pl-6 mb-4 space-y-2">
-        <li>Email: support@tridentgaming.com</li>
+        <li>Email: support@SHAKTIEXgaming.com</li>
         <li>Live Chat: Available 24/7 on our website</li>
-        <li>Phone: +1-888-TRIDENT (874-3368)</li>
+        <li>Phone: +1-888-SHAKTIEX (874-3368)</li>
       </ul>
       
       <div className="bg-gray-100 p-4 rounded-lg mt-6">
         <p className="font-medium text-center">
-          By using Trident Gaming's services, you acknowledge that you have read, understood, and agree to these account, payout, and bonus terms.
+          By using SHAKTIEX Gaming's services, you acknowledge that you have read, understood, and agree to these account, payout, and bonus terms.
         </p>
       </div>
     </div>

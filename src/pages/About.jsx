@@ -3,12 +3,12 @@ import React from "react";
 export default function About() {
   return (
     <div className="max-w-4xl mx-auto p-6 lg:pt-20 pt-24 bg-white rounded-lg shadow-sm">
-      <h1 className="text-xl font-bold text-center mb-6">ABOUT TRIDENT GAMING</h1>
+      <h1 className="text-xl font-bold text-center mb-6">ABOUT SHAKTIEX GAMING</h1>
       
       <div className="mb-8 flex justify-center">
         <img 
           src="/placeholder.svg?height=150&width=300" 
-          alt="Trident Gaming Logo" 
+          alt="SHAKTIEX Gaming Logo" 
           className="h-32 object-contain"
         />
       </div>
@@ -16,7 +16,7 @@ export default function About() {
       <h2 className="text-lg font-semibold mb-2">Our Story</h2>
       
       <p className="mb-4">
-        Founded in 2018, Trident Gaming has quickly established itself as a leading name in the online gaming industry. Named after the powerful three-pronged spear of the sea god Poseidon, Trident represents our three core values: integrity, innovation, and excellence.
+        Founded in 2018, SHAKTIEX Gaming has quickly established itself as a leading name in the online gaming industry. Named after the powerful three-pronged spear of the sea god Poseidon, SHAKTIEX represents our three core values: integrity, innovation, and excellence.
       </p>
       
       <p className="mb-6">
@@ -26,7 +26,7 @@ export default function About() {
       <h2 className="text-lg font-semibold mb-2">Our Mission</h2>
       
       <p className="mb-6">
-        At Trident Gaming, our mission is to provide a secure, fair, and entertaining online gaming platform that exceeds our players' expectations. We strive to combine cutting-edge technology with exceptional customer service to deliver an unparalleled gaming experience while promoting responsible gambling.
+        At SHAKTIEX Gaming, our mission is to provide a secure, fair, and entertaining online gaming platform that exceeds our players' expectations. We strive to combine cutting-edge technology with exceptional customer service to deliver an unparalleled gaming experience while promoting responsible gambling.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">Our Values</h2>
@@ -55,7 +55,7 @@ export default function About() {
       <h2 className="text-lg font-semibold mb-2">Our Platform</h2>
       
       <p className="mb-4">
-        Trident Gaming offers a comprehensive suite of online gaming options, including:
+        SHAKTIEX Gaming offers a comprehensive suite of online gaming options, including:
       </p>
       
       <ul className="list-disc pl-6 mb-6 space-y-2">
@@ -79,7 +79,7 @@ export default function About() {
       <h2 className="text-lg font-semibold mb-2">Licensing and Regulation</h2>
       
       <p className="mb-6">
-        Trident Gaming is licensed and regulated by the Curaçao Gaming Authority under license number 1668/JAZ. We adhere to strict regulatory requirements to ensure fair play, secure transactions, and responsible gambling practices.
+        SHAKTIEX Gaming is licensed and regulated by the Curaçao Gaming Authority under license number 1668/JAZ. We adhere to strict regulatory requirements to ensure fair play, secure transactions, and responsible gambling practices.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">Responsible Gaming</h2>
@@ -91,7 +91,7 @@ export default function About() {
       <h2 className="text-lg font-semibold mb-2">Our Team</h2>
       
       <p className="mb-4">
-        Trident Gaming is powered by a diverse team of professionals with extensive experience in the gaming industry, technology, customer service, and compliance. Our leadership team brings decades of combined experience from some of the world's leading gaming and technology companies.
+        SHAKTIEX Gaming is powered by a diverse team of professionals with extensive experience in the gaming industry, technology, customer service, and compliance. Our leadership team brings decades of combined experience from some of the world's leading gaming and technology companies.
       </p>
       
       <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -122,13 +122,13 @@ export default function About() {
       </p>
       
       <ul className="list-disc pl-6 mb-6 space-y-2">
-        <li>Email: support@tridentgaming.com</li>
+        <li>Email: support@SHAKTIEXgaming.com</li>
         <li>Live Chat: Available on our website</li>
-        <li>Phone: +1-888-TRIDENT (874-3368)</li>
+        <li>Phone: +1-888-SHAKTIEX (874-3368)</li>
       </ul>
       
       <p className="text-center text-sm text-gray-500 mt-8">
-        © 2025 Trident Gaming. All rights reserved.
+        © 2025 SHAKTIEX Gaming. All rights reserved.
       </p>
     </div>
   );

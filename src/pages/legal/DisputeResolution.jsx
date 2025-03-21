@@ -6,7 +6,7 @@ export default function DisputeResolution() {
       <h1 className="text-xl font-bold text-center mb-6">DISPUTE RESOLUTION</h1>
       
       <p className="mb-6">
-        At Trident Gaming, we are committed to providing a fair and transparent gaming experience. We understand that disputes may occasionally arise, and we have established a comprehensive dispute resolution process to address any concerns or complaints you may have.
+        At SHAKTIEX Gaming, we are committed to providing a fair and transparent gaming experience. We understand that disputes may occasionally arise, and we have established a comprehensive dispute resolution process to address any concerns or complaints you may have.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">1. General Principles</h2>
@@ -48,9 +48,9 @@ export default function DisputeResolution() {
       
       <ul className="list-disc pl-6 mb-4 space-y-2">
         <li>Live Chat: Available 24/7 on our website</li>
-        <li>Email: support@tridentgaming.com</li>
+        <li>Email: support@SHAKTIEXgaming.com</li>
         <li>Contact Form: Available on our website</li>
-        <li>Phone: +1-888-TRIDENT (874-3368)</li>
+        <li>Phone: +1-888-SHAKTIEX (874-3368)</li>
       </ul>
       
       <p className="mb-4">
@@ -94,7 +94,7 @@ export default function DisputeResolution() {
       </p>
       
       <p className="mb-4">
-        3.3.2. To request a Senior Management review, please send an email to disputes@tridentgaming.com with the subject line "Senior Management Review Request" and include your case reference number.
+        3.3.2. To request a Senior Management review, please send an email to disputes@SHAKTIEXgaming.com with the subject line "Senior Management Review Request" and include your case reference number.
       </p>
       
       <p className="mb-4">
@@ -112,7 +112,7 @@ export default function DisputeResolution() {
       </p>
       
       <p className="mb-4">
-        3.4.3. The decision of the independent mediator will be binding on Trident Gaming, but you retain your legal rights to pursue other remedies if you are not satisfied with the mediator's decision.
+        3.4.3. The decision of the independent mediator will be binding on SHAKTIEX Gaming, but you retain your legal rights to pursue other remedies if you are not satisfied with the mediator's decision.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">4. Timeframes</h2>
@@ -140,9 +140,9 @@ export default function DisputeResolution() {
       </p>
       
       <ul className="list-disc pl-6 mb-4 space-y-2">
-        <li>Email: disputes@tridentgaming.com</li>
-        <li>Phone: +1-888-TRIDENT (874-3368)</li>
-        <li>Mail: Trident Gaming, Schottegateweg Zuid 72 A, Curaçao</li>
+        <li>Email: disputes@SHAKTIEXgaming.com</li>
+        <li>Phone: +1-888-SHAKTIEX (874-3368)</li>
+        <li>Mail: SHAKTIEX Gaming, Schottegateweg Zuid 72 A, Curaçao</li>
       </ul>
       
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">

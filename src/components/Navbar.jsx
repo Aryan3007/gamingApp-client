@@ -247,7 +247,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             ) : (
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
-            <h1 className="flex text-white font-semibold">TRIDENT</h1>
+            <h1 className="flex text-white font-semibold">SHAKTIEX</h1>
           </div>
 
           <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
           <div className="flex items-center gap-2 w-1/4">
             <img src="/logo.webp" className="h-12 w-12" alt="Logo" />
             <Link to="/">
-              <h1 className="text-white font-semibold text-2xl">TRIDENT</h1>
+              <h1 className="text-white font-semibold text-2xl">SHAKTIEX</h1>
             </Link>
           </div>
 

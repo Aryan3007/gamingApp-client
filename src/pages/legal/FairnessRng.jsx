@@ -6,7 +6,7 @@ export default function FairnessRng() {
       <h1 className="text-xl font-bold text-center mb-6">FAIRNESS & RNG TESTING METHODS</h1>
       
       <p className="mb-6">
-        At Trident Gaming, we are committed to providing a fair and transparent gaming experience. This page explains how we ensure the fairness of our games through Random Number Generators (RNGs) and rigorous testing methods.
+        At SHAKTIEX Gaming, we are committed to providing a fair and transparent gaming experience. This page explains how we ensure the fairness of our games through Random Number Generators (RNGs) and rigorous testing methods.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">1. Random Number Generators (RNGs)</h2>
@@ -21,7 +21,7 @@ export default function FairnessRng() {
       
       <ul className="list-disc pl-6 mb-4 space-y-2">
         <li>Each game outcome is completely random and independent of previous outcomes</li>
-        <li>No one, including Trident Gaming staff, can predict or manipulate game results</li>
+        <li>No one, including SHAKTIEX Gaming staff, can predict or manipulate game results</li>
         <li>All players have the same chance of winning, based on the game's published odds</li>
         <li>Games operate according to their published rules and paytables</li>
       </ul>
@@ -156,7 +156,7 @@ export default function FairnessRng() {
       <h2 className="text-lg font-semibold mb-2">8. Regulatory Compliance</h2>
       
       <p className="mb-4">
-        8.1. Trident Gaming is licensed and regulated by the Curaçao Gaming Authority under license number 1668/JAZ.
+        8.1. SHAKTIEX Gaming is licensed and regulated by the Curaçao Gaming Authority under license number 1668/JAZ.
       </p>
       
       <p className="mb-4">
@@ -175,7 +175,7 @@ export default function FairnessRng() {
       
       <div className="bg-green-50 border-l-4 border-green-500 p-4 mt-6">
         <p className="font-medium">Our Commitment to Fairness:</p>
-        <p>At Trident Gaming, we believe that fair play is the foundation of an enjoyable gaming experience. We are committed to maintaining the highest standards of fairness and transparency in all our games.</p>
+        <p>At SHAKTIEX Gaming, we believe that fair play is the foundation of an enjoyable gaming experience. We are committed to maintaining the highest standards of fairness and transparency in all our games.</p>
       </div>
     </div>
   );

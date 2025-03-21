@@ -4,7 +4,7 @@ export default function SelfExclusion() {
       <h1 className="text-xl font-bold text-center mb-6">SELF-EXCLUSION POLICY</h1>
       
       <p className="mb-4">
-        At Trident Gaming, we are committed to promoting responsible gambling. We recognize that gambling can become problematic for some individuals, and we provide tools and resources to help our players maintain control over their gambling activities.
+        At SHAKTIEX Gaming, we are committed to promoting responsible gambling. We recognize that gambling can become problematic for some individuals, and we provide tools and resources to help our players maintain control over their gambling activities.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">What is Self-Exclusion?</h2>
@@ -98,7 +98,7 @@ export default function SelfExclusion() {
       </ul>
       
       <p className="mb-4">
-        For any questions about our self-exclusion policy or responsible gambling tools, please contact our customer support team at support@tridentgaming.com.
+        For any questions about our self-exclusion policy or responsible gambling tools, please contact our customer support team at support@SHAKTIEXgaming.com.
       </p>
     </div>
   );

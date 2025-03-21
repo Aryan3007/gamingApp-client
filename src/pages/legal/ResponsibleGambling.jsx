@@ -6,7 +6,7 @@ export default function ResponsibleGambling() {
       <h1 className="text-xl font-bold text-center mb-6">RESPONSIBLE GAMBLING</h1>
       
       <p className="mb-4">
-        At Trident Gaming, we believe that gambling should always be an enjoyable form of entertainment. We are committed to promoting responsible gambling and providing our players with the tools and resources they need to maintain control over their gambling activities.
+        At SHAKTIEX Gaming, we believe that gambling should always be an enjoyable form of entertainment. We are committed to promoting responsible gambling and providing our players with the tools and resources they need to maintain control over their gambling activities.
       </p>
       
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
@@ -79,7 +79,7 @@ export default function ResponsibleGambling() {
       <h2 className="text-lg font-semibold mb-2">How to Access Responsible Gambling Tools</h2>
       
       <ol className="list-decimal pl-6 mb-6 space-y-2">
-        <li>Log in to your Trident Gaming account</li>
+        <li>Log in to your SHAKTIEX Gaming account</li>
         <li>Go to "My Account" or "Account Settings"</li>
         <li>Select "Responsible Gambling"</li>
         <li>Choose the tool you want to use and follow the instructions</li>
@@ -134,7 +134,7 @@ export default function ResponsibleGambling() {
       </p>
       
       <p className="mb-4">
-        For any questions about our responsible gambling tools or policies, please contact our customer support team at support@tridentgaming.com.
+        For any questions about our responsible gambling tools or policies, please contact our customer support team at support@SHAKTIEXgaming.com.
       </p>
       
       <div className="bg-green-50 border-l-4 border-green-500 p-4 mt-6">

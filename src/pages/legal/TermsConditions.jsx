@@ -10,13 +10,13 @@ export default function TermsConditions() {
       </p>
       
       <p className="mb-6">
-        Please read these Terms and Conditions ("Terms") carefully before using the Trident Gaming website or services. By accessing or using our platform, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must not use our services.
+        Please read these Terms and Conditions ("Terms") carefully before using the SHAKTIEX Gaming website or services. By accessing or using our platform, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must not use our services.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">1. General Provisions</h2>
       
       <p className="mb-4">
-        1.1. These Terms constitute a legally binding agreement between you ("User," "you," or "your") and Trident Gaming ("Company," "we," "us," or "our").
+        1.1. These Terms constitute a legally binding agreement between you ("User," "you," or "your") and SHAKTIEX Gaming ("Company," "we," "us," or "our").
       </p>
       
       <p className="mb-4">
@@ -144,7 +144,7 @@ export default function TermsConditions() {
       <h2 className="text-lg font-semibold mb-2">8. Intellectual Property</h2>
       
       <p className="mb-4">
-        8.1. All content on our platform, including but not limited to text, graphics, logos, images, audio clips, digital downloads, and software, is the property of Trident Gaming or its licensors and is protected by copyright, trademark, and other intellectual property laws.
+        8.1. All content on our platform, including but not limited to text, graphics, logos, images, audio clips, digital downloads, and software, is the property of SHAKTIEX Gaming or its licensors and is protected by copyright, trademark, and other intellectual property laws.
       </p>
       
       <p className="mb-4">
@@ -164,7 +164,7 @@ export default function TermsConditions() {
       <h2 className="text-lg font-semibold mb-2">10. Dispute Resolution</h2>
       
       <p className="mb-4">
-        10.1. If you have a complaint or dispute regarding our services, please contact our customer support team at support@tridentgaming.com.
+        10.1. If you have a complaint or dispute regarding our services, please contact our customer support team at support@SHAKTIEXgaming.com.
       </p>
       
       <p className="mb-4">
@@ -194,12 +194,12 @@ export default function TermsConditions() {
       <h2 className="text-lg font-semibold mb-2">13. Contact Information</h2>
       
       <p className="mb-4">
-        13.1. If you have any questions about these Terms, please contact us at legal@tridentgaming.com.
+        13.1. If you have any questions about these Terms, please contact us at legal@SHAKTIEXgaming.com.
       </p>
       
       <div className="bg-gray-100 p-4 rounded-lg mt-6">
         <p className="font-medium text-center">
-          By using Trident Gaming's services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+          By using SHAKTIEX Gaming's services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
         </p>
       </div>
     </div>

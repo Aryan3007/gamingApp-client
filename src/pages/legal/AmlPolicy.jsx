@@ -6,7 +6,7 @@ export default function AmlPolicy() {
       <h1 className="text-xl font-bold text-center mb-6">ANTI-MONEY LAUNDERING (AML) POLICY</h1>
       
       <p className="mb-4">
-        Trident Gaming is committed to preventing money laundering and terrorist financing through our platform. We maintain a comprehensive Anti-Money Laundering (AML) program that complies with all applicable laws and regulations in the jurisdictions where we operate.
+        SHAKTIEX Gaming is committed to preventing money laundering and terrorist financing through our platform. We maintain a comprehensive Anti-Money Laundering (AML) program that complies with all applicable laws and regulations in the jurisdictions where we operate.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">Our Commitment</h2>
@@ -65,7 +65,7 @@ export default function AmlPolicy() {
       <h2 className="text-lg font-semibold mb-2">Staff Training</h2>
       
       <p className="mb-4">
-        All Trident Gaming employees receive regular training on AML policies, procedures, and regulations. This training includes:
+        All SHAKTIEX Gaming employees receive regular training on AML policies, procedures, and regulations. This training includes:
       </p>
       <ul className="list-disc pl-6 mb-4 space-y-2">
         <li>Identifying suspicious activities and red flags</li>
@@ -94,7 +94,7 @@ export default function AmlPolicy() {
       </p>
       
       <p className="mb-4">
-        For any questions regarding our AML policy, please contact our compliance team at compliance@tridentgaming.com.
+        For any questions regarding our AML policy, please contact our compliance team at compliance@SHAKTIEXgaming.com.
       </p>
       
       <p className="text-sm text-gray-500 mt-6">

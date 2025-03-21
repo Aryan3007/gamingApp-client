@@ -64,7 +64,7 @@ const Login = () => {
           <h1 className="text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
             Welcome back to{" "}
             <span className="text-[rgb(var(--color-primary))]">
-              TRIDENT EXCHANGE
+              SHAKTI EXCHANGE
             </span>
           </h1>
           <p className="text-[rgb(var(--color-text-muted))] text-lg">
@@ -80,7 +80,7 @@ const Login = () => {
             {/* <img src="/logo.webp" alt="Logo" className="w-16 h-16 mb-4" /> */}
             <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
               Sign in to{" "}
-              <span className="text-[rgb(var(--color-primary))]">TRIDENT</span>
+              <span className="text-[rgb(var(--color-primary))]">SHAKTIEX</span>
             </h2>
           </div>
 

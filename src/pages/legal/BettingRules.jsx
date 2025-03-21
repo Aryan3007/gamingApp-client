@@ -6,7 +6,7 @@ export default function BettingRules() {
       <h1 className="text-xl font-bold text-center mb-6">BETTING RULES</h1>
       
       <p className="mb-6">
-        These Betting Rules govern all bets placed on Trident Gaming. By placing a bet on our platform, you acknowledge that you have read, understood, and agree to be bound by these rules. These rules should be read in conjunction with our Terms and Conditions.
+        These Betting Rules govern all bets placed on SHAKTIEX Gaming. By placing a bet on our platform, you acknowledge that you have read, understood, and agree to be bound by these rules. These rules should be read in conjunction with our Terms and Conditions.
       </p>
       
       <h2 className="text-lg font-semibold mb-2">1. General Rules</h2>
@@ -176,12 +176,12 @@ export default function BettingRules() {
       <h2 className="text-lg font-semibold mb-2">9. Contact Information</h2>
       
       <p className="mb-4">
-        9.1. If you have any questions about these Betting Rules, please contact our customer support team at support@tridentgaming.com.
+        9.1. If you have any questions about these Betting Rules, please contact our customer support team at support@SHAKTIEXgaming.com.
       </p>
       
       <div className="bg-gray-100 p-4 rounded-lg mt-6">
         <p className="font-medium text-center">
-          By placing bets on Trident Gaming, you acknowledge that you have read, understood, and agree to be bound by these Betting Rules.
+          By placing bets on SHAKTIEX Gaming, you acknowledge that you have read, understood, and agree to be bound by these Betting Rules.
         </p>
       </div>
     </div>

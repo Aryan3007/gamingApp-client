@@ -48,7 +48,7 @@ const WalletInfo = memo(({ wallet, exposure }) => {
       <span className="text-white flex flex-col w-full text-sm">
         <span className="flex gap-1 justify-start items-center"> </span>
         Balance : {wallet.toFixed(2)}
-        <span className="">Exposure : -{exposure}</span>
+        <span className="">Exposure : -{exposure.toFixed(2)}</span>
       </span>
     </div>
   )
@@ -247,7 +247,7 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
             ) : (
               <Menu className="h-6 w-6 text-white" onClick={toggleSidebar} />
             )}
-            <h1 className="flex text-white font-semibold">SHAKTIEX</h1>
+            <h1 className="flex text-xs md:text-base text-white font-semibold">SHAKTIEX</h1>
           </div>
 
           <div className="flex items-center gap-2">

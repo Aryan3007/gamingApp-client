@@ -20,6 +20,7 @@ import {
 } from "./redux/reducer/userReducer";
 import ChangePassword from "./components/ChangePassword.jsx";
 import Payment from "./pages/admin/Payment.jsx";
+import DepositWithdrawal from "./pages/DepositWithdrawl.jsx";
 const AccountsPayouts = lazy(() => import("./pages/legal/AccountsPayouts"));
 const KycPage = lazy(() => import("./pages/legal/KycPage"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -312,6 +313,14 @@ const App = () => {
                 <MyBets />
               </ProtectedRoute>
             }
+          />  
+             <Route
+            path="/deposit-withdrawl"
+            element={
+              <ProtectedRoute isAuthenticated={user}>
+                <DepositWithdrawal />
+              </ProtectedRoute>
+            }
           />
 
           <Route
@@ -323,6 +332,7 @@ const App = () => {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/withdrawl" element={<MyWithdrawls />} />{" "}
                     <Route path="/deposit" element={<MyDeposit />} />
+                   
                     <Route
                       path="/change-password"
                       element={<ChangePassword />}

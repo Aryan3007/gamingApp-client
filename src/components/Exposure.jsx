@@ -67,8 +67,11 @@ const Exposure = ({ user, onWalletUpdate, onExposureUpdate }) => {
         getTotalExposure(),
       ]);
 
-      // Update the wallet amount with user.amount - totalExposure
-      onWalletUpdate(userAmount - totalExposure);
+      // Ensure balance never goes below 0
+      const finalAmount = Math.max(userAmount - totalExposure, 0);
+
+      // Update the wallet amount
+      onWalletUpdate(finalAmount);
 
       // Update the exposure value
       onExposureUpdate(totalExposure);

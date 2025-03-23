@@ -97,10 +97,7 @@ export default function Users() {
       toast.error("Gender selection is required");
       return false;
     }
-    if (!newUserData.amount || newUserData.amount <= 0) {
-      toast.error("Amount must be greater than 0");
-      return false;
-    }
+   
     return true;
   };
 

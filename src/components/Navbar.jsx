@@ -193,11 +193,13 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
     [],
   )
 
-  // Memoize filtered nav items
   const filteredNavItems = useMemo(() => 
     navItems.filter((item) => {
-      if (item.name === "Withdrawl/Deposit" && (user?.role === "super_admin" || user?.role === "master")) {
-        return false; // Exclude for super_admin and master
+      if (
+        item.name === "Withdrawl/Deposit" && 
+        (!user || user.role === "super_admin" || user.role === "master")
+      ) {
+        return false; // Hide if no user OR user is super_admin/master
       }
       return item.name !== "MyBets" || user; // Show MyBets only if user exists
     }), 

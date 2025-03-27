@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { server } from "../constants/config";
+import { useState, useEffect, useCallback } from "react"
+import axios from "axios"
+import toast from "react-hot-toast"
+import { server } from "../constants/config"
 
 export default function DepositWithdrawal() {
-  const [activeTab, setActiveTab] = useState("withdrawal");
-  const [activePaymentOption, setActivePaymentOption] = useState("bank");
-  const [activewithdrawloption, setactivewithdrawloption] = useState("bank");
-  const [bankDetails, setBankDetails] = useState([]);
-  const [upiIds, setUpiIds] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("withdrawal")
+  const [activePaymentOption, setActivePaymentOption] = useState("bank")
+  const [activewithdrawloption, setactivewithdrawloption] = useState("bank")
+  const [bankDetails, setBankDetails] = useState([])
+  const [upiIds, setUpiIds] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     amount: "",
     referenceNumber: "",
@@ -23,184 +23,189 @@ export default function DepositWithdrawal() {
     bankName: "",
     upiId: "",
     contact: "", // Add contact field
-  });
+  })
 
   // Add a new state for QR code URL
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
-  const [qrCodes, setQrCodes] = useState([]);
+  const [qrCodeUrl, setQrCodeUrl] = useState("")
+  const [qrCodes, setQrCodes] = useState([])
 
-  const [upiid, setUpiId] = useState("");
-  const [qrCodeAmount, setQrCodeAmount] = useState("");
-  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
+  const [upiid, setUpiId] = useState("")
+  const [qrCodeAmount, setQrCodeAmount] = useState("")
+  const [isGeneratingQR, setIsGeneratingQR] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
 
   // Fetch bank details
   const fetchBankDetails = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("authToken")
       if (!token) {
-        throw new Error("Authentication token not found");
+        throw new Error("Authentication token not found")
       }
 
-      const response = await axios.get(
-        `${server}api/v1/payment-details/bank-details`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${server}api/v1/payment-details/bank-details`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       if (response.data.success) {
-        setBankDetails(response.data.bankDetails || []);
+        setBankDetails(response.data.bankDetails || [])
       } else {
-        throw new Error(
-          response.data.message || "Failed to fetch bank details"
-        );
+        throw new Error(response.data.message || "Failed to fetch bank details")
       }
     } catch (err) {
-      console.error("Error fetching bank details:", err);
-      toast.error("Failed to load bank details");
+      console.error("Error fetching bank details:", err)
+      toast.error("Failed to load bank details")
     }
-  }, []);
+  }, [])
 
   // Fetch UPI details
   const fetchUpiDetails = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("authToken")
       if (!token) {
-        throw new Error("Authentication token not found");
+        throw new Error("Authentication token not found")
       }
 
       const response = await axios.get(`${server}api/v1/payment-details/upi`, {
         headers: { Authorization: `Bearer ${token}` },
-      });
+      })
 
       if (response.data.success) {
-        setUpiIds(response.data.upiIds || []);
+        setUpiIds(response.data.upiIds || [])
       } else {
-        throw new Error(response.data.message || "Failed to fetch UPI details");
+        throw new Error(response.data.message || "Failed to fetch UPI details")
       }
     } catch (err) {
-      console.error("Error fetching UPI details:", err);
-      toast.error("Failed to load UPI IDs");
+      console.error("Error fetching UPI details:", err)
+      toast.error("Failed to load UPI IDs")
     }
-  }, []);
+  }, [])
 
   const fetchQrCodes = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("authToken")
       if (!token) {
-        throw new Error("Authentication token not found");
+        throw new Error("Authentication token not found")
       }
 
-      const response = await axios.get(
-        `${server}api/v1/payment-details/qrcode`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${server}api/v1/payment-details/qrcode`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       if (response.data.success) {
-        setQrCodes(response.data.qrCodes || []);
+        setQrCodes(response.data.qrCodes || [])
       } else {
-        throw new Error(response.data.message || "Failed to fetch QR codes");
+        throw new Error(response.data.message || "Failed to fetch QR codes")
       }
     } catch (err) {
-      console.error("Error fetching QR codes:", err);
-      toast.error("Failed to load QR codes");
+      console.error("Error fetching QR codes:", err)
+      toast.error("Failed to load QR codes")
     }
-  }, []);
+  }, [])
   // Fetch payment details on page load
   useEffect(() => {
-    setIsLoading(true);
-    Promise.all([
-      fetchBankDetails(),
-      fetchUpiDetails(),
-      fetchQrCodes(),
-    ]).finally(() => setIsLoading(false));
-  }, [fetchBankDetails, fetchQrCodes, fetchUpiDetails]);
+    setIsLoading(true)
+    Promise.all([fetchBankDetails(), fetchUpiDetails(), fetchQrCodes()]).finally(() => setIsLoading(false))
+  }, [fetchBankDetails, fetchQrCodes, fetchUpiDetails])
 
   // Handle form input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
       [name]: value,
-    });
-  };
+    })
+  }
+
+  // Handle image file upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setImageFile(file)
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   // Add a function to generate QR code
   const generateQRCode = async (amount) => {
     if (!amount || isNaN(amount) || Number.parseFloat(amount) <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
+      toast.error("Please enter a valid amount")
+      return
     }
 
-    setIsGeneratingQR(true);
+    setIsGeneratingQR(true)
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("authToken")
       const response = await axios.post(
         `${server}api/v1/payment/create`,
         { amount: Number.parseFloat(amount) },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        },
+      )
 
       if (response.data.success) {
-        setQrCodeUrl(response.data.url);
-        setUpiId(response.data.upiId);
-        setQrCodeAmount(amount);
-        toast.success("QR code generated successfully");
+        setQrCodeUrl(response.data.url)
+        setUpiId(response.data.upiId)
+        setQrCodeAmount(amount)
+        toast.success("QR code generated successfully")
       } else {
-        toast.error(response.data.message || "Failed to generate QR code");
+        toast.error(response.data.message || "Failed to generate QR code")
       }
     } catch (err) {
-      console.error("Error generating QR code:", err);
-      toast.error(err.response?.data?.message || "Failed to generate QR code");
+      console.error("Error generating QR code:", err)
+      toast.error(err.response?.data?.message || "Failed to generate QR code")
     } finally {
-      setIsGeneratingQR(false);
+      setIsGeneratingQR(false)
     }
-  };
+  }
 
   // Handle deposit request submission
   const handleDepositSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Validate form
-    const amountToUse =
-      activePaymentOption === "qr" && qrCodeUrl
-        ? qrCodeAmount
-        : formData.amount;
+    const amountToUse = activePaymentOption === "qr" && qrCodeUrl ? qrCodeAmount : formData.amount
 
-    if (
-      !amountToUse ||
-      isNaN(amountToUse) ||
-      Number.parseFloat(amountToUse) <= 0
-    ) {
-      toast.error("Please enter a valid amount");
-      return;
+    if (!amountToUse || isNaN(amountToUse) || Number.parseFloat(amountToUse) <= 0) {
+      toast.error("Please enter a valid amount")
+      return
     }
 
     if (!formData.referenceNumber.trim()) {
-      toast.error("Please enter a reference number");
-      return;
+      toast.error("Please enter a reference number")
+      return
     }
 
-    setIsSubmitting(true);
+    if (!imageFile) {
+      toast.error("Please upload a transaction screenshot")
+      return
+    }
+
+    setIsSubmitting(true)
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(
-        `${server}api/v1/payment/deposit-request`,
-        {
-          amount: Number.parseFloat(amountToUse),
-          referenceNumber: formData.referenceNumber,
+      const token = localStorage.getItem("authToken")
+
+      // Create FormData to send file
+      const formDataToSend = new FormData()
+      formDataToSend.append("amount", Number.parseFloat(amountToUse))
+      formDataToSend.append("referenceNumber", formData.referenceNumber)
+      formDataToSend.append("image", imageFile)
+
+      const response = await axios.post(`${server}api/v1/payment/deposit-request`, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      })
 
       if (response.data.success) {
-        toast.success("Deposit request submitted successfully");
+        toast.success("Deposit request submitted successfully")
         setFormData({
           amount: "",
           referenceNumber: "",
@@ -210,88 +215,86 @@ export default function DepositWithdrawal() {
           bankName: "",
           upiId: "",
           contact: "",
-        });
-        setQrCodeUrl("");
-        setQrCodeAmount("");
+        })
+        setQrCodeUrl("")
+        setQrCodeAmount("")
+        setImageFile(null)
+        setImagePreview(null)
       } else {
-        toast.error(
-          response.data.message || "Failed to submit deposit request"
-        );
+        toast.error(response.data.message || "Failed to submit deposit request")
       }
     } catch (err) {
-      console.error("Error submitting deposit request:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to submit deposit request"
-      );
+      console.error("Error submitting deposit request:", err)
+      toast.error(err.response?.data?.message || "Failed to submit deposit request")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   // Copy text to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
       .then(() => toast.success("Copied to clipboard"))
-      .catch(() => toast.error("Failed to copy"));
-  };
+      .catch(() => toast.error("Failed to copy"))
+  }
 
   // Validate withdrawal form based on active payment option
   const validateWithdrawalForm = () => {
     if (!formData.amount || Number.parseFloat(formData.amount) <= 0) {
-      toast.error("Please enter a valid amount");
-      return false;
+      toast.error("Please enter a valid amount")
+      return false
     }
 
     if (!formData.contact) {
-      toast.error("Contact number is required");
-      return false;
+      toast.error("Contact number is required")
+      return false
     }
 
     if (activePaymentOption === "bank") {
       if (!formData.accountHolderName) {
-        toast.error("Account holder name is required");
-        return false;
+        toast.error("Account holder name is required")
+        return false
       }
       if (!formData.accountNumber) {
-        toast.error("Account number is required");
-        return false;
+        toast.error("Account number is required")
+        return false
       }
       if (!formData.ifscCode) {
-        toast.error("IFSC code is required");
-        return false;
+        toast.error("IFSC code is required")
+        return false
       }
       if (!formData.bankName) {
-        toast.error("Bank name is required");
-        return false;
+        toast.error("Bank name is required")
+        return false
       }
     } else if (activePaymentOption === "upi") {
       if (!formData.upiId) {
-        toast.error("UPI ID is required");
-        return false;
+        toast.error("UPI ID is required")
+        return false
       }
       // Basic UPI ID validation
-      const upiRegex = /^[\w.-]+@[\w.-]+$/;
+      const upiRegex = /^[\w.-]+@[\w.-]+$/
       if (!upiRegex.test(formData.upiId)) {
-        toast.error("Please enter a valid UPI ID (e.g., name@bank)");
-        return false;
+        toast.error("Please enter a valid UPI ID (e.g., name@bank)")
+        return false
       }
     }
 
-    return true;
-  };
+    return true
+  }
 
   // Handle withdrawal request form submission
   const handleWithdrawalSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!validateWithdrawalForm()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("authToken")
 
       // Prepare data based on selected payment method
       const requestData = {
@@ -307,18 +310,14 @@ export default function DepositWithdrawal() {
           : {
               upiId: formData.upiId,
             }),
-      };
+      }
 
-      const response = await axios.post(
-        `${server}api/v1/payment/withdrawal-request`,
-        requestData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.post(`${server}api/v1/payment/withdrawal-request`, requestData, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       if (response.data.success) {
-        toast.success("Withdrawal request submitted successfully!");
+        toast.success("Withdrawal request submitted successfully!")
         // Reset form
         setFormData({
           amount: "",
@@ -329,34 +328,28 @@ export default function DepositWithdrawal() {
           bankName: "",
           upiId: "",
           contact: "",
-        });
+        })
       } else {
-        toast.error(
-          response.data.message || "Failed to submit withdrawal request"
-        );
+        toast.error(response.data.message || "Failed to submit withdrawal request")
       }
     } catch (err) {
-      console.error("Error submitting withdrawal request:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to submit withdrawal request"
-      );
+      console.error("Error submitting withdrawal request:", err)
+      toast.error(err.response?.data?.message || "Failed to submit withdrawal request")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   // Reset QR code state when changing payment option
   useEffect(() => {
-    setQrCodeUrl("");
-    setQrCodeAmount("");
-  }, [activePaymentOption]);
+    setQrCodeUrl("")
+    setQrCodeAmount("")
+  }, [activePaymentOption])
 
   return (
     <div className="pt-24  p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">
-          Deposit & Withdrawal
-        </h2>
+        <h2 className="text-2xl font-bold tracking-tight">Deposit & Withdrawal</h2>
       </div>
 
       {/* Tabs */}
@@ -395,9 +388,7 @@ export default function DepositWithdrawal() {
               {activeTab === "deposit" && (
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-base font-medium mb-2">
-                      Select Payment Method
-                    </h4>
+                    <h4 className="text-base font-medium mb-2">Select Payment Method</h4>
                     <div className="flex flex-wrap border-b mb-4">
                       <button
                         className={`py-2 px-4 text-sm font-medium ${
@@ -439,46 +430,30 @@ export default function DepositWithdrawal() {
                       >
                         QR Code
                       </button>
-                    
                     </div>
 
                     {/* Bank Transfer Option */}
                     {activePaymentOption === "bank" && (
                       <div className="bg-gray-50 p-4 rounded-md">
                         {bankDetails.length === 0 ? (
-                          <p className="text-center text-gray-500 py-4">
-                            No bank details available
-                          </p>
+                          <p className="text-center text-gray-500 py-4">No bank details available</p>
                         ) : (
                           <div className="space-y-4">
                             <p className="text-sm text-gray-600 mb-2">
-                              Please transfer the amount to the following bank
-                              account and enter the reference number below:
+                              Please transfer the amount to the following bank account and enter the reference number
+                              below:
                             </p>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                               {bankDetails.map((bank, index) => (
-                                <div
-                                  key={bank._id}
-                                  className="border rounded-md p-4 bg-white"
-                                >
-                                  <h5 className="font-medium mb-2">
-                                    Bank Account {index + 1}
-                                  </h5>
+                                <div key={bank._id} className="border rounded-md p-4 bg-white">
+                                  <h5 className="font-medium mb-2">Bank Account {index + 1}</h5>
                                   <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
-                                      <span className="text-gray-500">
-                                        Account Holder:
-                                      </span>
+                                      <span className="text-gray-500">Account Holder:</span>
                                       <div className="flex items-center">
-                                        <span className="font-medium">
-                                          {bank.accountHolderName}
-                                        </span>
+                                        <span className="font-medium">{bank.accountHolderName}</span>
                                         <button
-                                          onClick={() =>
-                                            copyToClipboard(
-                                              bank.accountHolderName
-                                            )
-                                          }
+                                          onClick={() => copyToClipboard(bank.accountHolderName)}
                                           className="ml-2 text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
                                         >
                                           <svg
@@ -499,17 +474,11 @@ export default function DepositWithdrawal() {
                                       </div>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-500">
-                                        Account Number:
-                                      </span>
+                                      <span className="text-gray-500">Account Number:</span>
                                       <div className="flex items-center">
-                                        <span className="font-medium">
-                                          {bank.accountNumber}
-                                        </span>
+                                        <span className="font-medium">{bank.accountNumber}</span>
                                         <button
-                                          onClick={() =>
-                                            copyToClipboard(bank.accountNumber)
-                                          }
+                                          onClick={() => copyToClipboard(bank.accountNumber)}
                                           className="ml-2 text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
                                         >
                                           <svg
@@ -530,17 +499,11 @@ export default function DepositWithdrawal() {
                                       </div>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-500">
-                                        IFSC Code:
-                                      </span>
+                                      <span className="text-gray-500">IFSC Code:</span>
                                       <div className="flex items-center">
-                                        <span className="font-medium">
-                                          {bank.ifscCode}
-                                        </span>
+                                        <span className="font-medium">{bank.ifscCode}</span>
                                         <button
-                                          onClick={() =>
-                                            copyToClipboard(bank.ifscCode)
-                                          }
+                                          onClick={() => copyToClipboard(bank.ifscCode)}
                                           className="ml-2 text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
                                         >
                                           <svg
@@ -561,17 +524,11 @@ export default function DepositWithdrawal() {
                                       </div>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-500">
-                                        Bank Name:
-                                      </span>
+                                      <span className="text-gray-500">Bank Name:</span>
                                       <div className="flex items-center">
-                                        <span className="font-medium">
-                                          {bank.bankName}
-                                        </span>
+                                        <span className="font-medium">{bank.bankName}</span>
                                         <button
-                                          onClick={() =>
-                                            copyToClipboard(bank.bankName)
-                                          }
+                                          onClick={() => copyToClipboard(bank.bankName)}
                                           className="ml-2 text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
                                         >
                                           <svg
@@ -604,25 +561,18 @@ export default function DepositWithdrawal() {
                     {activePaymentOption === "upi" && (
                       <div className="bg-gray-50 p-4 rounded-md">
                         {upiIds.length === 0 ? (
-                          <p className="text-center text-gray-500 py-4">
-                            No UPI IDs available
-                          </p>
+                          <p className="text-center text-gray-500 py-4">No UPI IDs available</p>
                         ) : (
                           <div className="space-y-4">
                             <p className="text-sm text-gray-600 mb-2">
-                              Please transfer the amount to any of the following
-                              UPI IDs and enter the reference number below:
+                              Please transfer the amount to any of the following UPI IDs and enter the reference number
+                              below:
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {upiIds.map((upi) => (
-                                <div
-                                  key={upi._id}
-                                  className="border rounded-md p-4 bg-white"
-                                >
+                                <div key={upi._id} className="border rounded-md p-4 bg-white">
                                   <div className="flex justify-between items-center">
-                                    <span className="font-medium">
-                                      {upi.upiId}
-                                    </span>
+                                    <span className="font-medium">{upi.upiId}</span>
                                     <button
                                       onClick={() => copyToClipboard(upi.upiId)}
                                       className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
@@ -656,10 +606,7 @@ export default function DepositWithdrawal() {
                       <div className="bg-gray-50 p-4 rounded-md">
                         <div className="space-y-4">
                           <div className="mb-4">
-                            <label
-                              htmlFor="qr-amount"
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
+                            <label htmlFor="qr-amount" className="block text-sm font-medium text-gray-700 mb-1">
                               Amount*
                             </label>
                             <div className="flex flex-col sm:flex-row gap-2">
@@ -667,9 +614,7 @@ export default function DepositWithdrawal() {
                                 type="number"
                                 id="qr-amount"
                                 value={qrCodeAmount}
-                                onChange={(e) =>
-                                  setQrCodeAmount(e.target.value)
-                                }
+                                onChange={(e) => setQrCodeAmount(e.target.value)}
                                 className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                                 placeholder="Enter amount"
                                 min="1"
@@ -723,12 +668,9 @@ export default function DepositWithdrawal() {
                               </div>
                               <div className="text-center md:text-left">
                                 <p className="text-sm font-medium text-gray-700">
-                                  Scan this QR code to pay {qrCodeAmount} or
-                                  send directly to{" "}
+                                  Scan this QR code to pay {qrCodeAmount} or send directly to{" "}
                                 </p>
-                                <p className="text-lg font-semibold mt-1 mb-2">
-                                  {upiid}
-                                </p>
+                                <p className="text-lg font-semibold mt-1 mb-2">{upiid}</p>
                                 <button
                                   onClick={() => copyToClipboard(upiid)}
                                   className="inline-flex items-center text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-dark))]"
@@ -750,15 +692,13 @@ export default function DepositWithdrawal() {
                                   Copy UPI ID
                                 </button>
                                 <p className="text-xs text-gray-500 mt-3">
-                                  After payment, enter the reference number
-                                  below and submit the deposit request
+                                  After payment, enter the reference number below and submit the deposit request
                                 </p>
                               </div>
                             </div>
                           ) : (
                             <p className="text-center text-gray-500 py-4">
-                              Enter an amount and click "Generate QR Code" to
-                              get a payment QR code
+                              Enter an amount and click "Generate QR Code" to get a payment QR code
                             </p>
                           )}
                         </div>
@@ -784,10 +724,7 @@ export default function DepositWithdrawal() {
                           </div> */}
                                     <div className="">
                                       <img
-                                        src={
-                                          qrCode.qrCode.url ||
-                                          "/placeholder.svg"
-                                        }
+                                        src={qrCode.qrCode.url || "/placeholder.svg" || "/placeholder.svg"}
                                         alt={qrCode.title}
                                         className="max-w-44 max-h-44 object-contain"
                                       />
@@ -812,35 +749,24 @@ export default function DepositWithdrawal() {
 
                   {/* Deposit Form */}
                   <div className="bg-white p-6 rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
-                    <h4 className="text-lg font-medium mb-4">
-                      Submit Deposit Request
-                    </h4>
+                    <h4 className="text-lg font-medium mb-4">Submit Deposit Request</h4>
                     <form onSubmit={handleDepositSubmit} className="space-y-4">
                       <div>
-                        <label
-                          htmlFor="amount"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
                           Amount*
                         </label>
                         <input
                           type="number"
                           id="amount"
                           name="amount"
-                          value={
-                            activePaymentOption === "qr" && qrCodeUrl
-                              ? qrCodeAmount
-                              : formData.amount
-                          }
+                          value={activePaymentOption === "qr" && qrCodeUrl ? qrCodeAmount : formData.amount}
                           onChange={(e) => {
                             if (activePaymentOption === "qr" && qrCodeUrl) {
                               // If QR code is already generated, don't allow changing the amount
-                              toast.info(
-                                "Please generate a new QR code to change the amount"
-                              );
-                              return;
+                              toast.info("Please generate a new QR code to change the amount")
+                              return
                             }
-                            handleInputChange(e);
+                            handleInputChange(e)
                           }}
                           className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                           placeholder="Enter amount"
@@ -850,16 +776,11 @@ export default function DepositWithdrawal() {
                           disabled={activePaymentOption === "qr" && qrCodeUrl}
                         />
                         {activePaymentOption === "qr" && qrCodeUrl && (
-                          <p className="mt-1 text-xs text-gray-500">
-                            Amount is locked to match the generated QR code
-                          </p>
+                          <p className="mt-1 text-xs text-gray-500">Amount is locked to match the generated QR code</p>
                         )}
                       </div>
                       <div>
-                        <label
-                          htmlFor="referenceNumber"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="referenceNumber" className="block text-sm font-medium text-gray-700 mb-1">
                           Transaction ID*
                         </label>
                         <input
@@ -873,8 +794,36 @@ export default function DepositWithdrawal() {
                           required
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                          Enter the reference/transaction ID from your payment
-                          for verification
+                          Enter the reference/transaction ID from your payment for verification
+                        </p>
+                      </div>
+                      <div>
+                        <label htmlFor="transactionScreenshot" className="block text-sm font-medium text-gray-700 mb-1">
+                          Transaction Screenshot*
+                        </label>
+                        <input
+                          type="file"
+                          id="transactionScreenshot"
+                          name="transactionScreenshot"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+                          required
+                        />
+                        {imagePreview && (
+                          <div className="mt-2">
+                            <p className="text-xs text-gray-500 mb-1">Preview:</p>
+                            <div className="border rounded-md overflow-hidden max-w-xs">
+                              <img
+                                src={imagePreview || "/placeholder.svg"}
+                                alt="Transaction Screenshot"
+                                className="max-w-full h-auto"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <p className="mt-1 text-xs text-gray-500">
+                          Upload a screenshot of your transaction for verification
                         </p>
                       </div>
                       <div className="pt-2">
@@ -921,9 +870,7 @@ export default function DepositWithdrawal() {
               {activeTab === "withdrawal" && (
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-base font-medium mb-2">
-                      Select Payment Method
-                    </h4>
+                    <h4 className="text-base font-medium mb-2">Select Payment Method</h4>
                     <div className="flex flex-wrap border-b mb-4">
                       <button
                         className={`py-2 px-4 text-sm font-medium ${
@@ -941,18 +888,10 @@ export default function DepositWithdrawal() {
 
                   {/* Withdrawal Form */}
                   <div className="bg-white p-6 rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
-                    <h4 className="text-lg font-medium mb-4">
-                      Submit Withdrawal Request
-                    </h4>
-                    <form
-                      onSubmit={handleWithdrawalSubmit}
-                      className="space-y-4"
-                    >
+                    <h4 className="text-lg font-medium mb-4">Submit Withdrawal Request</h4>
+                    <form onSubmit={handleWithdrawalSubmit} className="space-y-4">
                       <div>
-                        <label
-                          htmlFor="amount"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
                           Amount*
                         </label>
                         <input
@@ -970,10 +909,7 @@ export default function DepositWithdrawal() {
                       </div>
 
                       <div>
-                        <label
-                          htmlFor="contact"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
                           Contact Number*
                         </label>
                         <input
@@ -991,10 +927,7 @@ export default function DepositWithdrawal() {
                       {activewithdrawloption === "bank" && (
                         <>
                           <div>
-                            <label
-                              htmlFor="accountHolderName"
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
+                            <label htmlFor="accountHolderName" className="block text-sm font-medium text-gray-700 mb-1">
                               Account Holder Name*
                             </label>
                             <input
@@ -1009,10 +942,7 @@ export default function DepositWithdrawal() {
                             />
                           </div>
                           <div>
-                            <label
-                              htmlFor="accountNumber"
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
+                            <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-1">
                               Account Number*
                             </label>
                             <input
@@ -1027,10 +957,7 @@ export default function DepositWithdrawal() {
                             />
                           </div>
                           <div>
-                            <label
-                              htmlFor="ifscCode"
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
+                            <label htmlFor="ifscCode" className="block text-sm font-medium text-gray-700 mb-1">
                               IFSC Code*
                             </label>
                             <input
@@ -1045,10 +972,7 @@ export default function DepositWithdrawal() {
                             />
                           </div>
                           <div>
-                            <label
-                              htmlFor="bankName"
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
+                            <label htmlFor="bankName" className="block text-sm font-medium text-gray-700 mb-1">
                               Bank Name*
                             </label>
                             <input
@@ -1067,10 +991,7 @@ export default function DepositWithdrawal() {
 
                       {activePaymentOption === "upi" && (
                         <div>
-                          <label
-                            htmlFor="upiId"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
+                          <label htmlFor="upiId" className="block text-sm font-medium text-gray-700 mb-1">
                             UPI ID*
                           </label>
                           <input
@@ -1133,5 +1054,6 @@ export default function DepositWithdrawal() {
         </div>
       </div>
     </div>
-  );
+  )
 }
+

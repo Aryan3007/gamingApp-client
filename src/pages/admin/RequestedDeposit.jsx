@@ -1,207 +1,226 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
-import axios from "axios"
-import { server } from "../../constants/config"
+import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
+import { server } from "../../constants/config";
 
 export default function DepositHistory() {
-  const [depositHistory, setDepositHistory] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [depositHistory, setDepositHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Search and filter states
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currencyFilter, setCurrencyFilter] = useState("all")
-  const [dateRange, setDateRange] = useState({ from: "", to: "" })
-  const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" })
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currencyFilter, setCurrencyFilter] = useState("all");
+  const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdAt",
+    direction: "desc",
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Pagination states
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Fetch deposit history
   useEffect(() => {
     const fetchDepositHistory = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const token = localStorage.getItem("authToken")
+        const token = localStorage.getItem("authToken");
         if (!token) {
-          throw new Error("Authentication token not found")
+          throw new Error("Authentication token not found");
         }
 
-        const response = await axios.get(`${server}api/v1/payment/user-deposit-history`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const response = await axios.get(
+          `${server}api/v1/payment/user-deposit-history`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (response.data.success) {
-          setDepositHistory(response.data.history)
+          setDepositHistory(response.data.history);
         } else {
-          throw new Error(response.data.message || "Failed to fetch deposit history")
+          throw new Error(
+            response.data.message || "Failed to fetch deposit history"
+          );
         }
       } catch (err) {
-        console.error("Error fetching reports:", err)
-        setError(err.response?.data?.message || err.message || "An error occurred while fetching deposit history")
+        console.error("Error fetching reports:", err);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "An error occurred while fetching deposit history"
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchDepositHistory()
-  }, [])
+    fetchDepositHistory();
+  }, []);
 
   // Reset to first page when filters change
   useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, currencyFilter, dateRange, sortConfig])
+    setCurrentPage(1);
+  }, [searchTerm, currencyFilter, dateRange, sortConfig]);
 
   // Sorting function
   const requestSort = (key) => {
-    let direction = "asc"
+    let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc"
+      direction = "desc";
     }
-    setSortConfig({ key, direction })
-  }
+    setSortConfig({ key, direction });
+  };
 
   // Reset all filters
   const resetFilters = () => {
-    setSearchTerm("")
-    setCurrencyFilter("all")
-    setDateRange({ from: "", to: "" })
-    setSortConfig({ key: "createdAt", direction: "desc" })
-    setCurrentPage(1)
-  }
+    setSearchTerm("");
+    setCurrencyFilter("all");
+    setDateRange({ from: "", to: "" });
+    setSortConfig({ key: "createdAt", direction: "desc" });
+    setCurrentPage(1);
+  };
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   // Format amount with currency
   const formatAmount = (amount) => {
-    return `${amount.toLocaleString()}`
-  }
+    return `${amount.toLocaleString()}`;
+  };
 
   // Apply all filters and sorting
   const filteredAndSortedData = useMemo(() => {
     // First filter the data
-    let filtered = [...depositHistory]
+    let filtered = [...depositHistory];
 
     // Apply search term filter
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase()
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (item) => item.userName.toLowerCase().includes(searchLower) || item.userId.toLowerCase().includes(searchLower),
-      )
+        (item) =>
+          item.userName.toLowerCase().includes(searchLower) ||
+          item.userId.toLowerCase().includes(searchLower)
+      );
     }
 
     // Apply currency filter
     if (currencyFilter !== "all") {
-      filtered = filtered.filter((item) => item.currency.toLowerCase() === currencyFilter.toLowerCase())
+      filtered = filtered.filter(
+        (item) => item.currency.toLowerCase() === currencyFilter.toLowerCase()
+      );
     }
 
     // Apply date range filter
     if (dateRange.from) {
-      const fromDate = new Date(dateRange.from)
-      fromDate.setHours(0, 0, 0, 0)
-      filtered = filtered.filter((item) => new Date(item.createdAt) >= fromDate)
+      const fromDate = new Date(dateRange.from);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(
+        (item) => new Date(item.createdAt) >= fromDate
+      );
     }
 
     if (dateRange.to) {
-      const toDate = new Date(dateRange.to)
-      toDate.setHours(23, 59, 59, 999)
-      filtered = filtered.filter((item) => new Date(item.createdAt) <= toDate)
+      const toDate = new Date(dateRange.to);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((item) => new Date(item.createdAt) <= toDate);
     }
 
     // Then sort the filtered data
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        let aValue = a[sortConfig.key]
-        let bValue = b[sortConfig.key]
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
 
         // Handle special cases
         if (sortConfig.key === "createdAt" || sortConfig.key === "updatedAt") {
-          aValue = new Date(aValue)
-          bValue = new Date(bValue)
+          aValue = new Date(aValue);
+          bValue = new Date(bValue);
         } else if (sortConfig.key === "amount") {
-          aValue = Number(aValue)
-          bValue = Number(bValue)
+          aValue = Number(aValue);
+          bValue = Number(bValue);
         }
 
         if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1
+          return sortConfig.direction === "asc" ? -1 : 1;
         }
         if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1
+          return sortConfig.direction === "asc" ? 1 : -1;
         }
-        return 0
-      })
+        return 0;
+      });
     }
 
-    return filtered
-  }, [depositHistory, searchTerm, currencyFilter, dateRange, sortConfig])
+    return filtered;
+  }, [depositHistory, searchTerm, currencyFilter, dateRange, sortConfig]);
 
   // Pagination calculations
-  const totalItems = filteredAndSortedData.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredAndSortedData.slice(indexOfFirstItem, indexOfLastItem)
+  const totalItems = filteredAndSortedData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAndSortedData.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Generate page numbers for pagination
-  const pageNumbers = []
-  const maxPageNumbersToShow = 5
+  const pageNumbers = [];
+  const maxPageNumbersToShow = 5;
 
   if (totalPages <= maxPageNumbersToShow) {
     // Show all page numbers
     for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
   } else {
     // Show limited page numbers with ellipsis
     if (currentPage <= 3) {
       // Near the start
       for (let i = 1; i <= 4; i++) {
-        pageNumbers.push(i)
+        pageNumbers.push(i);
       }
-      pageNumbers.push("...")
-      pageNumbers.push(totalPages)
+      pageNumbers.push("...");
+      pageNumbers.push(totalPages);
     } else if (currentPage >= totalPages - 2) {
       // Near the end
-      pageNumbers.push(1)
-      pageNumbers.push("...")
+      pageNumbers.push(1);
+      pageNumbers.push("...");
       for (let i = totalPages - 3; i <= totalPages; i++) {
-        pageNumbers.push(i)
+        pageNumbers.push(i);
       }
     } else {
       // Middle
-      pageNumbers.push(1)
-      pageNumbers.push("...")
+      pageNumbers.push(1);
+      pageNumbers.push("...");
       for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-        pageNumbers.push(i)
+        pageNumbers.push(i);
       }
-      pageNumbers.push("...")
-      pageNumbers.push(totalPages)
+      pageNumbers.push("...");
+      pageNumbers.push(totalPages);
     }
   }
 
   return (
     <div className="space-y-4">
-     
-
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <div className="p-4 border-b">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h3 className="text-lg font-semibold leading-none tracking-tight text-[rgb(var(--color-text-primary))]">
-              Your Deposit History 
+              Your Deposit History
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -215,7 +234,12 @@ export default function DepositHistory() {
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
@@ -230,7 +254,12 @@ export default function DepositHistory() {
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path
                     fillRule="evenodd"
                     d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
@@ -238,9 +267,12 @@ export default function DepositHistory() {
                   />
                 </svg>
                 Filters
-                {(currencyFilter !== "all" || dateRange.from || dateRange.to) && (
+                {(currencyFilter !== "all" ||
+                  dateRange.from ||
+                  dateRange.to) && (
                   <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[rgb(var(--color-primary))] rounded-full">
-                    {(currencyFilter !== "all" ? 1 : 0) + (dateRange.from || dateRange.to ? 1 : 0)}
+                    {(currencyFilter !== "all" ? 1 : 0) +
+                      (dateRange.from || dateRange.to ? 1 : 0)}
                   </span>
                 )}
               </button>
@@ -248,10 +280,19 @@ export default function DepositHistory() {
               {/* Sort button */}
               <div className="relative inline-block">
                 <button
-                  onClick={() => document.getElementById("sort-dropdown").classList.toggle("hidden")}
+                  onClick={() =>
+                    document
+                      .getElementById("sort-dropdown")
+                      .classList.toggle("hidden")
+                  }
                   className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
                     <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
                   </svg>
                   Sort
@@ -263,39 +304,64 @@ export default function DepositHistory() {
                   <div className="py-1">
                     <button
                       onClick={() => {
-                        requestSort("createdAt")
-                        document.getElementById("sort-dropdown").classList.add("hidden")
+                        requestSort("createdAt");
+                        document
+                          .getElementById("sort-dropdown")
+                          .classList.add("hidden");
                       }}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "createdAt" ? "font-bold" : ""}`}
+                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${
+                        sortConfig.key === "createdAt" ? "font-bold" : ""
+                      }`}
                     >
-                      Date {sortConfig.key === "createdAt" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Date{" "}
+                      {sortConfig.key === "createdAt" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </button>
                     <button
                       onClick={() => {
-                        requestSort("userName")
-                        document.getElementById("sort-dropdown").classList.add("hidden")
+                        requestSort("userName");
+                        document
+                          .getElementById("sort-dropdown")
+                          .classList.add("hidden");
                       }}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "userName" ? "font-bold" : ""}`}
+                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${
+                        sortConfig.key === "userName" ? "font-bold" : ""
+                      }`}
                     >
-                      User Name {sortConfig.key === "userName" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      User Name{" "}
+                      {sortConfig.key === "userName" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </button>
                     <button
                       onClick={() => {
-                        requestSort("amount")
-                        document.getElementById("sort-dropdown").classList.add("hidden")
+                        requestSort("amount");
+                        document
+                          .getElementById("sort-dropdown")
+                          .classList.add("hidden");
                       }}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "amount" ? "font-bold" : ""}`}
+                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${
+                        sortConfig.key === "amount" ? "font-bold" : ""
+                      }`}
                     >
-                      Amount {sortConfig.key === "amount" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Amount{" "}
+                      {sortConfig.key === "amount" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </button>
+
                     <button
                       onClick={() => {
-                        requestSort("currency")
-                        document.getElementById("sort-dropdown").classList.add("hidden")
+                        requestSort("currency");
+                        document
+                          .getElementById("sort-dropdown")
+                          .classList.add("hidden");
                       }}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${sortConfig.key === "currency" ? "font-bold" : ""}`}
+                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${
+                        sortConfig.key === "currency" ? "font-bold" : ""
+                      }`}
                     >
-                      Currency {sortConfig.key === "currency" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Currency{" "}
+                      {sortConfig.key === "currency" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </button>
                   </div>
                 </div>
@@ -308,7 +374,9 @@ export default function DepositHistory() {
             <div className="mt-4 p-4 border rounded-lg bg-gray-50">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Currency
+                  </label>
                   <select
                     value={currencyFilter}
                     onChange={(e) => setCurrencyFilter(e.target.value)}
@@ -321,21 +389,29 @@ export default function DepositHistory() {
                 </div>
 
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    From Date
+                  </label>
                   <input
                     type="date"
                     value={dateRange.from}
-                    onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+                    onChange={(e) =>
+                      setDateRange({ ...dateRange, from: e.target.value })
+                    }
                     className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                   />
                 </div>
 
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    To Date
+                  </label>
                   <input
                     type="date"
                     value={dateRange.to}
-                    onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+                    onChange={(e) =>
+                      setDateRange({ ...dateRange, to: e.target.value })
+                    }
                     className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                   />
                 </div>
@@ -353,13 +429,24 @@ export default function DepositHistory() {
           )}
 
           {/* Active filters display */}
-          {(currencyFilter !== "all" || dateRange.from || dateRange.to || searchTerm) && (
+          {(currencyFilter !== "all" ||
+            dateRange.from ||
+            dateRange.to ||
+            searchTerm) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {searchTerm && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
                   Search: {searchTerm}
-                  <button onClick={() => setSearchTerm("")} className="ml-2 text-blue-600 hover:text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -373,8 +460,16 @@ export default function DepositHistory() {
               {currencyFilter !== "all" && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
                   Currency: {currencyFilter.toUpperCase()}
-                  <button onClick={() => setCurrencyFilter("all")} className="ml-2 text-blue-600 hover:text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <button
+                    onClick={() => setCurrencyFilter("all")}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -387,14 +482,24 @@ export default function DepositHistory() {
 
               {(dateRange.from || dateRange.to) && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                  Date: {dateRange.from ? new Date(dateRange.from).toLocaleDateString() : "Any"}
+                  Date:{" "}
+                  {dateRange.from
+                    ? new Date(dateRange.from).toLocaleDateString()
+                    : "Any"}
                   {" to "}
-                  {dateRange.to ? new Date(dateRange.to).toLocaleDateString() : "Any"}
+                  {dateRange.to
+                    ? new Date(dateRange.to).toLocaleDateString()
+                    : "Any"}
                   <button
                     onClick={() => setDateRange({ from: "", to: "" })}
                     className="ml-2 text-blue-600 hover:text-blue-800"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -415,9 +520,12 @@ export default function DepositHistory() {
               "Loading deposit history..."
             ) : (
               <>
-                Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-                <span className="font-medium">{Math.min(indexOfLastItem, totalItems)}</span> of{" "}
-                <span className="font-medium">{totalItems}</span> deposits
+                Showing{" "}
+                <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
+                <span className="font-medium">
+                  {Math.min(indexOfLastItem, totalItems)}
+                </span>{" "}
+                of <span className="font-medium">{totalItems}</span> deposits
               </>
             )}
           </div>
@@ -427,8 +535,8 @@ export default function DepositHistory() {
             <select
               value={itemsPerPage}
               onChange={(e) => {
-                setItemsPerPage(Number(e.target.value))
-                setCurrentPage(1) // Reset to first page when changing items per page
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing items per page
               }}
               className="border rounded p-1 text-sm"
             >
@@ -466,7 +574,9 @@ export default function DepositHistory() {
                   <div className="flex items-center">
                     Date
                     {sortConfig.key === "createdAt" && (
-                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -478,7 +588,9 @@ export default function DepositHistory() {
                   <div className="flex items-center">
                     User
                     {sortConfig.key === "userName" && (
-                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -490,7 +602,9 @@ export default function DepositHistory() {
                   <div className="flex items-center">
                     Currency
                     {sortConfig.key === "currency" && (
-                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -502,10 +616,13 @@ export default function DepositHistory() {
                   <div className="flex items-center">
                     Amount
                     {sortConfig.key === "amount" && (
-                      <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
+
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -518,11 +635,17 @@ export default function DepositHistory() {
               {currentItems.length > 0 ? (
                 currentItems.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.userName}</div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(item.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.currency.toUpperCase()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {item.userName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {item.currency.toUpperCase()}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatAmount(item.amount, item.currency)}
                     </td>
@@ -533,8 +656,12 @@ export default function DepositHistory() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
-                    No results found matching your filters. Try adjusting your search criteria.
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-sm text-gray-500"
+                  >
+                    No results found matching your filters. Try adjusting your
+                    search criteria.
                   </td>
                 </tr>
               )}
@@ -559,7 +686,12 @@ export default function DepositHistory() {
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path
                     fillRule="evenodd"
                     d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
@@ -585,11 +717,13 @@ export default function DepositHistory() {
                   >
                     {number}
                   </button>
-                ),
+                )
               )}
 
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1 rounded-md ${
                   currentPage === totalPages
@@ -597,7 +731,12 @@ export default function DepositHistory() {
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path
                     fillRule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
@@ -609,9 +748,6 @@ export default function DepositHistory() {
           </div>
         )}
       </div>
-
-     
     </div>
-  )
+  );
 }
-

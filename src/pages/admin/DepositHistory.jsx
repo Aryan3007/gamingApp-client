@@ -603,6 +603,17 @@ export default function DepositHistory() {
                 </th>
                 <th
                   scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  
+                >
+                  <div className="flex items-center">
+                    Screenshot
+                   
+                  </div>
+                </th>
+
+                <th
+                  scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Reference
@@ -639,6 +650,16 @@ export default function DepositHistory() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatAmount(item.amount, item.currency)}
                     </td>
+                    <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-blue-500 underline tracking-wider cursor-pointer"
+                  
+                >
+                  <div className="flex items-center">
+                   <a target="_blank" href={item?.screenShot?.url}>View</a>
+                   
+                  </div>
+                </th>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.referenceNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span

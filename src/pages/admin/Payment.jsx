@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import axios from "axios"
-import toast from "react-hot-toast"
-import { server } from "../../constants/config"
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { server } from "../../constants/config";
 
 export default function PaymentManagement() {
-  const [activeTab, setActiveTab] = useState("bank")
-  const [bankDetails, setBankDetails] = useState([])
-  const [upiDetails, setUpiDetails] = useState([])
+  const [activeTab, setActiveTab] = useState("bank");
+  const [bankDetails, setBankDetails] = useState([]);
+  const [upiDetails, setUpiDetails] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   // Update the state variable for UPI IDs
-  const [upiIds, setUpiIds] = useState([])
+  const [upiIds, setUpiIds] = useState([]);
   // Add a new state for QR codes after the upiIds state
-  const [qrCodes, setQrCodes] = useState([])
-  const [qrCodeFile, setQrCodeFile] = useState(null)
-  const [qrCodeTitle, setQrCodeTitle] = useState("")
-  const [qrCodePreview, setQrCodePreview] = useState(null)
+  const [qrCodes, setQrCodes] = useState([]);
+  const [qrCodeFile, setQrCodeFile] = useState(null);
+  const [qrCodeTitle, setQrCodeTitle] = useState("");
+  const [qrCodePreview, setQrCodePreview] = useState(null);
 
   // Form data for adding new payment methods
   const [formData, setFormData] = useState({
@@ -34,148 +34,156 @@ export default function PaymentManagement() {
     upiId: "",
     // QR Code details
     qrCodeTitle: "",
-  })
+  });
 
   // Fetch bank details
   const fetchBankDetails = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error("Authentication token not found")
+        throw new Error("Authentication token not found");
       }
 
-      const response = await axios.get(`${server}api/v1/payment-details/bank-details`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const response = await axios.get(
+        `${server}api/v1/payment-details/bank-details`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.data.success) {
-        setBankDetails(response.data.bankDetails || [])
+        setBankDetails(response.data.bankDetails || []);
       } else {
-        throw new Error(response.data.message || "Failed to fetch bank details")
+        throw new Error(
+          response.data.message || "Failed to fetch bank details"
+        );
       }
     } catch (err) {
-      console.error("Error fetching bank details:", err)
-      toast.error("Failed to load bank details")
+      console.error("Error fetching bank details:", err);
+      toast.error("Failed to load bank details");
     }
-  }, [])
+  }, []);
 
   // Fetch UPI details
   const fetchUpiDetails = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error("Authentication token not found")
+        throw new Error("Authentication token not found");
       }
 
       const response = await axios.get(`${server}api/v1/payment-details/upi`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (response.data.success) {
-        setUpiIds(response.data.upiIds || [])
+        setUpiIds(response.data.upiIds || []);
       } else {
-        throw new Error(response.data.message || "Failed to fetch UPI details")
+        throw new Error(response.data.message || "Failed to fetch UPI details");
       }
     } catch (err) {
-      console.error("Error fetching UPI details:", err)
-      toast.error("Failed to load UPI IDs")
+      console.error("Error fetching UPI details:", err);
+      toast.error("Failed to load UPI IDs");
     }
-  }, [])
+  }, []);
 
   // Add fetchQrCodes function after fetchUpiDetails
   const fetchQrCodes = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error("Authentication token not found")
+        throw new Error("Authentication token not found");
       }
 
-      const response = await axios.get(`${server}api/v1/payment-details/qrcode`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const response = await axios.get(
+        `${server}api/v1/payment-details/qrcode`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.data.success) {
-        setQrCodes(response.data.qrCodes || [])
+        setQrCodes(response.data.qrCodes || []);
       } else {
-        throw new Error(response.data.message || "Failed to fetch QR codes")
+        throw new Error(response.data.message || "Failed to fetch QR codes");
       }
     } catch (err) {
-      console.error("Error fetching QR codes:", err)
-      toast.error("Failed to load QR codes")
+      console.error("Error fetching QR codes:", err);
+      toast.error("Failed to load QR codes");
     }
-  }, [])
+  }, []);
 
   // Update fetchAllPaymentDetails to include QR codes
   const fetchAllPaymentDetails = useCallback(async () => {
-    setIsLoading(true)
-    await Promise.all([fetchBankDetails(), fetchUpiDetails(), fetchQrCodes()])
-    setIsLoading(false)
-  }, [fetchBankDetails, fetchUpiDetails, fetchQrCodes])
+    setIsLoading(true);
+    await Promise.all([fetchBankDetails(), fetchUpiDetails(), fetchQrCodes()]);
+    setIsLoading(false);
+  }, [fetchBankDetails, fetchUpiDetails, fetchQrCodes]);
 
   useEffect(() => {
-    fetchAllPaymentDetails()
-  }, [fetchAllPaymentDetails, refreshTrigger])
+    fetchAllPaymentDetails();
+  }, [fetchAllPaymentDetails, refreshTrigger]);
 
   // Handle form input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-  }
+    });
+  };
 
   // Validate bank details form
   const validateBankForm = () => {
     if (!formData.accountHolderName.trim()) {
-      toast.error("Account holder name is required")
-      return false
+      toast.error("Account holder name is required");
+      return false;
     }
     if (!formData.accountNumber.trim()) {
-      toast.error("Account number is required")
-      return false
+      toast.error("Account number is required");
+      return false;
     }
     if (!formData.confirmAccountNumber.trim()) {
-      toast.error("Please confirm account number")
-      return false
+      toast.error("Please confirm account number");
+      return false;
     }
     if (formData.accountNumber !== formData.confirmAccountNumber) {
-      toast.error("Account numbers do not match")
-      return false
+      toast.error("Account numbers do not match");
+      return false;
     }
     if (!formData.ifscCode.trim()) {
-      toast.error("IFSC code is required")
-      return false
+      toast.error("IFSC code is required");
+      return false;
     }
     if (!formData.bankName.trim()) {
-      toast.error("Bank name is required")
-      return false
+      toast.error("Bank name is required");
+      return false;
     }
-    return true
-  }
+    return true;
+  };
 
   // Validate UPI form
   const validateUpiForm = () => {
     if (!formData.upiId.trim()) {
-      toast.error("UPI ID is required")
-      return false
+      toast.error("UPI ID is required");
+      return false;
     }
     // Basic UPI ID validation
-    const upiRegex = /^[\w.-]+@[\w.-]+$/
+    const upiRegex = /^[\w.-]+@[\w.-]+$/;
     if (!upiRegex.test(formData.upiId)) {
-      toast.error("Please enter a valid UPI ID (e.g., name@bank)")
-      return false
+      toast.error("Please enter a valid UPI ID (e.g., name@bank)");
+      return false;
     }
-    return true
-  }
+    return true;
+  };
 
   // Add new bank details
   const addBankDetails = async () => {
-    if (!validateBankForm()) return
+    if (!validateBankForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       const response = await axios.post(
         `${server}api/v1/payment-details/bank-details`,
         {
@@ -186,32 +194,32 @@ export default function PaymentManagement() {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
-      )
+        }
+      );
 
       if (response.data.success) {
-        toast.success("Bank details added successfully")
-        setShowAddModal(false)
-        resetForm()
-        setRefreshTrigger((prev) => prev + 1)
+        toast.success("Bank details added successfully");
+        setShowAddModal(false);
+        resetForm();
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.message || "Failed to add bank details")
+        toast.error(response.data.message || "Failed to add bank details");
       }
     } catch (err) {
-      console.error("Error adding bank details:", err)
-      toast.error(err.response?.data?.message || "Failed to add bank details")
+      console.error("Error adding bank details:", err);
+      toast.error(err.response?.data?.message || "Failed to add bank details");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Add new UPI ID
   const addUpiDetails = async () => {
-    if (!validateUpiForm()) return
+    if (!validateUpiForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       const response = await axios.post(
         `${server}api/v1/payment-details/upi`,
         {
@@ -219,55 +227,59 @@ export default function PaymentManagement() {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
-      )
+        }
+      );
 
       if (response.data.success) {
-        toast.success("UPI ID added successfully")
-        setShowAddModal(false)
-        resetForm()
-        setRefreshTrigger((prev) => prev + 1)
+        toast.success("UPI ID added successfully");
+        setShowAddModal(false);
+        resetForm();
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.message || "Failed to add UPI ID")
+        toast.error(response.data.message || "Failed to add UPI ID");
       }
     } catch (err) {
-      console.error("Error adding UPI ID:", err)
-      toast.error(err.response?.data?.message || "Failed to add UPI ID")
+      console.error("Error adding UPI ID:", err);
+      toast.error(err.response?.data?.message || "Failed to add UPI ID");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const uploadQrCode = async () => {
     if (!qrCodeTitle.trim()) {
       toast.error("QR Code title is required");
       return;
     }
-  
+
     if (!qrCodeFile) {
       toast.error("Please select a QR Code image");
       return;
     }
-  
+
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("authToken");
       const formData = new FormData();
       formData.append("title", qrCodeTitle.trim()); // Ensure non-empty title
       formData.append("image", qrCodeFile); // Ensure file is present
-  
+
       // Debugging: Check what’s being sent
       for (let pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
-  
-      const response = await axios.post(`${server}api/v1/payment-details/qrcode`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
+
+      const response = await axios.post(
+        `${server}api/v1/payment-details/qrcode`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       if (response.data.success) {
         toast.success("QR Code uploaded successfully");
         setShowAddModal(false);
@@ -287,103 +299,112 @@ export default function PaymentManagement() {
       setIsSubmitting(false);
     }
   };
-  
-  
 
   // Delete bank details
   const deleteBankDetails = async (accountNumber) => {
-    if (!confirm("Are you sure you want to delete this bank account?")) return
+    if (!confirm("Are you sure you want to delete this bank account?")) return;
 
     try {
-      const token = localStorage.getItem("authToken")
-      const response = await axios.delete(`${server}api/v1/payment-details/bank-details`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { accountNumber },
-      })
+      const token = localStorage.getItem("authToken");
+      const response = await axios.delete(
+        `${server}api/v1/payment-details/bank-details`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { accountNumber },
+        }
+      );
 
       if (response.data.success) {
-        toast.success("Bank details deleted successfully")
-        setRefreshTrigger((prev) => prev + 1)
+        toast.success("Bank details deleted successfully");
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.message || "Failed to delete bank details")
+        toast.error(response.data.message || "Failed to delete bank details");
       }
     } catch (err) {
-      console.error("Error deleting bank details:", err)
-      toast.error(err.response?.data?.message || "Failed to delete bank details")
+      console.error("Error deleting bank details:", err);
+      toast.error(
+        err.response?.data?.message || "Failed to delete bank details"
+      );
     }
-  }
+  };
 
   // Delete UPI ID
   const deleteUpiDetails = async (upiId) => {
-    if (!confirm("Are you sure you want to delete this UPI ID?")) return
+    if (!confirm("Are you sure you want to delete this UPI ID?")) return;
 
     try {
-      const token = localStorage.getItem("authToken")
-      const response = await axios.delete(`${server}api/v1/payment-details/upi`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { upiId },
-      })
+      const token = localStorage.getItem("authToken");
+      const response = await axios.delete(
+        `${server}api/v1/payment-details/upi`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { upiId },
+        }
+      );
 
       if (response.data.success) {
-        toast.success("UPI ID deleted successfully")
-        setRefreshTrigger((prev) => prev + 1)
+        toast.success("UPI ID deleted successfully");
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.message || "Failed to delete UPI ID")
+        toast.error(response.data.message || "Failed to delete UPI ID");
       }
     } catch (err) {
-      console.error("Error deleting UPI ID:", err)
-      toast.error(err.response?.data?.message || "Failed to delete UPI ID")
+      console.error("Error deleting UPI ID:", err);
+      toast.error(err.response?.data?.message || "Failed to delete UPI ID");
     }
-  }
+  };
 
   // Add deleteQrCode function after deleteUpiDetails
   const deleteQrCode = async (qrCodeId) => {
-    if (!confirm("Are you sure you want to delete this QR Code?")) return
+    if (!confirm("Are you sure you want to delete this QR Code?")) return;
 
     try {
-      const token = localStorage.getItem("authToken")
-      const response = await axios.delete(`${server}api/v1/payment-details/qrcode`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { qrCodeId },
-      })
+      const token = localStorage.getItem("authToken");
+      const response = await axios.delete(
+        `${server}api/v1/payment-details/qrcode`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { qrCodeId },
+        }
+      );
 
       if (response.data.success) {
-        toast.success("QR Code deleted successfully")
-        setRefreshTrigger((prev) => prev + 1)
+        toast.success("QR Code deleted successfully");
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.message || "Failed to delete QR Code")
+        toast.error(response.data.message || "Failed to delete QR Code");
       }
     } catch (err) {
-      console.error("Error deleting QR Code:", err)
-      toast.error(err.response?.data?.message || "Failed to delete QR Code")
+      console.error("Error deleting QR Code:", err);
+      toast.error(err.response?.data?.message || "Failed to delete QR Code");
     }
-  }
+  };
 
   // Handle form submission
   const handleFormSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (activeTab === "bank") {
-      addBankDetails()
+      addBankDetails();
     } else if (activeTab === "upi") {
-      addUpiDetails()
+      addUpiDetails();
     } else if (activeTab === "qrcode") {
-      uploadQrCode()
+      uploadQrCode();
     }
-  }
+  };
 
   // Add handleQrCodeFileChange function after resetForm
   const handleQrCodeFileChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setQrCodeFile(file)
+      setQrCodeFile(file);
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setQrCodePreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setQrCodePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   // Reset form
   const resetForm = () => {
@@ -395,26 +416,26 @@ export default function PaymentManagement() {
       bankName: "",
       upiId: "",
       qrCodeTitle: "",
-    })
-    setQrCodeFile(null)
-    setQrCodePreview(null)
-    setQrCodeTitle("")
-  }
+    });
+    setQrCodeFile(null);
+    setQrCodePreview(null);
+    setQrCodeTitle("");
+  };
 
   // Open add modal with specific tab
   const openAddModal = (tab) => {
-    setActiveTab(tab)
-    resetForm()
-    setShowAddModal(true)
-  }
+    setActiveTab(tab);
+    resetForm();
+    setShowAddModal(true);
+  };
 
   // Mask account number for display
   const maskAccountNumber = (accountNumber) => {
-    if (!accountNumber) return ""
-    const length = accountNumber.length
-    if (length <= 4) return accountNumber
-    return "XXXX" + accountNumber.substring(length - 4)
-  }
+    if (!accountNumber) return "";
+    const length = accountNumber.length;
+    if (length <= 4) return accountNumber;
+    return "XXXX" + accountNumber.substring(length - 4);
+  };
 
   return (
     <div className="space-y-6">
@@ -481,8 +502,8 @@ export default function PaymentManagement() {
                   {bankDetails.length === 0 ? (
                     <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
                       <p>
-                        You haven&apos;t added any bank accounts yet. Click the &quot;Add Bank Account&quot; button to
-                        add one.
+                        You haven&apos;t added any bank accounts yet. Click the
+                        &quot;Add Bank Account&quot; button to add one.
                       </p>
                     </div>
                   ) : (
@@ -537,18 +558,27 @@ export default function PaymentManagement() {
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {maskAccountNumber(bank.accountNumber)}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bank.bankName}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bank.ifscCode}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {new Date(bank.createdAt).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
+                                {bank.bankName}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {bank.ifscCode}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {new Date(bank.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button
-                                  onClick={() => deleteBankDetails(bank.accountNumber)}
+                                  onClick={() =>
+                                    deleteBankDetails(bank.accountNumber)
+                                  }
                                   className="text-red-600 hover:text-red-900"
                                 >
                                   Delete
@@ -578,7 +608,10 @@ export default function PaymentManagement() {
 
                   {upiIds.length === 0 ? (
                     <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
-                      <p>You haven&apos;t added any UPI IDs yet. Click the &quot;Add UPI ID&quot; button to add one.</p>
+                      <p>
+                        You haven&apos;t added any UPI IDs yet. Click the
+                        &quot;Add UPI ID&quot; button to add one.
+                      </p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -612,11 +645,14 @@ export default function PaymentManagement() {
                                 {upi.upiId}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {new Date(upi.createdAt).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
+                                {new Date(upi.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button
@@ -651,15 +687,21 @@ export default function PaymentManagement() {
                   {qrCodes.length === 0 ? (
                     <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
                       <p>
-                        You haven&apos;t added any QR Codes yet. Click the &quot;Upload QR Code&quot; button to add one.
+                        You haven&apos;t added any QR Codes yet. Click the
+                        &quot;Upload QR Code&quot; button to add one.
                       </p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {qrCodes.map((qrCode) => (
-                        <div key={qrCode._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div
+                          key={qrCode._id}
+                          className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
                           <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-medium text-gray-900">{qrCode.title}</h4>
+                            <h4 className="font-medium text-gray-900">
+                              {qrCode.title}
+                            </h4>
                             <button
                               onClick={() => deleteQrCode(qrCode._id)}
                               className="text-red-600 hover:text-red-900"
@@ -687,11 +729,14 @@ export default function PaymentManagement() {
                           </div>
                           <p className="text-xs text-gray-500 mt-2">
                             Added on{" "}
-                            {new Date(qrCode.createdAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
+                            {new Date(qrCode.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
                           </p>
                         </div>
                       ))}
@@ -710,7 +755,11 @@ export default function PaymentManagement() {
           <div className="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
             <div className="p-4 border-b flex justify-between items-center">
               <h3 className="text-lg font-medium">
-                {activeTab === "bank" ? "Add Bank Account" : activeTab === "upi" ? "Add UPI ID" : "Upload QR Code"}
+                {activeTab === "bank"
+                  ? "Add Bank Account"
+                  : activeTab === "upi"
+                  ? "Add UPI ID"
+                  : "Upload QR Code"}
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -723,7 +772,12 @@ export default function PaymentManagement() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -734,7 +788,10 @@ export default function PaymentManagement() {
                 {activeTab === "bank" && (
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="accountHolderName" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="accountHolderName"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Account Holder Name*
                       </label>
                       <input
@@ -748,7 +805,10 @@ export default function PaymentManagement() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="accountNumber"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Account Number*
                       </label>
                       <input
@@ -762,7 +822,10 @@ export default function PaymentManagement() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="confirmAccountNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="confirmAccountNumber"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Confirm Account Number*
                       </label>
                       <input
@@ -776,7 +839,10 @@ export default function PaymentManagement() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="ifscCode" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="ifscCode"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         IFSC Code*
                       </label>
                       <input
@@ -790,7 +856,10 @@ export default function PaymentManagement() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="bankName" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="bankName"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Bank Name*
                       </label>
                       <input
@@ -810,7 +879,10 @@ export default function PaymentManagement() {
                 {activeTab === "upi" && (
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="upiId" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="upiId"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         UPI ID*
                       </label>
                       <input
@@ -823,7 +895,9 @@ export default function PaymentManagement() {
                         placeholder="example@bank"
                         required
                       />
-                      <p className="mt-1 text-xs text-gray-500">Enter your UPI ID in the format: username@bankname</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Enter your UPI ID in the format: username@bankname
+                      </p>
                     </div>
                   </div>
                 )}
@@ -832,7 +906,10 @@ export default function PaymentManagement() {
                 {activeTab === "qrcode" && (
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="qrCodeTitle" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="qrCodeTitle"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         QR Code Title*
                       </label>
                       <input
@@ -846,7 +923,10 @@ export default function PaymentManagement() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="qrCodeFile" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="qrCodeFile"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         QR Code Image*
                       </label>
                       <input
@@ -922,6 +1002,5 @@ export default function PaymentManagement() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

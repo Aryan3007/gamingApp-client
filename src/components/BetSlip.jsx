@@ -158,21 +158,11 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
   }
 
   return (
-    <div className="lg:rounded-md rounded-none md:border border-[rgb(var(--color-border))]  bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] w-full md:p-4 md:pt-2 my-2 mt-2 md:rounded-lg p-4 flex flex-col h-full lg:h-[calc(100vh-64px)]">
-    <div className="flex justify-between items-start">
-      <div>
-        <h2 className="text-lg capitalize max-w-52 mb-2 flex font-bold">
-          {currentMatch ? `${currentMatch.home_team} vs ${currentMatch.away_team}` : "Select a bet"}
-        </h2>
-      </div>
+    <div className="lg:rounded-md bg-orange-50 lg:bg-transparent  rounded-lg p-1 md:border lg:border-[rgb(var(--color-border))]  bg-[rgb(var(--color-background))] text-[rgb(var(--color-text-primary))] w-full md:p-4 md:pt-2 mt-2 md:rounded-lg flex flex-col h-full lg:h-[calc(100vh-64px)]">
 
-      <div className="text-sm">
-        <h1>Max : {MAX_BET}</h1>
-      </div>
-    </div>
 
-    <div className="mb-2 text-sm lg:text-base">
-      <h1 className="p-2 uppercase">{match?.category}</h1>
+    <div className="lg:mb-2 text-sm flex items-center justify-between lg:text-base">
+      <h1 className="p-0 uppercase">{match?.category}</h1>
       <div className="md:p-2 p-2 max-w-full rounded inline-block bg-[rgb(var(--color-background-hover))]">
         <span
           className={`font-semibold ${
@@ -217,12 +207,12 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
       </div>
     </div>
 
-    <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 my-3 md:my-2">
+    <div className="grid grid-cols-4 lg:grid-cols-4 gap-2 md:my-2">
       {quickBets.map((bet) => (
         <button
           key={bet.value}
           onClick={() => handleQuickBet(bet.value)} // Using handleQuickBet
-          className={`border border-[rgb(var(--color-border))] py-2 px-4 rounded text-center hover:bg-[rgb(var(--color-background-hover))] transition-colors ${
+          className={`border border-[rgb(var(--color-border))] py-1 px-4 rounded text-center hover:bg-[rgb(var(--color-background-hover))] transition-colors ${
             bet.value > user?.amount || isPlacingBet ? "opacity-50 cursor-not-allowed" : ""
           }`}
           disabled={bet.value > user?.amount || isPlacingBet}
@@ -232,7 +222,7 @@ const BetSlip = memo(({ match, onClose, setStake, eventId, betPlaced }) => {
       ))}
     </div>
 
-    <div className="flex gap-2">
+    <div className="flex pt-2 gap-2">
       <button
         onClick={()=>{betPlaced(); onClose();}}
         className="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium transition duration-300 hover:bg-red-500 hover:text-white disabled:opacity-50"

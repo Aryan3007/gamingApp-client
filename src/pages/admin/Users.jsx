@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { server } from "../../constants/config";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 export default function Users() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -604,21 +605,29 @@ export default function Users() {
                           {user.exposure.toLocaleString()}
                         </td>
                         <td className="p-4 flex justify-end items-center align-middle text-right">
+                          <Link to={`/admin/master-bets-page/${user._id}/${user.name}`}>
                           <button
-                            className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                            className="mr-2 leading-none inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                            
+                            >
+                            View Bets
+                          </button> 
+                            </Link>
+                          <button
+                            className="mr-2 leading-none inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                             onClick={() => openReduceMoneyDialog(user)}
                           >
                             Reduce Money
                           </button>
 
                           <button
-                            className="mr-2 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                            className="mr-2 leading-none inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 py-2 text-xs font-medium transition-colors hover:bg-[rgb(var(--color-primary-lighter))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                             onClick={() => openAddMoneyDialog(user)}
                           >
                             Add Money
                           </button>
                           <button
-                            className={`inline-flex mr-2 h-8 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                            className={`inline-flex mr-2 h-8 leading-none items-center justify-center rounded-md border px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                               user.status === "active"
                                 ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                                 : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
@@ -630,7 +639,7 @@ export default function Users() {
                               : "Unban User"}
                           </button>
                           <button
-                            className="bg-red-500 inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] text-white px-3 py-2 text-xs font-medium transition-colors  focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                            className="bg-red-500 leading-none inline-flex h-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] text-white px-3 py-2 text-xs font-medium transition-colors  focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                             onClick={() => openDelConfirmDialog(user)}
                           >
                             Delete

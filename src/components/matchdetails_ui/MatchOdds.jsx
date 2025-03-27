@@ -4,11 +4,19 @@
 import axios from "axios"
 import { ChevronRight } from "lucide-react"
 import PropTypes from "prop-types"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, Suspense } from "react"
 import io from "socket.io-client"
 import { server } from "../../constants/config"
 import { calculateNewMargin, calculateProfitAndLoss } from "../../utils/helper"
+import { betSelectionEvent } from "./bet-selection-event"
 import BetSlip from "../BetSlip"
+
+// Add a BetSlip placeholder to prevent layout shifts
+const BetSlipPlaceholder = () => (
+  <div className="lg:hidden w-full border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-background-lighter))] h-[200px] flex items-center justify-center">
+    <div className="animate-pulse text-[rgb(var(--color-text-muted))]">Loading bet slip...</div>
+  </div>
+)
 
 const socket = io(server)
 
@@ -17,6 +25,7 @@ const OddsBox = ({ odds, value, type, onClick, isSelected }) => {
 
   const hoverColor = type === "back" ? "hover:bg-[rgb(var(--back-odd-hover))]" : "hover:bg-[rgb(var(--lay-odd-hover))]"
 
+  // Keep the existing selected colors for consistency
   const selectedColor = type === "back" ? "bg-[#0077B3]" : "bg-[#FF4D55]"
 
   return (
@@ -26,8 +35,8 @@ const OddsBox = ({ odds, value, type, onClick, isSelected }) => {
         isSelected ? selectedColor : bgColor
       } ${hoverColor} sm:w-12 min-w-[50px] md:w-16 rounded flex flex-col items-center justify-center transition-colors p-1`}
     >
-      <span className="text-black font-semibold text-sm sm:text-base">{odds}</span>
-      <span className="text-black text-[10px] lg:text-xs">{value / 1000}K</span>
+      <span className={`font-semibold text-sm sm:text-base ${isSelected ? "text-white" : "text-black"}`}>{odds}</span>
+      <span className={`text-[10px] lg:text-xs ${isSelected ? "text-white" : "text-black"}`}>{value / 1000}K</span>
     </button>
   )
 }
@@ -40,7 +49,21 @@ OddsBox.propTypes = {
   isSelected: PropTypes.bool,
 }
 
-const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData, stake, selectedOdd, selectionId, margin }) => {
+const TeamRow = ({
+  teamName,
+  backOdds,
+  layOdds,
+  onOddsClick,
+  matchData,
+  stake,
+  selectedOdd,
+  selectionId,
+  margin,
+  selectedBet,
+  betPlaced,
+  setStake,
+  onClose,
+}) => {
   const previousMargin = margin?.selectionId === selectionId ? margin?.profit : margin?.loss
 
   let newProfit = 0
@@ -60,126 +83,154 @@ const TeamRow = ({ teamName, backOdds, layOdds, onOddsClick, matchData, stake, s
     newLoss = data.newLoss
   }
 
-  return (
-    <div className="flex f gap-2 border-b px-4 sm:flex-nowrap justify-between items-center py-2 border-[rgb(var(--color-border))]">
-      <div className="flex flex-col">
-        <span className="text-black text-sm w-20 sm:w-[200px] mb-0 font-semibold sm:mb-0">{teamName}</span>
+  const showBetSlip = selectedBet && selectedBet.selectionId === selectionId
 
-        <span className="w-full flex justify-start text-xs items-center sm:w-[200px] mb-0 font-semibold sm:mb-0">
-          {((previousMargin !== null && previousMargin !== undefined) || selectedOdd) && (
-            <>
-              <span
-                className={`text-xs ${
-                  (margin?.selectionId === selectionId ? margin?.profit : margin?.loss) > 0
-                    ? "text-green-500"
-                    : (margin?.selectionId === selectionId ? margin?.profit : margin?.loss) < 0
-                      ? "text-red-500"
-                      : "text-gray-400"
-                }`}
-              >
-                {margin
-                  ? margin?.selectionId === selectionId
-                    ? Math.abs(margin?.profit.toFixed(0))
-                    : Math.abs(margin?.loss.toFixed(0))
-                  : 0}
-              </span>
-              {selectedOdd &&
-                (margin ? (
-                  <>
-                    <span className="text-gray-400 scale-75 text-[4px]">
-                      <ChevronRight />
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        (margin?.selectionId === selectionId ? newProfit : newLoss) > 0
-                          ? "text-green-500"
-                          : (margin?.selectionId === selectionId ? newProfit : newLoss) < 0
-                            ? "text-red-500"
-                            : "text-gray-400"
-                      }`}
-                    >
-                      {margin?.selectionId === selectionId
-                        ? Math.abs(newProfit.toFixed(0))
-                        : Math.abs(newLoss.toFixed(0))}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-gray-400 scale-75 text-[4px]">
-                      <ChevronRight />
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        (
+  // Handle click without causing page scroll
+  const handleOddsBoxClick = (matchData, teamName, type, odds, value, selectionId) => {
+    // Save current scroll position
+    const scrollPosition = window.scrollY
+
+    // Call the original click handler
+    onOddsClick(matchData, teamName, type, odds, value, selectionId)
+
+    // Restore scroll position after a short delay to let the DOM update
+    setTimeout(() => {
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: "auto",
+      })
+    }, 0)
+  }
+
+  return (
+    <>
+      <div className="flex f gap-2 border-b px-4 sm:flex-nowrap justify-between items-center py-2 border-[rgb(var(--color-border))]">
+        <div className="flex flex-col">
+          <span className="text-black text-sm w-20 sm:w-[200px] mb-0 font-semibold sm:mb-0">{teamName}</span>
+
+          <span className="w-full flex justify-start text-xs items-center sm:w-[200px] mb-0 font-semibold sm:mb-0">
+            {((previousMargin !== null && previousMargin !== undefined) || selectedOdd) && (
+              <>
+                <span
+                  className={`text-xs ${
+                    (margin?.selectionId === selectionId ? margin?.profit : margin?.loss) > 0
+                      ? "text-green-500"
+                      : (margin?.selectionId === selectionId ? margin?.profit : margin?.loss) < 0
+                        ? "text-red-500"
+                        : "text-gray-400"
+                  }`}
+                >
+                  {margin
+                    ? margin?.selectionId === selectionId
+                      ? Math.abs(margin?.profit.toFixed(0))
+                      : Math.abs(margin?.loss.toFixed(0))
+                    : 0}
+                </span>
+                {selectedOdd &&
+                  (margin ? (
+                    <>
+                      <span className="text-gray-400 scale-75 text-[4px]">
+                        <ChevronRight />
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          (margin?.selectionId === selectionId ? newProfit : newLoss) > 0
+                            ? "text-green-500"
+                            : (margin?.selectionId === selectionId ? newProfit : newLoss) < 0
+                              ? "text-red-500"
+                              : "text-gray-400"
+                        }`}
+                      >
+                        {margin?.selectionId === selectionId
+                          ? Math.abs(newProfit.toFixed(0))
+                          : Math.abs(newLoss.toFixed(0))}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-gray-400 scale-75 text-[4px]">
+                        <ChevronRight />
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          (
+                            selectedOdd?.type === "back"
+                              ? selectedOdd?.selectionId === selectionId
+                                ? profit
+                                : loss
+                              : selectedOdd?.selectionId === selectionId
+                                ? loss
+                                : profit
+                          ) > 0
+                            ? "text-green-500"
+                            : (selectedOdd?.type === "back"
+                                  ? selectedOdd?.selectionId === selectionId
+                                    ? profit
+                                    : loss
+                                  : selectedOdd?.selectionId === selectionId
+                                    ? loss
+                                    : profit) < 0
+                              ? "text-red-500"
+                              : "text-gray-400"
+                        }`}
+                      >
+                        {Math.abs(
                           selectedOdd?.type === "back"
                             ? selectedOdd?.selectionId === selectionId
-                              ? profit
-                              : loss
+                              ? profit.toFixed(0)
+                              : loss.toFixed(0)
                             : selectedOdd?.selectionId === selectionId
-                              ? loss
-                              : profit
-                        ) > 0
-                          ? "text-green-500"
-                          : (selectedOdd?.type === "back"
-                                ? selectedOdd?.selectionId === selectionId
-                                  ? profit
-                                  : loss
-                                : selectedOdd?.selectionId === selectionId
-                                  ? loss
-                                  : profit) < 0
-                            ? "text-red-500"
-                            : "text-gray-400"
-                      }`}
-                    >
-                      {Math.abs(
-                        selectedOdd?.type === "back"
-                          ? selectedOdd?.selectionId === selectionId
-                            ? profit.toFixed(0)
-                            : loss.toFixed(0)
-                          : selectedOdd?.selectionId === selectionId
-                            ? loss.toFixed(0)
-                            : profit.toFixed(0),
-                      )}
-                    </span>
-                  </>
-                ))}
-            </>
-          )}
-        </span>
+                              ? loss.toFixed(0)
+                              : profit.toFixed(0),
+                        )}
+                      </span>
+                    </>
+                  ))}
+              </>
+            )}
+          </span>
+        </div>
+        <div className="grid grid-cols-4 sm:flex gap-1 w-full sm:w-auto">
+          {backOdds.map(([odds, value], i) => (
+            <OddsBox
+              key={`back-${i}`}
+              odds={odds}
+              value={value}
+              type="back"
+              onClick={() => handleOddsBoxClick(matchData, teamName, "Back", odds, value, selectionId)}
+              isSelected={
+                selectedOdd &&
+                selectedOdd.selectionId === selectionId &&
+                selectedOdd.type === "back" &&
+                selectedOdd.odds === odds
+              }
+            />
+          ))}
+          {layOdds.map(([odds, value], i) => (
+            <OddsBox
+              key={`lay-${i}`}
+              odds={odds}
+              value={value}
+              type="lay"
+              onClick={() => handleOddsBoxClick(matchData, teamName, "Lay", odds, value, selectionId)}
+              isSelected={
+                selectedOdd &&
+                selectedOdd.selectionId === selectionId &&
+                selectedOdd.type === "lay" &&
+                selectedOdd.odds === odds
+              }
+            />
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-4 sm:flex gap-1 w-full sm:w-auto">
-        {backOdds.map(([odds, value], i) => (
-          <OddsBox
-            key={`back-${i}`}
-            odds={odds}
-            value={value}
-            type="back"
-            onClick={() => onOddsClick(matchData, teamName, "Back", odds, value, selectionId)}
-            isSelected={
-              selectedOdd &&
-              selectedOdd.selectionId === selectionId &&
-              selectedOdd.type === "back" &&
-              selectedOdd.odds === odds
-            }
-          />
-        ))}
-        {layOdds.map(([odds, value], i) => (
-          <OddsBox
-            key={`lay-${i}`}
-            odds={odds}
-            value={value}
-            type="lay"
-            onClick={() => onOddsClick(matchData, teamName, "Lay", odds, value, selectionId)}
-            isSelected={
-              selectedOdd &&
-              selectedOdd.selectionId === selectionId &&
-              selectedOdd.type === "lay" &&
-              selectedOdd.odds === odds
-            }
-          />
-        ))}
-      </div>
-    </div>
+      {showBetSlip && (
+        <div className="lg:hidden w-full border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-background-lighter))]">
+          <Suspense fallback={<BetSlipPlaceholder />}>
+            <BetSlip match={selectedBet} onClose={onClose} setStake={setStake} betPlaced={betPlaced} />
+          </Suspense>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -193,6 +244,10 @@ TeamRow.propTypes = {
   selectedOdd: PropTypes.object,
   selectionId: PropTypes.string.isRequired,
   margin: PropTypes.object,
+  selectedBet: PropTypes.object,
+  betPlaced: PropTypes.bool,
+  setStake: PropTypes.func,
+  onClose: PropTypes.func,
 }
 
 const arrangeRunners = (runners = [], odds = []) => {
@@ -238,11 +293,48 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
     }
   }, [sportsData, findMatchData])
 
+  // Listen for bet selection events from other components
+  useEffect(() => {
+    const cleanup = betSelectionEvent.listen((event) => {
+      const { source } = event.detail
+      if (source !== "matchOdds") {
+        // Clear selection if another component selected a bet
+        setSelectedBet(null)
+        setSelectedOdd(null)
+      }
+    })
+
+    return cleanup
+  }, [])
+
   const oddsData = matchData?.odds?.[0]
   const runners = arrangeRunners(matchData?.event?.runners, oddsData?.runners || [])
 
   const handleOddsClick = useCallback(
     (matchData, teamName, type, odds, value, selectionId) => {
+      // If clicking on the same odd, toggle it off
+      if (
+        selectedOdd &&
+        selectedOdd.selectionId === selectionId &&
+        selectedOdd.type === type?.toLowerCase() &&
+        selectedOdd.odds === odds
+      ) {
+        setSelectedBet(null)
+        setSelectedOdd(null)
+        onBetSelect(null)
+        return
+      }
+
+      if (!matchData || !type) {
+        setSelectedBet(null)
+        setSelectedOdd(null)
+        onBetSelect(null)
+        return
+      }
+
+      // Notify other components that a bet was selected here
+      betSelectionEvent.dispatch("matchOdds")
+
       const betData = {
         home_team: matchData?.event?.runners?.[0]?.name || "Unknown",
         away_team: matchData?.event?.runners?.[1]?.name || "Unknown",
@@ -269,8 +361,14 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
       })
       onBetSelect(betData)
     },
-    [stake, onBetSelect],
+    [stake, onBetSelect, selectedOdd],
   )
+
+  const handleCloseBetSlip = () => {
+    setSelectedBet(null)
+    setSelectedOdd(null)
+    onBetSelect(null)
+  }
 
   const runnersWithOdds = runners.map((runner) => {
     const runnerOdds = oddsData?.runners?.find((r) => r.selectionId === runner.id)
@@ -303,7 +401,6 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
 
   useEffect(() => {
     socket.on("sportsData", (data) => {
-
       setSportsData(data)
     })
 
@@ -369,26 +466,17 @@ const MatchOdds = ({ eventId, onBetSelect, stake, setStake, showBetSlip, marginA
                 selectedOdd={selectedOdd}
                 selectionId={runner.selectionId}
                 margin={margin}
+                selectedBet={selectedBet}
+                betPlaced={betPlaced}
+                setStake={setStake}
+                onClose={handleCloseBetSlip}
               />
             )
           })}
         </div>
       </div>
 
-      {showBetSlip && (
-        <div className="lg:hidden my-4">
-          {selectedBet ? (
-            <BetSlip
-              match={selectedBet}
-              onClose={() => setSelectedBet(null)}
-              setStake={setStake}
-              betPlaced={betPlaced}
-            />
-          ) : (
-            <></>
-          )}
-        </div>
-      )}
+      {/* BetSlip is now rendered inside each TeamRow */}
     </div>
   )
 }

@@ -21,6 +21,7 @@ import {
 import ChangePassword from "./components/ChangePassword.jsx";
 import Payment from "./pages/admin/Payment.jsx";
 import DepositWithdrawal from "./pages/DepositWithdrawl.jsx";
+import MasterBets from "./pages/admin/MasterBets.jsx";
 const AccountsPayouts = lazy(() => import("./pages/legal/AccountsPayouts"));
 const KycPage = lazy(() => import("./pages/legal/KycPage"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -355,6 +356,7 @@ const App = () => {
                 <AdminLayout>
                   <Routes>
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/master-bets-page/:userId/:userName" element={<MasterBets />} />
                     <Route path="/dashboard" element={<RequestedWithdrawl />} />
                     <Route
                       path="/requested-deposit"

@@ -195,11 +195,15 @@ const NavbarComponent = ({ toggleSidebar, showsidebar }) => {
 
   // Memoize filtered nav items
   const filteredNavItems = useMemo(() => 
-    navItems.filter((item) => 
-      (item.name !== "MyBets" && item.name !== "Withdrawl/Deposit") || user
-    ), 
+    navItems.filter((item) => {
+      if (item.name === "Withdrawl/Deposit" && (user?.role === "super_admin" || user?.role === "master")) {
+        return false; // Exclude for super_admin and master
+      }
+      return item.name !== "MyBets" || user; // Show MyBets only if user exists
+    }), 
     [navItems, user]
   );
+  
   
   // Use useCallback for event handlers
   const toggleProfileDropdown = useCallback(() => {

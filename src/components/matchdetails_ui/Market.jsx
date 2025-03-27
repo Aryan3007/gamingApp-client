@@ -1,26 +1,26 @@
 /* eslint-disable react/prop-types */
-"use client";
+"use client"
 
-import axios from "axios";
-import { lazy, memo, useCallback, useEffect, useRef, useState } from "react";
-import isEqual from "react-fast-compare";
-import { server } from "../../constants/config";
+import axios from "axios"
+import { lazy, memo, useCallback, useEffect, useRef, useState, Suspense } from "react"
+import isEqual from "react-fast-compare"
+import { server } from "../../constants/config"
+import { betSelectionEvent } from "./bet-selection-event"
 
-const BetSlip = lazy(() => import("../BetSlip"));
+const BetSlip = lazy(() => import("../BetSlip"))
 
-const MarketComponent = ({
-  data,
-  marginAgain,
-  eventId,
-  onBetSelect,
-  title = "Market",
-  betPlaced,
-  setStake,
-}) => {
-  const [selectedBet, setSelectedBet] = useState(null);
-  const [margin, setMargin] = useState(null);
+// Add a BetSlip placeholder to prevent layout shifts
+const BetSlipPlaceholder = () => (
+  <div className="lg:hidden w-full border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-background-lighter))] h-[200px] flex items-center justify-center">
+    <div className="animate-pulse text-[rgb(var(--color-text-muted))]">Loading bet slip...</div>
+  </div>
+)
 
-  const prevDataRef = useRef();
+const MarketComponent = ({ data, marginAgain, eventId, onBetSelect, title = "Market", betPlaced, setStake }) => {
+  const [selectedBet, setSelectedBet] = useState(null)
+  const [margin, setMargin] = useState(null)
+
+  const prevDataRef = useRef()
 
   useEffect(() => {
     if (prevDataRef.current) {
@@ -28,21 +28,50 @@ const MarketComponent = ({
         (market) =>
           market.odds?.status === "SUSPENDED" &&
           prevDataRef.current.find(
-            (prevMarket) =>
-              prevMarket.market.id === market.market.id &&
-              prevMarket.odds?.status !== "SUSPENDED"
-          )
-      );
+            (prevMarket) => prevMarket.market.id === market.market.id && prevMarket.odds?.status !== "SUSPENDED",
+          ),
+      )
       if (newlySuspended.length > 0) {
         newlySuspended.forEach((market) => {
-          market.lastUpdated = new Date().toISOString();
-        });
+          market.lastUpdated = new Date().toISOString()
+        })
       }
     }
-    prevDataRef.current = data;
-  }, [data]);
+    prevDataRef.current = data
+  }, [data])
+
+  // Listen for bet selection events from other components
+  useEffect(() => {
+    const cleanup = betSelectionEvent.listen((event) => {
+      const { source } = event.detail
+      if (source !== "market") {
+        // Clear selection if another component selected a bet
+        setSelectedBet(null)
+      }
+    })
+
+    return cleanup
+  }, [])
 
   const handleOddsClick = (market, odds, type, price, size) => {
+    // Save current scroll position
+    const scrollPosition = window.scrollY
+
+    // If clicking on the same odd, toggle it off
+    if (
+      selectedBet &&
+      selectedBet.marketId === market.market?.id &&
+      selectedBet.fancyNumber === price &&
+      selectedBet.type === type.toLowerCase()
+    ) {
+      setSelectedBet(null)
+      onBetSelect(null)
+      return
+    }
+
+    // Notify other components that a bet was selected here
+    betSelectionEvent.dispatch("market")
+
     const betData = {
       home_team: market.eventDetails?.runners?.[0]?.name || "Fancy",
       away_team: market.eventDetails?.runners?.[1]?.name || "Fancy",
@@ -59,123 +88,124 @@ const MarketComponent = ({
       selectedTeam: market.market?.name || "Unknown Market",
       betType: type,
       size: size,
-    };
-    setSelectedBet(betData);
+    }
+    setSelectedBet(betData)
+    onBetSelect(betData)
 
-    onBetSelect(betData);
-  };
+    // Restore scroll position after a short delay to let the DOM update
+    setTimeout(() => {
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: "auto",
+      })
+    }, 0)
+  }
 
   const renderOddsBox = (odds, market, type) => {
     if (!odds) {
       return (
         <div
           className={`w-full sm:w-12 lg:min-w-[100px] min-w-[70px] md:w-16 h-10 ${
-            type === "Back"
-              ? "bg-[rgb(var(--back-odd))]"
-              : "bg-[rgb(var(--lay-odd))]"
+            type === "Back" ? "bg-[rgb(var(--back-odd))]" : "bg-[rgb(var(--lay-odd))]"
           } rounded flex items-center justify-center`}
         >
           <span className="text-[rgb(var(--color-text-muted))] text-xs">-</span>
         </div>
-      );
+      )
     }
-    const isActive = odds && odds.price > 0 && odds.size > 0;
+    const isActive = odds && odds.price > 0 && odds.size > 0
+
+    // Check if this odd is selected
+    const isSelected =
+      selectedBet &&
+      selectedBet.marketId === market.market?.id &&
+      selectedBet.fancyNumber === odds.price &&
+      selectedBet.type === type.toLowerCase()
 
     return (
       <button
         className={`w-full sm:w-12 lg:min-w-[100px] min-w-[70px] md:w-16 h-10 ${
-          type === "Back"
-            ? isActive
-              ? "bg-[rgb(var(--back-odd))] hover:bg-[rgb(var(--back-odd-hover))]"
-              : "bg-[#00b3ff36]"
-            : isActive
-            ? "bg-[rgb(var(--lay-odd))] hover:bg-[rgb(var(--lay-odd-hover))]"
-            : "bg-[#ff7a7e42]"
+          isSelected
+            ? type === "Back"
+              ? "bg-[#0077B3]"
+              : "bg-[#FF4D55]"
+            : type === "Back"
+              ? isActive
+                ? "bg-[rgb(var(--back-odd))] hover:bg-[rgb(var(--back-odd-hover))]"
+                : "bg-[#00b3ff36]"
+              : isActive
+                ? "bg-[rgb(var(--lay-odd))] hover:bg-[rgb(var(--lay-odd-hover))]"
+                : "bg-[#ff7a7e42]"
         } rounded flex flex-col items-center justify-center transition-colors`}
-        onClick={() =>
-          isActive && handleOddsClick(market, odds, type, odds.price, odds.size)
-        }
+        onClick={() => isActive && handleOddsClick(market, odds, type, odds.price, odds.size)}
         disabled={!isActive}
       >
         {isActive ? (
           <>
-            <span className="text-black text-sm font-semibold">
+            <span className={`text-sm font-semibold ${isSelected ? "text-white" : "text-black"}`}>
               {odds.price.toFixed(2)}
             </span>
-            <span className="text-black text-xs">{Math.floor(odds.size)}</span>
+            <span className={`text-xs ${isSelected ? "text-white" : "text-black"}`}>{Math.floor(odds.size)}</span>
           </>
         ) : (
           <span className="text-red-500 font-semibold text-xs">Suspended</span>
         )}
       </button>
-    );
-  };
+    )
+  }
 
   const sortMarkets = (markets) => {
-    const activeMarkets = markets.filter(
-      (market) => market.odds?.status !== "SUSPENDED"
-    );
+    const activeMarkets = markets.filter((market) => market.odds?.status !== "SUSPENDED")
     const suspendedMarkets = markets
       .filter((market) => market.odds?.status === "SUSPENDED")
-      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-    return [...activeMarkets, ...suspendedMarkets.slice(0, 5)];
-  };
+      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
+    return [...activeMarkets, ...suspendedMarkets.slice(0, 5)]
+  }
 
   const getMargins = useCallback(
     async (token) => {
       try {
-        const response = await axios.get(
-          `${server}api/v1/bet/fancy-exposure?eventId=${eventId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${server}api/v1/bet/fancy-exposure?eventId=${eventId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         if (response.data.success) {
-          setMargin(response.data.marketExposure);
+          setMargin(response.data.marketExposure)
         }
       } catch (error) {
-        console.error(
-          "Error fetching margins:",
-          error.response?.data || error.message
-        );
+        console.error("Error fetching margins:", error.response?.data || error.message)
       }
     },
-    [eventId]
-  );
+    [eventId],
+  )
 
   const getFancyMarketMargin = useCallback(
     (marketId) => {
-      if (!margin || typeof margin !== "object") return null;
+      if (!margin || typeof margin !== "object") return null
 
       // Directly return the exposure value if it exists for this market
-      return margin[marketId] || null;
+      return margin[marketId] || null
     },
-    [margin]
-  );
+    [margin],
+  )
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken")
     if (token) {
-      getMargins(token);
+      getMargins(token)
     }
-  }, [getMargins, marginAgain]);
+  }, [getMargins, marginAgain])
 
   if (!Array.isArray(data)) {
-    return (
-      <div className="text-[rgb(var(--color-text-primary))]">
-        No {title.toLowerCase()} data available
-      </div>
-    );
+    return <div className="text-[rgb(var(--color-text-primary))]">No {title.toLowerCase()} data available</div>
   }
 
   return (
     <div className="space-y-0 bg-[rgb(var(--color-background))] border border-[rgb(var(--color-border))] rounded-lg overflow-hidden mt-2">
+      {/* Header remains the same */}
       <div className="flex flex-row sm:flex-nowrap justify-between items-center p-3 bg-[rgb(var(--color-background))] border-b border-[rgb(var(--color-border))]">
         <div>
-          <h3 className="text-[rgb(var(--color-text-primary))] font-medium w-full sm:w-auto mb-2 sm:mb-0">
-            {title}
-          </h3>
+          <h3 className="text-[rgb(var(--color-text-primary))] font-medium w-full sm:w-auto mb-2 sm:mb-0">{title}</h3>
         </div>
         <div className="flex flex-row sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
           <span className="text-xs sm:text-sm bg-[rgb(var(--lay-odd))] w-full text-center max-w-[70px] lg:min-w-[100px] sm:w-20 text-[rgb(var(--color-text-primary))] py-1 rounded font-semibold">
@@ -188,10 +218,7 @@ const MarketComponent = ({
       </div>
       {sortMarkets(data)?.map((market, index) => {
         return (
-          <div
-            key={`${market.market?.id || index}`}
-            className="border-b border-[rgb(var(--color-border))]"
-          >
+          <div key={`${market.market?.id || index}`} className="border-b border-[rgb(var(--color-border))]">
             <div className="flex items-center justify-between p-3">
               <div className="flex flex-col gap-1">
                 <span className="text-[rgb(var(--color-text-primary))] text-sm">
@@ -199,9 +226,7 @@ const MarketComponent = ({
                 </span>
                 {market.market?.id && (
                   <span className="text-xs text-red-500 font-medium">
-                    {getFancyMarketMargin(market.market.id) !== null
-                      ? `${getFancyMarketMargin(market.market.id)}`
-                      : ""}
+                    {getFancyMarketMargin(market.market.id) !== null ? `${getFancyMarketMargin(market.market.id)}` : ""}
                   </span>
                 )}
               </div>
@@ -213,25 +238,26 @@ const MarketComponent = ({
               </div>
             </div>
             {selectedBet && selectedBet.marketId === market.market.id && (
-              <div className="fixed lg:hidden p-2 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+              <div className="lg:hidden">
+                <Suspense fallback={<BetSlipPlaceholder />}>
                   <BetSlip
                     match={selectedBet}
                     onClose={() => {
-                      setSelectedBet(null);
+                      setSelectedBet(null)
+                      onBetSelect(null)
                     }}
                     setStake={setStake}
                     betPlaced={betPlaced}
                   />
-                </div>
+                </Suspense>
               </div>
             )}
           </div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
 const arePropsEqual = (prevProps, nextProps) => {
   return (
@@ -239,10 +265,11 @@ const arePropsEqual = (prevProps, nextProps) => {
     prevProps.onBetSelect === nextProps.onBetSelect &&
     prevProps.title === nextProps.title &&
     prevProps.type === nextProps.type
-  );
-};
+  )
+}
 
-const Market = memo(MarketComponent, arePropsEqual);
-Market.displayName = "Market";
+const Market = memo(MarketComponent, arePropsEqual)
+Market.displayName = "Market"
 
-export default Market;
+export default Market
+

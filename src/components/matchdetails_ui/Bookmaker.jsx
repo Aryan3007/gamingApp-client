@@ -247,7 +247,7 @@ const BookmakerComponent = ({
 
   const bookmakerMarket = data.find(
     (market) =>
-      (market.market?.name === "Bookmaker" || market.market?.name === "Bookmaker 0%Comm") &&
+      market.market?.name?.includes("0%") &&
       Array.isArray(market.odds?.runners) &&
       market.odds.runners.length > 0,
   )
